@@ -36,7 +36,7 @@ IA_INSTRUCOES = """Escreva uma mensagem de boas-vindas calorosa e pessoal. Ela p
 - o convite para entrar no grupo do WhatsApp do movimento, com o link, porque é lá que saem as notícias e as orientações do Dia 31;
 - a data, o horário e o local do treinamento;
 - o pedido, com destaque, para a pessoa salvar nosso contato na agenda e assim receber as próximas informações (por exemplo: *Salve nosso contato*);
-- um convite para responder esta mensagem, por exemplo confirmando que entrou no grupo ou mandando uma dúvida.
+- o pedido para a pessoa responder com um 👍 quando salvar nosso contato, e que ela pode escrever aqui se tiver dúvida.
 Tom: alegre, acolhedor e simples, como uma conversa entre irmãos, sem exageros e sem cara de propaganda. Se quiser, feche com o lema do movimento: "Contemple Cristo e faça Cristo ser contemplado.\""""
 
 
@@ -134,7 +134,7 @@ if (d.treinamento_data) {
 }
 linhas.push(
   '',
-  'Se tiver alguma dúvida, é só responder aqui.',
+  'Responda com um 👍 quando salvar nosso contato. Se tiver alguma dúvida, é só escrever aqui.',
   '',
   '_Contemple Cristo e faça Cristo ser contemplado._',
 );
@@ -235,7 +235,7 @@ const SISTEMA = [
   '- Use só as informações dos dados da inscrição. Não invente datas, horários, lugares, links, nomes ou versículos.',
   '- No WhatsApp, o link do grupo aparece exatamente como foi fornecido, sozinho numa linha. Não coloque nenhum outro link.',
   '- WhatsApp: de 350 a 900 caracteres, parágrafos curtos, no máximo dois emojis e *negrito* do WhatsApp (um asterisco de cada lado) em no máximo três expressões, uma delas o pedido para salvar o contato. Não assine com nome de pessoa.',
-  '- Sempre peça, em *negrito* e logo depois da saudação, que a pessoa salve nosso contato na agenda para receber as próximas informações. Isso é obrigatório: contato salvo evita que o WhatsApp trate a mensagem como spam.',
+  '- Sempre peça, em *negrito* e logo depois da saudação, que a pessoa salve nosso contato na agenda para receber as próximas informações, e peça que ela responda com um 👍 quando salvar. Isso é obrigatório: contato salvo evita que o WhatsApp trate a mensagem como spam.',
   '- Cite o primeiro nome e a frente exatamente como estão nos dados. Cidade e igreja podem aparecer se soar natural; não é obrigatório.',
   '- E-mail: o assunto tem até 70 caracteres e cita o primeiro nome. A abertura tem um ou dois parágrafos curtos, separados por uma linha em branco, sem saudação (o título do e-mail já cumprimenta a pessoa pelo nome) e sem links: logo abaixo dela o e-mail já traz o botão do grupo, o treinamento e a programação do Dia 31.',
 ].join('\n');
@@ -320,6 +320,7 @@ const problemasWhats = (t) => {
   if (!contem(t, d.primeiro_nome)) p.push('sem o nome');
   if (!contem(t, d.ministerio)) p.push('sem a frente');
   if (!contem(t, 'salv') || !/contato|numero|agenda/.test(semAcento(t))) p.push('sem o pedido para salvar o contato');
+  if (!contem(t, 'respond')) p.push('sem o pedido de resposta');
   if (!t.includes(d.link_grupo)) p.push('sem o link do grupo');
   if (links(t).some((l) => l !== d.link_grupo)) p.push('com outro link');
   if (d.treinamento_data) {
