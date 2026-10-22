@@ -6,7 +6,7 @@
 2. O site envia os dados para o n8n (`https://n8nai.frontia.com.br/webhook/behold-inscricao`).
 3. O n8n valida os dados, grava na planilha [Behold Movement · Inscrições Dia 31](https://docs.google.com/spreadsheets/d/1q1x8UUi4KOTB6ES8HToqCWhA9uCCkvchnFlU1ZWn8jE/edit) e responde ao site.
 4. Uma IA (Claude, da Anthropic) escreve o e-mail e a mensagem de WhatsApp daquela pessoa, seguindo as instruções da equipe (veja *Textos escritos pela IA*). Assim, cada pessoa recebe um texto diferente. Se a IA falhar ou esquecer alguma informação obrigatória, vai o texto fixo.
-5. O n8n manda o e-mail de boas-vindas pelo Gmail do movimento.
+5. Se `email_ativo` = `sim`, o n8n manda o e-mail de boas-vindas pelo Gmail do movimento. Por enquanto está desligado (`não`): a inscrição segue só com o WhatsApp, e a planilha marca *desligado* em Status e-mail.
 6. Depois de 15 a 60 segundos, o n8n cria o contato e a conversa no Chatwoot (caixa **Behold**) com a mensagem de boas-vindas e o link do grupo, e coloca as etiquetas `behold-movement` e `frente-...`. O Chatwoot entrega a mensagem pelo WhatsApp conectado.
 7. O n8n grava na planilha se o e-mail e o WhatsApp foram enviados ou deram erro.
 
@@ -41,17 +41,18 @@ Sem Git: em vez dos passos 1 a 3, escolha **+ New > Dockerfile** e cole o conte�
 
 ## Configurar o n8n
 
-O workflow já está importado no n8n como **Behold Movement · Inscrições** (`https://n8nai.frontia.com.br/workflow/aJKQuIUblegii7ze`), ainda desativado. A credencial *Chatwoot API · Behold* já foi criada e ligada aos nós do Chatwoot, e as etiquetas já existem no Chatwoot. Para importar de novo em outro n8n: em Workflows, use *Import from File* com `n8n/behold-inscricao.json`.
+O workflow já está importado no n8n como **Behold Movement · Inscrições**, na pasta **Behold Movement** (`https://n8nai.frontia.com.br/workflow/aJKQuIUblegii7ze`), ainda desativado. As credenciais *Chatwoot API · Behold* e *Google Sheets* já estão ligadas aos nós, e as etiquetas já existem no Chatwoot. Para importar de novo em outro n8n: em Workflows, use *Import from File* com `n8n/behold-inscricao.json`.
 
 1. **Configurações** (primeiro nó depois do webhook):
    - `chatwoot_account_id`: o número que aparece na URL do Chatwoot, em `/app/accounts/NÚMERO/...` (hoje, 1).
    - `chatwoot_inbox_id`: em Chatwoot, *Configurações > Caixas de entrada*, abra a caixa do WhatsApp; o número fica na URL, em `/settings/inboxes/NÚMERO` (hoje, 7 = Behold, +55 11 99936-3542).
    - `link_grupo`: o link de convite do grupo do WhatsApp.
    - `treinamento_data`, `treinamento_hora`, `treinamento_local`: aparecem nas mensagens de boas-vindas. Deixe a data vazia para não mencionar o treinamento.
+   - `email_ativo`: `sim` liga o e-mail de boas-vindas (precisa da credencial do Gmail); `não` desliga.
    - `ia_ativa`, `ia_modelo`, `ia_instrucoes`: veja *Textos escritos pela IA*.
 2. **Credenciais:**
    - *Google Sheets*: conta Google com acesso à planilha. A planilha é de bru.teclas@gmail.com; compartilhe com o Gmail do movimento como Editor se for usar essa conta.
-   - *Gmail*: o Gmail novo do movimento, que é o remetente dos e-mails.
+   - *Gmail* (só com `email_ativo` = `sim`): o Gmail novo do movimento, que é o remetente dos e-mails. No n8n: *Credentials > Create credential > Gmail OAuth2 API*, com o mesmo Client ID e Client Secret da credencial do Google Sheets, e *Sign in with Google* com a conta que envia. Se o Google recusar, ative a Gmail API no projeto do Google Cloud desse Client ID.
    - *Chatwoot API*: tipo **Header Auth**, nome `api_access_token`, valor = token de acesso do seu perfil no Chatwoot.
    - *Anthropic API*: tipo **Header Auth**, nome `x-api-key`, valor = uma chave criada em console.anthropic.com (*API Keys*). Escolha essa credencial no nó **IA: escrever mensagens**.
 3. Nos nós **Salvar na planilha** e **Atualizar status na planilha**, confira se a aba escolhida é **Inscrições** (ID interno 1078546648). A planilha já está com as colunas certas, nesta ordem: ID, Data/hora, Nome, Telefone, E-mail, CEP, Endereço, Bairro, Cidade, Estado, Igreja, Ministério, Consentimento, Status e-mail, Status WhatsApp, Conversa Chatwoot, Observações (veja `scripts/build-planilha.py`).

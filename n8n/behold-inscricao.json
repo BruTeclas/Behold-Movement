@@ -3,8 +3,8 @@
   "nodes": [
     {
       "parameters": {
-        "content": "## Inscrições Behold Movement\nAntes de ativar:\n1. **Configurações**: confira a caixa de entrada do WhatsApp no Chatwoot (7 = Behold) e preencha o link do grupo.\n2. **Credenciais**: Google Sheets e Gmail com a conta do movimento; *Chatwoot API* como Header Auth (nome `api_access_token`, valor = token do seu perfil no Chatwoot); *Anthropic API* como Header Auth (nome `x-api-key`, valor = chave da API da Anthropic).\n3. Nos dois nós da planilha, confira se a aba selecionada é **Inscrições**.\n4. Ative o workflow. O site envia para `/webhook/behold-inscricao`.\n\n**Textos com IA:** o que a IA deve escrever fica em `ia_instrucoes` (Configurações). Se a IA falhar ou esquecer nome, frente, link ou treinamento, vai o texto fixo. `ia_ativa` = não desliga a IA.",
-        "height": 400,
+        "content": "## Inscrições Behold Movement\nAntes de ativar:\n1. **Configurações**: confira a caixa de entrada do WhatsApp no Chatwoot (7 = Behold) e preencha o link do grupo.\n2. **Credenciais**: Google Sheets e Gmail (este só com `email_ativo` = sim); *Chatwoot API* como Header Auth (nome `api_access_token`, valor = token do seu perfil no Chatwoot); *Anthropic API* como Header Auth (nome `x-api-key`, valor = chave da API da Anthropic).\n3. Nos dois nós da planilha, confira se a aba selecionada é **Inscrições**.\n4. Ative o workflow. O site envia para `/webhook/behold-inscricao`.\n\n**Textos com IA:** o que a IA deve escrever fica em `ia_instrucoes` (Configurações). Se a IA falhar ou esquecer nome, frente, link ou treinamento, vai o texto fixo. `ia_ativa` = não desliga a IA.\n\n**E-mail:** `email_ativo` = sim liga o e-mail de boas-vindas (precisa da credencial do Gmail). Desligado, a planilha marca *desligado* em Status e-mail.",
+        "height": 460,
         "width": 460,
         "color": 4
       },
@@ -12,7 +12,7 @@
       "typeVersion": 1,
       "position": [
         -460,
-        -460
+        -520
       ],
       "id": "8904416a-16bc-52c9-94b3-c58b4f2f1ed1",
       "name": "Como configurar"
@@ -62,6 +62,12 @@
               "id": "c1928104-a66a-578a-b7d2-ec17a3552934",
               "name": "link_grupo",
               "value": "https://chat.whatsapp.com/PREENCHER",
+              "type": "string"
+            },
+            {
+              "id": "03c1735d-4e5e-58c8-8d7b-d30be5ff9257",
+              "name": "email_ativo",
+              "value": "não",
               "type": "string"
             },
             {
@@ -532,6 +538,39 @@
     },
     {
       "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "9ae8c5cd-985e-5d8e-8b29-5811981d79dc",
+              "leftValue": "={{ $json.email_ativo === 'sim' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1740,
+        -20
+      ],
+      "id": "41acc154-6d77-5d3c-ba8c-0b37b058b9cb",
+      "name": "Enviar e-mail?"
+    },
+    {
+      "parameters": {
         "sendTo": "={{ $json.email }}",
         "subject": "={{ $json.email_assunto }}",
         "emailType": "html",
@@ -544,8 +583,8 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        1740,
-        -20
+        1960,
+        -120
       ],
       "id": "2720e861-39a5-52e2-8285-23705f81dbcd",
       "name": "Enviar e-mail de boas-vindas",
@@ -566,7 +605,7 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        1960,
+        2180,
         -20
       ],
       "id": "56f361cc-263f-5f3d-90ee-1837b8104566",
@@ -595,7 +634,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        2180,
+        2400,
         -20
       ],
       "id": "769a331c-05a6-5420-a666-66f777c04fb6",
@@ -615,7 +654,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2400,
+        2620,
         -20
       ],
       "id": "aa31e6fa-3093-54ee-8fa6-278e1e3e14a3",
@@ -648,7 +687,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        2620,
+        2840,
         -20
       ],
       "id": "8633461e-1f03-5a8f-8fcd-24b17a5e930d",
@@ -670,7 +709,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        2840,
+        3060,
         140
       ],
       "id": "47975327-b42b-5a63-be07-a0580581265b",
@@ -699,7 +738,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        3060,
+        3280,
         -20
       ],
       "id": "6882c0cc-fb4e-5176-9def-8794b519d95a",
@@ -728,7 +767,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        3280,
+        3500,
         -20
       ],
       "id": "22ddb1f7-0510-50d5-b5b9-7826e7ce21be",
@@ -743,12 +782,12 @@
     },
     {
       "parameters": {
-        "jsCode": "// Resume o que deu certo e o que falhou, para gravar na planilha.\nconst d = $('Conferir texto da IA').first().json;\nconst email = $('Enviar e-mail de boas-vindas').first().json;\nconst conversa = $('Chatwoot: criar conversa').first().json;\n\nconst motivo = (o) => {\n  const e = o && o.error;\n  if (!e) return 'sem resposta';\n  return String(e.message || e.description || e).slice(0, 120);\n};\n\nconst okEmail = email && !email.error && email.id;\nconst okWhats = conversa && !conversa.error && conversa.id;\n\nreturn [{\n  json: {\n    telefone_e164: d.telefone_e164,\n    status_email: okEmail ? 'enviado' : 'erro: ' + motivo(email),\n    status_whatsapp: okWhats ? 'enviado' : 'erro: ' + motivo(conversa),\n    conversa_url: okWhats\n      ? `${d.chatwoot_url}/app/accounts/${d.chatwoot_account_id}/conversations/${conversa.id}`\n      : '',\n  },\n}];"
+        "jsCode": "// Resume o que deu certo e o que falhou, para gravar na planilha.\nconst d = $('Conferir texto da IA').first().json;\nconst conversa = $('Chatwoot: criar conversa').first().json;\n\nconst motivo = (o) => {\n  const e = o && o.error;\n  if (!e) return 'sem resposta';\n  return String(e.message || e.description || e).slice(0, 120);\n};\n\nlet statusEmail = 'desligado';\nif (d.email_ativo === 'sim') {\n  const email = $('Enviar e-mail de boas-vindas').first().json;\n  statusEmail = email && !email.error && email.id ? 'enviado' : 'erro: ' + motivo(email);\n}\nconst okWhats = conversa && !conversa.error && conversa.id;\n\nreturn [{\n  json: {\n    telefone_e164: d.telefone_e164,\n    status_email: statusEmail,\n    status_whatsapp: okWhats ? 'enviado' : 'erro: ' + motivo(conversa),\n    conversa_url: okWhats\n      ? `${d.chatwoot_url}/app/accounts/${d.chatwoot_account_id}/conversations/${conversa.id}`\n      : '',\n  },\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3500,
+        3720,
         -20
       ],
       "id": "2fe17c49-d89d-5ee7-beed-f37f51bcbf83",
@@ -960,7 +999,7 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        3720,
+        3940,
         -20
       ],
       "id": "6f8821eb-e641-5362-8cd6-333657d03631",
@@ -1091,7 +1130,25 @@
       "main": [
         [
           {
+            "node": "Enviar e-mail?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar e-mail?": {
+      "main": [
+        [
+          {
             "node": "Enviar e-mail de boas-vindas",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Aguardar antes do WhatsApp",
             "type": "main",
             "index": 0
           }

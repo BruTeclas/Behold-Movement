@@ -5,7 +5,7 @@ Fluxo:
   site -> webhook -> valida e padroniza -> planilha (adiciona ou atualiza pelo
   telefone) -> responde ao site -> a IA (Claude) escreve o e-mail e a mensagem
   de WhatsApp a partir das instruções em Configurações, e o fluxo confere o
-  texto (se falhar, vai o texto fixo) -> e-mail de boas-vindas (Gmail) -> espera
+  texto (se falhar, vai o texto fixo) -> e-mail de boas-vindas (Gmail, se email_ativo = sim) -> espera
   alguns segundos -> Chatwoot (contato + conversa com a mensagem de WhatsApp)
   -> grava na planilha o status de cada envio.
 
@@ -382,7 +382,6 @@ return [{ json: { contact_id: achado ? achado.id : null } }];
 JS_STATUS = r"""
 // Resume o que deu certo e o que falhou, para gravar na planilha.
 const d = $('Conferir texto da IA').first().json;
-const email = $('Enviar e-mail de boas-vindas').first().json;
 const conversa = $('Chatwoot: criar conversa').first().json;
 
 const motivo = (o) => {
@@ -391,13 +390,17 @@ const motivo = (o) => {
   return String(e.message || e.description || e).slice(0, 120);
 };
 
-const okEmail = email && !email.error && email.id;
+let statusEmail = 'desligado';
+if (d.email_ativo === 'sim') {
+  const email = $('Enviar e-mail de boas-vindas').first().json;
+  statusEmail = email && !email.error && email.id ? 'enviado' : 'erro: ' + motivo(email);
+}
 const okWhats = conversa && !conversa.error && conversa.id;
 
 return [{
   json: {
     telefone_e164: d.telefone_e164,
-    status_email: okEmail ? 'enviado' : 'erro: ' + motivo(email),
+    status_email: statusEmail,
     status_whatsapp: okWhats ? 'enviado' : 'erro: ' + motivo(conversa),
     conversa_url: okWhats
       ? `${d.chatwoot_url}/app/accounts/${d.chatwoot_account_id}/conversations/${conversa.id}`
@@ -562,19 +565,21 @@ def build() -> dict:
                     "## Inscrições Behold Movement\n"
                     "Antes de ativar:\n"
                     "1. **Configurações**: confira a caixa de entrada do WhatsApp no Chatwoot (7 = Behold) e preencha o link do grupo.\n"
-                    "2. **Credenciais**: Google Sheets e Gmail com a conta do movimento; *Chatwoot API* como Header Auth "
+                    "2. **Credenciais**: Google Sheets e Gmail (este só com `email_ativo` = sim); *Chatwoot API* como Header Auth "
                     "(nome `api_access_token`, valor = token do seu perfil no Chatwoot); *Anthropic API* como Header Auth "
                     "(nome `x-api-key`, valor = chave da API da Anthropic).\n"
                     "3. Nos dois nós da planilha, confira se a aba selecionada é **Inscrições**.\n"
                     "4. Ative o workflow. O site envia para `/webhook/behold-inscricao`.\n\n"
                     "**Textos com IA:** o que a IA deve escrever fica em `ia_instrucoes` (Configurações). "
                     "Se a IA falhar ou esquecer nome, frente, link ou treinamento, vai o texto fixo. "
-                    "`ia_ativa` = não desliga a IA."
+                    "`ia_ativa` = não desliga a IA.\n\n"
+                    "**E-mail:** `email_ativo` = sim liga o e-mail de boas-vindas (precisa da credencial do Gmail). "
+                    "Desligado, a planilha marca *desligado* em Status e-mail."
                 ),
-                "height": 400, "width": 460, "color": 4,
+                "height": 460, "width": 460, "color": 4,
             },
             "type": "n8n-nodes-base.stickyNote", "typeVersion": 1,
-            "position": [-460, -460], "id": nid("nota"), "name": "Como configurar",
+            "position": [-460, -520], "id": nid("nota"), "name": "Como configurar",
         },
         {
             "parameters": {
@@ -597,6 +602,7 @@ def build() -> dict:
                     {"id": nid("cfg/acc"), "name": "chatwoot_account_id", "value": "1", "type": "string"},
                     {"id": nid("cfg/inbox"), "name": "chatwoot_inbox_id", "value": "7", "type": "string"},
                     {"id": nid("cfg/grupo"), "name": "link_grupo", "value": "https://chat.whatsapp.com/PREENCHER", "type": "string"},
+                    {"id": nid("cfg/email-ativo"), "name": "email_ativo", "value": "não", "type": "string"},
                     {"id": nid("cfg/remetente"), "name": "remetente_nome", "value": "Behold Movement", "type": "string"},
                     {"id": nid("cfg/treino-data"), "name": "treinamento_data", "value": "terça-feira, 27/10", "type": "string"},
                     {"id": nid("cfg/treino-hora"), "name": "treinamento_hora", "value": "20h", "type": "string"},
@@ -643,6 +649,7 @@ def build() -> dict:
         if_node("Escrever com IA?", [1080, -20], "={{ $json.ia_ativa === 'sim' }}"),
         ia_node("IA: escrever mensagens", [1300, -120]),
         code_node("Conferir texto da IA", [1520, -20], JS_CONFERIR),
+        if_node("Enviar e-mail?", [1740, -20], "={{ $json.email_ativo === 'sim' }}"),
         {
             "parameters": {
                 "sendTo": "={{ $json.email }}",
@@ -653,7 +660,7 @@ def build() -> dict:
             },
             "type": "n8n-nodes-base.gmail",
             "typeVersion": 2.1,
-            "position": [1740, -20],
+            "position": [1960, -120],
             "id": nid("Enviar e-mail de boas-vindas"),
             "name": "Enviar e-mail de boas-vindas",
             "webhookId": nid("gmail/boas-vindas"),
@@ -664,17 +671,17 @@ def build() -> dict:
             "parameters": {"amount": "={{ 15 + Math.floor(Math.random() * 45) }}", "unit": "seconds"},
             "type": "n8n-nodes-base.wait",
             "typeVersion": 1.1,
-            "position": [1960, -20],
+            "position": [2180, -20],
             "id": nid("Aguardar antes do WhatsApp"),
             "name": "Aguardar antes do WhatsApp",
             "webhookId": nid("wait/whatsapp"),
         },
-        chatwoot_node("Chatwoot: buscar contato", [2180, -20], "GET", "/contacts/search",
+        chatwoot_node("Chatwoot: buscar contato", [2400, -20], "GET", "/contacts/search",
                       query={"q": f"={{{{ {M}.telefone_e164.replace('+', '') }}}}"}),
-        code_node("Escolher contato", [2400, -20], JS_ESCOLHER_CONTATO),
-        if_node("Contato já existe?", [2620, -20], "={{ !!$json.contact_id }}"),
+        code_node("Escolher contato", [2620, -20], JS_ESCOLHER_CONTATO),
+        if_node("Contato já existe?", [2840, -20], "={{ !!$json.contact_id }}"),
         chatwoot_node(
-            "Chatwoot: criar contato", [2840, 140], "POST", "/contacts",
+            "Chatwoot: criar contato", [3060, 140], "POST", "/contacts",
             body=(
                 f"={{{{ JSON.stringify({{ inbox_id: Number({M}.chatwoot_inbox_id), name: {M}.nome, "
                 f"phone_number: {M}.telefone_e164, additional_attributes: {{ city: {M}.cidade, "
@@ -685,7 +692,7 @@ def build() -> dict:
             ),
         ),
         chatwoot_node(
-            "Chatwoot: criar conversa", [3060, -20], "POST", "/conversations",
+            "Chatwoot: criar conversa", [3280, -20], "POST", "/conversations",
             body=(
                 f"={{{{ JSON.stringify({{ inbox_id: Number({M}.chatwoot_inbox_id), "
                 f"contact_id: $json.contact_id ?? $json.payload?.contact?.id, "
@@ -694,12 +701,12 @@ def build() -> dict:
             ),
         ),
         chatwoot_node(
-            "Chatwoot: etiquetas", [3280, -20], "POST",
+            "Chatwoot: etiquetas", [3500, -20], "POST",
             "/conversations/{{ $json.id }}/labels",
             body=f"={{{{ JSON.stringify({{ labels: {M}.etiquetas }}) }}}}",
         ),
-        code_node("Resumir status", [3500, -20], JS_STATUS),
-        sheets_node("Atualizar status na planilha", [3720, -20], {
+        code_node("Resumir status", [3720, -20], JS_STATUS),
+        sheets_node("Atualizar status na planilha", [3940, -20], {
             "Telefone": "={{ $json.telefone_e164 }}",
             "Status e-mail": "={{ $json.status_email }}",
             "Status WhatsApp": "={{ $json.status_whatsapp }}",
@@ -726,7 +733,11 @@ def build() -> dict:
             [{"node": "Conferir texto da IA", "type": "main", "index": 0}],
         ]},
         "IA: escrever mensagens": link("Conferir texto da IA"),
-        "Conferir texto da IA": link("Enviar e-mail de boas-vindas"),
+        "Conferir texto da IA": link("Enviar e-mail?"),
+        "Enviar e-mail?": {"main": [
+            [{"node": "Enviar e-mail de boas-vindas", "type": "main", "index": 0}],
+            [{"node": "Aguardar antes do WhatsApp", "type": "main", "index": 0}],
+        ]},
         "Enviar e-mail de boas-vindas": link("Aguardar antes do WhatsApp"),
         "Aguardar antes do WhatsApp": link("Chatwoot: buscar contato"),
         "Chatwoot: buscar contato": link("Escolher contato"),
