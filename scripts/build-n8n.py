@@ -305,9 +305,13 @@ return [{
 """.strip()
 
 JS_CONFERIR = r"""
-// Usa os textos da IA quando passam nas conferências; senão, os textos fixos de "Montar mensagens".
+// Usa os textos da IA quando passam nas conferências. Se a IA não respondeu ou o texto do WhatsApp
+// foi recusado, pede de novo (loop pelo nó "Tentar a IA de novo?") até ia_tentativas vezes; depois
+// disso, usa os textos fixos de "Montar mensagens".
 const d = $('Montar mensagens').first().json;
 const r = $input.first().json;
+const tentativa = $runIndex + 1;            // este nó roda uma vez por tentativa
+const maxTentativas = Math.max(1, Number(d.ia_tentativas) || 3);
 
 const semAcento = (s) => String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 const contem = (texto, trecho) => semAcento(texto).includes(semAcento(trecho));
@@ -318,7 +322,8 @@ let ia = null;
 let motivo = '';
 const escolha = Array.isArray(r.choices) ? r.choices[0] : null;
 if (!escolha) {
-  motivo = r.error ? 'erro na IA: ' + String(r.error.message || r.error.description || r.error).slice(0, 100) : 'IA desligada';
+  motivo = r.error ? 'erro na IA: ' + String(r.error.message || r.error.description || r.error).slice(0, 100)
+    : d.ia_ativa === 'sim' ? 'resposta vazia da IA' : 'IA desligada';
 } else if (escolha.message && escolha.message.refusal) {
   motivo = 'IA recusou';
 } else if (escolha.finish_reason !== 'stop') {
@@ -378,10 +383,26 @@ const paragrafos = abertura.split(/\n\s*\n/).filter((p) => p.trim())
   .map((p) => `<p style="${P}">${esc(p.trim()).replace(/\*([^*\n]+)\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>')}</p>`)
   .join('\n    ');
 
+// 4. Tentar de novo? Só quando a IA está ligada, o WhatsApp não veio dela e ainda há tentativas.
+if (d.ia_ativa === 'sim' && origemWhats !== 'IA' && tentativa < maxTentativas) {
+  const recusa = origemWhats.replace(/^modelo fixo: (IA )?/, '');
+  const pedido = JSON.parse(JSON.stringify(d.ia_pedido));
+  if (ia) {   // a IA respondeu, mas o texto foi recusado: diz a ela o que faltou
+    pedido.messages[pedido.messages.length - 1].content +=
+      `\n\nA versão anterior foi recusada (${recusa}). Escreva de novo, seguindo todas as regras.`;
+  }
+  return [{ json: { ...d, ia_pedido: pedido, tentar_de_novo: true, tentativa, motivo_nova_tentativa: recusa } }];
+}
+if (d.ia_ativa === 'sim') {
+  origemWhats += origemWhats === 'IA' ? ` (tentativa ${tentativa})`
+    : ` (depois de ${tentativa} tentativa${tentativa > 1 ? 's' : ''})`;
+}
+
 const { ia_pedido, ...resto } = d;
 return [{
   json: {
     ...resto,
+    tentar_de_novo: false,
     whatsapp_texto: whatsapp,
     email_assunto: assunto,
     email_abertura: abertura,
@@ -573,16 +594,13 @@ def ia_node(name, pos):
             "sendBody": True,
             "specifyBody": "json",
             "jsonBody": "={{ JSON.stringify($json.ia_pedido) }}",
-            "options": {"timeout": 90000},
+            "options": {"timeout": 45000},
         },
         "type": "n8n-nodes-base.httpRequest",
         "typeVersion": 4.2,
         "position": pos,
         "id": nid(name),
         "name": name,
-        "retryOnFail": True,
-        "maxTries": 2,
-        "waitBetweenTries": 5000,
         "onError": "continueRegularOutput",
         "credentials": {"openAiApi": {"id": "", "name": "OpenAI"}},
     }
@@ -617,7 +635,8 @@ def build() -> dict:
                     "3. Nos dois nós da planilha, confira se a aba selecionada é **Inscrições**.\n"
                     "4. Ative o workflow. O site envia para `/webhook/behold-inscricao`.\n\n"
                     "**Textos com IA:** o que a IA deve escrever fica em `ia_instrucoes` (Configurações). "
-                    "Se a IA falhar ou esquecer nome, ministério, link ou treinamento, vai o texto fixo. "
+                    "Se a IA não responder ou esquecer nome, ministério, link ou treinamento, o fluxo pede de novo "
+                    "(até `ia_tentativas` vezes, com 5 s entre elas); depois disso, vai o texto fixo. "
                     "`ia_ativa` = não desliga a IA.\n\n"
                     "**E-mail:** `email_ativo` = sim liga o e-mail de boas-vindas (precisa da credencial do Gmail). "
                     "Desligado, a planilha marca *desligado* em Status e-mail."
@@ -655,6 +674,7 @@ def build() -> dict:
                     {"id": nid("cfg/treino-local"), "name": "treinamento_local", "value": "online, com o link enviado no grupo do WhatsApp", "type": "string"},
                     {"id": nid("cfg/ia-ativa"), "name": "ia_ativa", "value": "sim", "type": "string"},
                     {"id": nid("cfg/ia-modelo"), "name": "ia_modelo", "value": "gpt-4.1-mini", "type": "string"},
+                    {"id": nid("cfg/ia-tentativas"), "name": "ia_tentativas", "value": "3", "type": "string"},
                     {"id": nid("cfg/ia-instrucoes"), "name": "ia_instrucoes", "value": IA_INSTRUCOES, "type": "string"},
                 ]},
                 "options": {},
@@ -696,7 +716,17 @@ def build() -> dict:
         if_node("Escrever com IA?", [1080, -20], "={{ $json.ia_ativa === 'sim' }}"),
         ia_node("IA: escrever mensagens", [1300, -120]),
         code_node("Conferir texto da IA", [1520, -20], JS_CONFERIR),
-        if_node("Enviar e-mail?", [1740, -20], "={{ $json.email_ativo === 'sim' }}"),
+        if_node("Tentar a IA de novo?", [1740, -20], "={{ $json.tentar_de_novo === true }}"),
+        {
+            "parameters": {"amount": 5, "unit": "seconds"},
+            "type": "n8n-nodes-base.wait",
+            "typeVersion": 1.1,
+            "position": [1520, -260],
+            "id": nid("Aguardar nova tentativa"),
+            "name": "Aguardar nova tentativa",
+            "webhookId": nid("wait/nova-tentativa"),
+        },
+        if_node("Enviar e-mail?", [1960, -20], "={{ $json.email_ativo === 'sim' }}"),
         {
             "parameters": {
                 "sendTo": "={{ $json.email }}",
@@ -707,7 +737,7 @@ def build() -> dict:
             },
             "type": "n8n-nodes-base.gmail",
             "typeVersion": 2.1,
-            "position": [1960, -120],
+            "position": [2180, -120],
             "id": nid("Enviar e-mail de boas-vindas"),
             "name": "Enviar e-mail de boas-vindas",
             "webhookId": nid("gmail/boas-vindas"),
@@ -718,25 +748,25 @@ def build() -> dict:
             "parameters": {"amount": "={{ 15 + Math.floor(Math.random() * 45) }}", "unit": "seconds"},
             "type": "n8n-nodes-base.wait",
             "typeVersion": 1.1,
-            "position": [2180, -20],
+            "position": [2400, -20],
             "id": nid("Aguardar antes do WhatsApp"),
             "name": "Aguardar antes do WhatsApp",
             "webhookId": nid("wait/whatsapp"),
         },
-        chatwoot_node("WhatsApp: número existe?", [2400, -20], "inbox", "onWhatsapp",
+        chatwoot_node("WhatsApp: número existe?", [2620, -20], "inbox", "onWhatsapp",
                       whatsappSpecialInboxId=CAIXA, phoneNumber=f"={{{{ {M}.telefone_e164 }}}}"),
-        if_node("Tem WhatsApp?", [2620, -20], "={{ $json.exists !== false }}"),
-        chatwoot_node("Chatwoot: buscar contato", [2840, -20], "contact", "search",
+        if_node("Tem WhatsApp?", [2840, -20], "={{ $json.exists !== false }}"),
+        chatwoot_node("Chatwoot: buscar contato", [3060, -20], "contact", "search",
                       searchQuery=f"={{{{ {M}.telefone_e164.replace('+', '') }}}}"),
-        code_node("Escolher contato", [3060, -20], JS_ESCOLHER_CONTATO),
-        if_node("Contato já existe?", [3280, -20], "={{ !!$json.contact_id }}"),
-        {**chatwoot_node("Chatwoot: conversas do contato", [3500, -120], "contact", "listConversations",
+        code_node("Escolher contato", [3280, -20], JS_ESCOLHER_CONTATO),
+        if_node("Contato já existe?", [3500, -20], "={{ !!$json.contact_id }}"),
+        {**chatwoot_node("Chatwoot: conversas do contato", [3720, -120], "contact", "listConversations",
                          contactId=por_id("={{ $json.contact_id }}")),
          "alwaysOutputData": True},
-        code_node("Escolher conversa", [3720, -120], JS_ESCOLHER_CONVERSA),
-        if_node("Conversa aberta?", [3940, -120], "={{ !!$json.id }}"),
+        code_node("Escolher conversa", [3940, -120], JS_ESCOLHER_CONVERSA),
+        if_node("Conversa aberta?", [4160, -120], "={{ !!$json.id }}"),
         chatwoot_node(
-            "Chatwoot: criar contato", [3500, 140], "contact", "create",
+            "Chatwoot: criar contato", [3720, 140], "contact", "create",
             name=f"={{{{ {M}.nome_completo }}}}",
             phoneNumber=f"={{{{ {M}.telefone_e164 }}}}",
             additionalFields={
@@ -751,20 +781,20 @@ def build() -> dict:
                 f"bairro: {M}.bairro, cidade: {M}.cidade, uf: {M}.uf, email_inscricao: {M}.email }}) }}}}"
             ),
         ),
-        chatwoot_node("Chatwoot: criar conversa", [4160, 140], "conversation", "create",
+        chatwoot_node("Chatwoot: criar conversa", [4380, 140], "conversation", "create",
                       inboxId=CAIXA,
                       contactId=por_id("={{ $json.contact_id ?? $json.payload?.contact?.id ?? $json.id }}")),
-        chatwoot_node("Chatwoot: enviar mensagem", [4380, -20], "conversation", "sendMessage",
+        chatwoot_node("Chatwoot: enviar mensagem", [4600, -20], "conversation", "sendMessage",
                       inboxId=CAIXA,
                       conversationId=por_id("={{ $json.id }}"),
                       content=f"={{{{ {M}.whatsapp_texto }}}}",
                       additionalFields={"wait_before_sending": "dynamic", "typing_while_waiting": True}),
-        chatwoot_node("Chatwoot: etiquetas", [4600, -20], "conversation", "addLabels",
+        chatwoot_node("Chatwoot: etiquetas", [4820, -20], "conversation", "addLabels",
                       inboxId=CAIXA,
                       conversationId=por_id("={{ $json.conversation_id }}"),
                       labels=f"={{{{ {M}.etiquetas }}}}"),
-        code_node("Resumir status", [4820, -20], JS_STATUS),
-        sheets_node("Atualizar status na planilha", [5040, -20], {
+        code_node("Resumir status", [5040, -20], JS_STATUS),
+        sheets_node("Atualizar status na planilha", [5260, -20], {
             "Telefone": "={{ $json.telefone_e164 }}",
             "Status e-mail": "={{ $json.status_email }}",
             "Status WhatsApp": "={{ $json.status_whatsapp }}",
@@ -791,7 +821,12 @@ def build() -> dict:
             [{"node": "Conferir texto da IA", "type": "main", "index": 0}],
         ]},
         "IA: escrever mensagens": link("Conferir texto da IA"),
-        "Conferir texto da IA": link("Enviar e-mail?"),
+        "Conferir texto da IA": link("Tentar a IA de novo?"),
+        "Tentar a IA de novo?": {"main": [
+            [{"node": "Aguardar nova tentativa", "type": "main", "index": 0}],
+            [{"node": "Enviar e-mail?", "type": "main", "index": 0}],
+        ]},
+        "Aguardar nova tentativa": link("IA: escrever mensagens"),
         "Enviar e-mail?": {"main": [
             [{"node": "Enviar e-mail de boas-vindas", "type": "main", "index": 0}],
             [{"node": "Aguardar antes do WhatsApp", "type": "main", "index": 0}],

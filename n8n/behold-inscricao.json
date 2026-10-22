@@ -3,7 +3,7 @@
   "nodes": [
     {
       "parameters": {
-        "content": "## Inscrições Behold Movement\nAntes de ativar:\n1. **Configurações**: confira a caixa de entrada do WhatsApp no Chatwoot (7 = Behold) e preencha o link do grupo.\n2. **Credenciais**: Google Sheets e Gmail (este só com `email_ativo` = sim); *Chatwoot fazer.ai* (URL do Chatwoot e token do seu perfil, usada pelos nós Chatwoot fazer.ai); *OpenAI* (a chave da API da OpenAI, usada pelo nó IA: escrever mensagens).\n3. Nos dois nós da planilha, confira se a aba selecionada é **Inscrições**.\n4. Ative o workflow. O site envia para `/webhook/behold-inscricao`.\n\n**Textos com IA:** o que a IA deve escrever fica em `ia_instrucoes` (Configurações). Se a IA falhar ou esquecer nome, ministério, link ou treinamento, vai o texto fixo. `ia_ativa` = não desliga a IA.\n\n**E-mail:** `email_ativo` = sim liga o e-mail de boas-vindas (precisa da credencial do Gmail). Desligado, a planilha marca *desligado* em Status e-mail.",
+        "content": "## Inscrições Behold Movement\nAntes de ativar:\n1. **Configurações**: confira a caixa de entrada do WhatsApp no Chatwoot (7 = Behold) e preencha o link do grupo.\n2. **Credenciais**: Google Sheets e Gmail (este só com `email_ativo` = sim); *Chatwoot fazer.ai* (URL do Chatwoot e token do seu perfil, usada pelos nós Chatwoot fazer.ai); *OpenAI* (a chave da API da OpenAI, usada pelo nó IA: escrever mensagens).\n3. Nos dois nós da planilha, confira se a aba selecionada é **Inscrições**.\n4. Ative o workflow. O site envia para `/webhook/behold-inscricao`.\n\n**Textos com IA:** o que a IA deve escrever fica em `ia_instrucoes` (Configurações). Se a IA não responder ou esquecer nome, ministério, link ou treinamento, o fluxo pede de novo (até `ia_tentativas` vezes, com 5 s entre elas); depois disso, vai o texto fixo. `ia_ativa` = não desliga a IA.\n\n**E-mail:** `email_ativo` = sim liga o e-mail de boas-vindas (precisa da credencial do Gmail). Desligado, a planilha marca *desligado* em Status e-mail.",
         "height": 460,
         "width": 460,
         "color": 4
@@ -104,6 +104,12 @@
               "id": "00f631d4-8095-5029-8619-2d2bbcaaaaa9",
               "name": "ia_modelo",
               "value": "gpt-4.1-mini",
+              "type": "string"
+            },
+            {
+              "id": "4e999253-9320-502a-a31e-51967c297631",
+              "name": "ia_tentativas",
+              "value": "3",
               "type": "string"
             },
             {
@@ -497,7 +503,7 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify($json.ia_pedido) }}",
         "options": {
-          "timeout": 90000
+          "timeout": 45000
         }
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -508,9 +514,6 @@
       ],
       "id": "6b13546d-e173-5d17-b860-20f4f5121cab",
       "name": "IA: escrever mensagens",
-      "retryOnFail": true,
-      "maxTries": 2,
-      "waitBetweenTries": 5000,
       "onError": "continueRegularOutput",
       "credentials": {
         "openAiApi": {
@@ -521,7 +524,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Usa os textos da IA quando passam nas conferências; senão, os textos fixos de \"Montar mensagens\".\nconst d = $('Montar mensagens').first().json;\nconst r = $input.first().json;\n\nconst semAcento = (s) => String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();\nconst contem = (texto, trecho) => semAcento(texto).includes(semAcento(trecho));\nconst links = (s) => (String(s).match(/https?:\\/\\/\\S+/g) || []).map((l) => l.replace(/[.,;:!?)]+$/, ''));\n\n// 1. A resposta da IA\nlet ia = null;\nlet motivo = '';\nconst escolha = Array.isArray(r.choices) ? r.choices[0] : null;\nif (!escolha) {\n  motivo = r.error ? 'erro na IA: ' + String(r.error.message || r.error.description || r.error).slice(0, 100) : 'IA desligada';\n} else if (escolha.message && escolha.message.refusal) {\n  motivo = 'IA recusou';\n} else if (escolha.finish_reason !== 'stop') {\n  motivo = 'resposta incompleta (' + escolha.finish_reason + ')';\n} else {\n  try { ia = JSON.parse(escolha.message.content); } catch (e) { motivo = 'resposta fora do formato'; }\n}\n\n// 2. Conferências: o que precisa estar na mensagem e o que não pode aparecer\nconst problemasWhats = (t) => {\n  if (typeof t !== 'string' || !t.trim()) return ['vazia'];\n  const p = [];\n  if (t.length < 200 || t.length > 1200) p.push(`tamanho ${t.length}`);\n  if (!contem(t, d.primeiro_nome)) p.push('sem o nome');\n  if (!contem(t, d.ministerio)) p.push('sem o ministério');\n  if (/frente d[aeo]/.test(semAcento(t))) p.push('com \"frente de\"');\n  if (!contem(t, 'salv') || !/contato|numero|agenda/.test(semAcento(t))) p.push('sem o pedido para salvar o contato');\n  if (!contem(t, 'respond')) p.push('sem o pedido de resposta');\n  if (!t.includes(d.link_grupo)) p.push('sem o link do grupo');\n  if (links(t).some((l) => l !== d.link_grupo)) p.push('com outro link');\n  if (d.treinamento_data) {\n    const dia = (d.treinamento_data.match(/\\d{1,2}\\/\\d{1,2}/) || [])[0];\n    const hora = (String(d.treinamento_hora).match(/\\d{1,2}/) || [])[0];\n    if ((dia && !t.includes(dia)) || (hora && !t.includes(hora))) p.push('sem a data ou a hora do treinamento');\n  }\n  if (/[\\[\\]{}<>]/.test(t)) p.push('com marcação estranha');\n  return p;\n};\nconst problemasEmail = (assunto, abertura) => {\n  if (typeof assunto !== 'string' || typeof abertura !== 'string') return ['vazio'];\n  const p = [];\n  if (assunto.trim().length < 5 || assunto.length > 90 || /\\n/.test(assunto.trim())) p.push('assunto');\n  if (abertura.trim().length < 60 || abertura.length > 900) p.push(`abertura com ${abertura.length} caracteres`);\n  if (links(assunto + ' ' + abertura).length) p.push('com link');\n  if (/frente d[aeo]/.test(semAcento(assunto + ' ' + abertura))) p.push('com \"frente de\"');\n  if (/[\\[\\]{}<>]/.test(assunto + abertura)) p.push('com marcação estranha');\n  return p;\n};\n\nlet whatsapp = d.whatsapp_texto, assunto = d.email_assunto, abertura = d.email_abertura;\nlet origemWhats = 'modelo fixo: ' + motivo, origemEmail = origemWhats;\nif (ia) {\n  const w = String(ia.whatsapp ?? '').replace(/\\*\\*(.+?)\\*\\*/g, '*$1*').trim();\n  const pw = problemasWhats(w);\n  if (pw.length) origemWhats = 'modelo fixo: IA ' + pw.join(', ');\n  else { whatsapp = w; origemWhats = 'IA'; }\n\n  const pe = problemasEmail(ia.email_assunto, ia.email_abertura);\n  if (pe.length) origemEmail = 'modelo fixo: IA ' + pe.join(', ');\n  else { assunto = ia.email_assunto.trim(); abertura = ia.email_abertura.trim(); origemEmail = 'IA'; }\n}\n\n// 3. Parágrafos do e-mail (*texto* vira negrito)\nconst esc = (s) => String(s ?? '').replace(/[&<>\"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;' }[c]));\nconst P = 'margin:0 0 16px;font-family:Arial, Helvetica, sans-serif;font-size:16px;line-height:1.6;color:#16171c;';\nconst paragrafos = abertura.split(/\\n\\s*\\n/).filter((p) => p.trim())\n  .map((p) => `<p style=\"${P}\">${esc(p.trim()).replace(/\\*([^*\\n]+)\\*/g, '<strong>$1</strong>').replace(/\\n/g, '<br>')}</p>`)\n  .join('\\n    ');\n\nconst { ia_pedido, ...resto } = d;\nreturn [{\n  json: {\n    ...resto,\n    whatsapp_texto: whatsapp,\n    email_assunto: assunto,\n    email_abertura: abertura,\n    email_html: d.email_html.replace('<!--ABERTURA-->', paragrafos),\n    origem_textos: { whatsapp: origemWhats, email: origemEmail },\n  },\n}];"
+        "jsCode": "// Usa os textos da IA quando passam nas conferências. Se a IA não respondeu ou o texto do WhatsApp\n// foi recusado, pede de novo (loop pelo nó \"Tentar a IA de novo?\") até ia_tentativas vezes; depois\n// disso, usa os textos fixos de \"Montar mensagens\".\nconst d = $('Montar mensagens').first().json;\nconst r = $input.first().json;\nconst tentativa = $runIndex + 1;            // este nó roda uma vez por tentativa\nconst maxTentativas = Math.max(1, Number(d.ia_tentativas) || 3);\n\nconst semAcento = (s) => String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();\nconst contem = (texto, trecho) => semAcento(texto).includes(semAcento(trecho));\nconst links = (s) => (String(s).match(/https?:\\/\\/\\S+/g) || []).map((l) => l.replace(/[.,;:!?)]+$/, ''));\n\n// 1. A resposta da IA\nlet ia = null;\nlet motivo = '';\nconst escolha = Array.isArray(r.choices) ? r.choices[0] : null;\nif (!escolha) {\n  motivo = r.error ? 'erro na IA: ' + String(r.error.message || r.error.description || r.error).slice(0, 100)\n    : d.ia_ativa === 'sim' ? 'resposta vazia da IA' : 'IA desligada';\n} else if (escolha.message && escolha.message.refusal) {\n  motivo = 'IA recusou';\n} else if (escolha.finish_reason !== 'stop') {\n  motivo = 'resposta incompleta (' + escolha.finish_reason + ')';\n} else {\n  try { ia = JSON.parse(escolha.message.content); } catch (e) { motivo = 'resposta fora do formato'; }\n}\n\n// 2. Conferências: o que precisa estar na mensagem e o que não pode aparecer\nconst problemasWhats = (t) => {\n  if (typeof t !== 'string' || !t.trim()) return ['vazia'];\n  const p = [];\n  if (t.length < 200 || t.length > 1200) p.push(`tamanho ${t.length}`);\n  if (!contem(t, d.primeiro_nome)) p.push('sem o nome');\n  if (!contem(t, d.ministerio)) p.push('sem o ministério');\n  if (/frente d[aeo]/.test(semAcento(t))) p.push('com \"frente de\"');\n  if (!contem(t, 'salv') || !/contato|numero|agenda/.test(semAcento(t))) p.push('sem o pedido para salvar o contato');\n  if (!contem(t, 'respond')) p.push('sem o pedido de resposta');\n  if (!t.includes(d.link_grupo)) p.push('sem o link do grupo');\n  if (links(t).some((l) => l !== d.link_grupo)) p.push('com outro link');\n  if (d.treinamento_data) {\n    const dia = (d.treinamento_data.match(/\\d{1,2}\\/\\d{1,2}/) || [])[0];\n    const hora = (String(d.treinamento_hora).match(/\\d{1,2}/) || [])[0];\n    if ((dia && !t.includes(dia)) || (hora && !t.includes(hora))) p.push('sem a data ou a hora do treinamento');\n  }\n  if (/[\\[\\]{}<>]/.test(t)) p.push('com marcação estranha');\n  return p;\n};\nconst problemasEmail = (assunto, abertura) => {\n  if (typeof assunto !== 'string' || typeof abertura !== 'string') return ['vazio'];\n  const p = [];\n  if (assunto.trim().length < 5 || assunto.length > 90 || /\\n/.test(assunto.trim())) p.push('assunto');\n  if (abertura.trim().length < 60 || abertura.length > 900) p.push(`abertura com ${abertura.length} caracteres`);\n  if (links(assunto + ' ' + abertura).length) p.push('com link');\n  if (/frente d[aeo]/.test(semAcento(assunto + ' ' + abertura))) p.push('com \"frente de\"');\n  if (/[\\[\\]{}<>]/.test(assunto + abertura)) p.push('com marcação estranha');\n  return p;\n};\n\nlet whatsapp = d.whatsapp_texto, assunto = d.email_assunto, abertura = d.email_abertura;\nlet origemWhats = 'modelo fixo: ' + motivo, origemEmail = origemWhats;\nif (ia) {\n  const w = String(ia.whatsapp ?? '').replace(/\\*\\*(.+?)\\*\\*/g, '*$1*').trim();\n  const pw = problemasWhats(w);\n  if (pw.length) origemWhats = 'modelo fixo: IA ' + pw.join(', ');\n  else { whatsapp = w; origemWhats = 'IA'; }\n\n  const pe = problemasEmail(ia.email_assunto, ia.email_abertura);\n  if (pe.length) origemEmail = 'modelo fixo: IA ' + pe.join(', ');\n  else { assunto = ia.email_assunto.trim(); abertura = ia.email_abertura.trim(); origemEmail = 'IA'; }\n}\n\n// 3. Parágrafos do e-mail (*texto* vira negrito)\nconst esc = (s) => String(s ?? '').replace(/[&<>\"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;' }[c]));\nconst P = 'margin:0 0 16px;font-family:Arial, Helvetica, sans-serif;font-size:16px;line-height:1.6;color:#16171c;';\nconst paragrafos = abertura.split(/\\n\\s*\\n/).filter((p) => p.trim())\n  .map((p) => `<p style=\"${P}\">${esc(p.trim()).replace(/\\*([^*\\n]+)\\*/g, '<strong>$1</strong>').replace(/\\n/g, '<br>')}</p>`)\n  .join('\\n    ');\n\n// 4. Tentar de novo? Só quando a IA está ligada, o WhatsApp não veio dela e ainda há tentativas.\nif (d.ia_ativa === 'sim' && origemWhats !== 'IA' && tentativa < maxTentativas) {\n  const recusa = origemWhats.replace(/^modelo fixo: (IA )?/, '');\n  const pedido = JSON.parse(JSON.stringify(d.ia_pedido));\n  if (ia) {   // a IA respondeu, mas o texto foi recusado: diz a ela o que faltou\n    pedido.messages[pedido.messages.length - 1].content +=\n      `\\n\\nA versão anterior foi recusada (${recusa}). Escreva de novo, seguindo todas as regras.`;\n  }\n  return [{ json: { ...d, ia_pedido: pedido, tentar_de_novo: true, tentativa, motivo_nova_tentativa: recusa } }];\n}\nif (d.ia_ativa === 'sim') {\n  origemWhats += origemWhats === 'IA' ? ` (tentativa ${tentativa})`\n    : ` (depois de ${tentativa} tentativa${tentativa > 1 ? 's' : ''})`;\n}\n\nconst { ia_pedido, ...resto } = d;\nreturn [{\n  json: {\n    ...resto,\n    tentar_de_novo: false,\n    whatsapp_texto: whatsapp,\n    email_assunto: assunto,\n    email_abertura: abertura,\n    email_html: d.email_html.replace('<!--ABERTURA-->', paragrafos),\n    origem_textos: { whatsapp: origemWhats, email: origemEmail },\n  },\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -531,6 +534,54 @@
       ],
       "id": "a4477ce0-1eac-5121-b0ff-5f1ce937c800",
       "name": "Conferir texto da IA"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "8ad2b596-2ca4-5130-94bc-0a79aa624c34",
+              "leftValue": "={{ $json.tentar_de_novo === true }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1740,
+        -20
+      ],
+      "id": "3a65db7f-2fe2-55f3-881d-14eae33164ee",
+      "name": "Tentar a IA de novo?"
+    },
+    {
+      "parameters": {
+        "amount": 5,
+        "unit": "seconds"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1520,
+        -260
+      ],
+      "id": "56d9d5eb-22f4-5b9e-831c-e857718d80c5",
+      "name": "Aguardar nova tentativa",
+      "webhookId": "8f34f1b5-1745-55b4-8035-12b3077a26f2"
     },
     {
       "parameters": {
@@ -559,7 +610,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        1740,
+        1960,
         -20
       ],
       "id": "41acc154-6d77-5d3c-ba8c-0b37b058b9cb",
@@ -579,7 +630,7 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        1960,
+        2180,
         -120
       ],
       "id": "2720e861-39a5-52e2-8285-23705f81dbcd",
@@ -601,7 +652,7 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        2180,
+        2400,
         -20
       ],
       "id": "56f361cc-263f-5f3d-90ee-1837b8104566",
@@ -627,7 +678,7 @@
       "type": "@fazer-ai/n8n-nodes-chatwoot.chatwoot",
       "typeVersion": 1,
       "position": [
-        2400,
+        2620,
         -20
       ],
       "id": "e3cb7933-9c1b-5a69-8938-a39e43458a8a",
@@ -667,7 +718,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        2620,
+        2840,
         -20
       ],
       "id": "f34241e1-7dfe-54fe-9bfb-9d5f48d6bf71",
@@ -687,7 +738,7 @@
       "type": "@fazer-ai/n8n-nodes-chatwoot.chatwoot",
       "typeVersion": 1,
       "position": [
-        2840,
+        3060,
         -20
       ],
       "id": "769a331c-05a6-5420-a666-66f777c04fb6",
@@ -707,7 +758,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3060,
+        3280,
         -20
       ],
       "id": "aa31e6fa-3093-54ee-8fa6-278e1e3e14a3",
@@ -740,7 +791,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        3280,
+        3500,
         -20
       ],
       "id": "8633461e-1f03-5a8f-8fcd-24b17a5e930d",
@@ -764,7 +815,7 @@
       "type": "@fazer-ai/n8n-nodes-chatwoot.chatwoot",
       "typeVersion": 1,
       "position": [
-        3500,
+        3720,
         -120
       ],
       "id": "727b7db9-beb7-5ac1-92ec-836a622bf49c",
@@ -785,7 +836,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3720,
+        3940,
         -120
       ],
       "id": "0527aebb-6056-590a-9f25-dec87b465722",
@@ -818,7 +869,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        3940,
+        4160,
         -120
       ],
       "id": "c3ebb9aa-e797-59db-ad02-b5f59b593265",
@@ -847,7 +898,7 @@
       "type": "@fazer-ai/n8n-nodes-chatwoot.chatwoot",
       "typeVersion": 1,
       "position": [
-        3500,
+        3720,
         140
       ],
       "id": "47975327-b42b-5a63-be07-a0580581265b",
@@ -883,7 +934,7 @@
       "type": "@fazer-ai/n8n-nodes-chatwoot.chatwoot",
       "typeVersion": 1,
       "position": [
-        4160,
+        4380,
         140
       ],
       "id": "6882c0cc-fb4e-5176-9def-8794b519d95a",
@@ -924,7 +975,7 @@
       "type": "@fazer-ai/n8n-nodes-chatwoot.chatwoot",
       "typeVersion": 1,
       "position": [
-        4380,
+        4600,
         -20
       ],
       "id": "7792d811-74c9-55ea-b494-9aeda6acc25a",
@@ -961,7 +1012,7 @@
       "type": "@fazer-ai/n8n-nodes-chatwoot.chatwoot",
       "typeVersion": 1,
       "position": [
-        4600,
+        4820,
         -20
       ],
       "id": "22ddb1f7-0510-50d5-b5b9-7826e7ce21be",
@@ -981,7 +1032,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        4820,
+        5040,
         -20
       ],
       "id": "2fe17c49-d89d-5ee7-beed-f37f51bcbf83",
@@ -1201,7 +1252,7 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        5040,
+        5260,
         -20
       ],
       "id": "6f8821eb-e641-5362-8cd6-333657d03631",
@@ -1332,7 +1383,36 @@
       "main": [
         [
           {
+            "node": "Tentar a IA de novo?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tentar a IA de novo?": {
+      "main": [
+        [
+          {
+            "node": "Aguardar nova tentativa",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
             "node": "Enviar e-mail?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aguardar nova tentativa": {
+      "main": [
+        [
+          {
+            "node": "IA: escrever mensagens",
             "type": "main",
             "index": 0
           }
