@@ -67,12 +67,12 @@ O workflow já está importado no n8n como **Behold Movement · Inscrições**, 
 
 Depois de salvar a inscrição, o nó **IA: escrever mensagens** pede ao GPT (modelo em `ia_modelo`, hoje `gpt-4.1-mini`) três textos: a mensagem de WhatsApp, o assunto do e-mail e os parágrafos de abertura do e-mail. O resto do e-mail (botão do grupo, treinamento e programação do Dia 31) continua fixo.
 
-- **O que a mensagem deve conter** fica em `ia_instrucoes`, no nó Configurações. Edite esse texto à vontade: é o pedido que a IA recebe. O fluxo acrescenta regras fixas (não inventar datas nem links, tamanho da mensagem, link do grupo sozinho numa linha) e os dados da pessoa: primeiro nome, frente, cidade, igreja, link do grupo e treinamento.
+- **O que a mensagem deve conter** fica em `ia_instrucoes`, no nó Configurações. Edite esse texto à vontade: é o pedido que a IA recebe. O fluxo acrescenta regras fixas (não inventar datas nem links, tamanho da mensagem, link do grupo sozinho numa linha) e os dados da pessoa: primeiro nome, ministério, cidade, igreja, link do grupo e treinamento.
 - **Variação:** a cada inscrição o fluxo sorteia um jeito diferente de começar a mensagem, e a IA não repete frases feitas. Assim as mensagens não saem iguais.
-- **Conferência:** o nó **Conferir texto da IA** só aceita a mensagem de WhatsApp se ela tiver o primeiro nome, a frente, o pedido para salvar nosso contato e responder com um 👍, o link do grupo exatamente como está em `link_grupo`, a data e a hora do treinamento (quando houver) e nenhum outro link. O e-mail não pode ter links. Se algo faltar, ou se a IA estiver fora do ar, vai o texto fixo. Na execução do n8n, o campo `origem_textos` mostra se cada texto veio da IA ou do modelo fixo, e por quê.
+- **Conferência:** o nó **Conferir texto da IA** só aceita a mensagem de WhatsApp se ela tiver o primeiro nome, o ministério (sem a expressão "na frente de", que soa como liderar), o pedido para salvar nosso contato e responder com um 👍, o link do grupo exatamente como está em `link_grupo`, a data e a hora do treinamento (quando houver) e nenhum outro link. O e-mail não pode ter links. Se algo faltar, ou se a IA estiver fora do ar, vai o texto fixo. Na execução do n8n, o campo `origem_textos` mostra se cada texto veio da IA ou do modelo fixo, e por quê.
 - **Desligar:** `ia_ativa` = `não` faz o fluxo usar sempre o texto fixo.
 - **Custo:** cada inscrição é uma chamada curta ao `gpt-4.1-mini`, cobrada na conta da OpenAI dona da chave. Para trocar de modelo, mude `ia_modelo` (precisa ser um modelo que aceite resposta em JSON Schema).
-- **Dados enviados à OpenAI:** primeiro nome, frente, cidade, igreja e o link do grupo. Telefone, e-mail e endereço não são enviados.
+- **Dados enviados à OpenAI:** primeiro nome, ministério, cidade, igreja e o link do grupo. Telefone, e-mail e endereço não são enviados.
 
 ## Cuidados com o WhatsApp (API não oficial)
 

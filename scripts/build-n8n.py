@@ -28,11 +28,11 @@ def nid(name: str) -> str:
 
 
 # O que a IA deve escrever. Fica no nó Configurações, para a equipe mudar no n8n.
-# As conferências do nó "Conferir texto da IA" exigem nome, frente, link do grupo
+# As conferências do nó "Conferir texto da IA" exigem nome, ministério, link do grupo
 # e data/hora do treinamento; sem eles, vai o texto fixo.
 IA_INSTRUCOES = """Escreva uma mensagem de boas-vindas calorosa e pessoal. Ela precisa ter:
 - o primeiro nome da pessoa;
-- a alegria pela inscrição e a frente em que ela vai servir;
+- a alegria pela inscrição e o ministério em que ela vai servir (por exemplo: servir na Mídia);
 - o convite para entrar no grupo do WhatsApp do movimento, com o link, porque é lá que saem as notícias e as orientações do Dia 31;
 - a data, o horário e o local do treinamento;
 - o pedido, com destaque, para a pessoa salvar nosso contato na agenda e assim receber as próximas informações (por exemplo: *Salve nosso contato*);
@@ -125,11 +125,15 @@ const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<
 const etiqueta = 'frente-' + d.ministerio.normalize('NFD').replace(/[̀-ͯ]/g, '')
   .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
+// Onde a pessoa vai servir: "na Mídia", "no Evangelizando"... Nunca "na frente de", que soa como liderar.
+const ARTIGO = { 'Evangelizando': 'no', 'Mídia': 'na', 'Suprimento': 'no', 'Ação social': 'na', 'Intercessão': 'na' };
+const artigo = ARTIGO[d.ministerio] || 'em';
+
 // ---------- WhatsApp
 const linhas = [
   `Olá, ${d.primeiro_nome}!`,
   '',
-  `Aqui é do *Behold Movement*. Recebemos sua inscrição para servir na frente de *${d.ministerio}*. Que alegria ter você com a gente!`,
+  `Aqui é do *Behold Movement*. Recebemos sua inscrição para servir ${artigo} *${d.ministerio}*. Que alegria ter você com a gente!`,
   '',
   '*Salve nosso contato* na sua agenda para receber as próximas informações do movimento.',
   '',
@@ -226,7 +230,7 @@ const html = `<!doctype html>
 const ESTILOS = [
   'comece pela alegria de ter a pessoa no movimento',
   'comece agradecendo a disposição de servir',
-  'comece falando da frente em que a pessoa vai servir',
+  'comece falando do ministério em que a pessoa vai servir',
   'comece com uma saudação curta e simples, e deixe o tom mais caloroso para o fim',
   'comece com uma frase de encorajamento sobre servir a Cristo',
   'comece pelo Dia 31 e pelo que ele significa',
@@ -243,13 +247,14 @@ const SISTEMA = [
   '- No WhatsApp, o link do grupo aparece exatamente como foi fornecido, sozinho numa linha. Não coloque nenhum outro link.',
   '- WhatsApp: de 350 a 900 caracteres, parágrafos curtos, no máximo dois emojis e *negrito* do WhatsApp (um asterisco de cada lado) em no máximo três expressões, uma delas o pedido para salvar o contato. Não assine com nome de pessoa.',
   '- Sempre peça, em *negrito* e logo depois da saudação, que a pessoa salve nosso contato na agenda para receber as próximas informações, e peça que ela responda com um 👍 quando salvar. Isso é obrigatório: contato salvo evita que o WhatsApp trate a mensagem como spam.',
-  '- Cite o primeiro nome e a frente exatamente como estão nos dados. Cidade e igreja podem aparecer se soar natural; não é obrigatório.',
+  '- Diga que a pessoa vai servir no ministério, com o artigo dos dados ("servir na Mídia", "servir no Evangelizando"). Nunca escreva "frente" nem "na frente de": soa como se ela fosse liderar.',
+  '- Cite o primeiro nome e o ministério exatamente como estão nos dados. Cidade e igreja podem aparecer se soar natural; não é obrigatório.',
   '- E-mail: o assunto tem até 70 caracteres e cita o primeiro nome. A abertura tem um ou dois parágrafos curtos, separados por uma linha em branco, sem saudação (o título do e-mail já cumprimenta a pessoa pelo nome) e sem links: logo abaixo dela o e-mail já traz o botão do grupo, o treinamento e a programação do Dia 31.',
 ].join('\n');
 const dadosInscricao = [
   'Dados da inscrição:',
   `- Primeiro nome: ${d.primeiro_nome}`,
-  `- Frente em que vai servir: ${d.ministerio}`,
+  `- Ministério em que vai servir: ${d.ministerio} (escreva "servir ${artigo} ${d.ministerio}")`,
   `- Cidade: ${d.cidade}/${d.uf}`,
   `- Igreja onde congrega: ${d.igreja}`,
   `- Link do grupo do WhatsApp: ${d.link_grupo}`,
@@ -289,7 +294,7 @@ return [{
   json: {
     ...d,
     email_assunto: `Boas-vindas ao Behold Movement, ${d.primeiro_nome}!`,
-    email_abertura: `Sua inscrição no Behold Movement foi recebida. Você escolheu servir na frente de *${d.ministerio}*.\n\n`
+    email_abertura: `Sua inscrição no Behold Movement foi recebida. Você escolheu servir ${artigo} *${d.ministerio}*.\n\n`
       + 'As notícias, os avisos e as orientações do movimento são compartilhados no grupo do WhatsApp. Entre agora para não perder nada.',
     email_html: html,
     whatsapp_texto: linhas.join('\n'),
@@ -328,7 +333,8 @@ const problemasWhats = (t) => {
   const p = [];
   if (t.length < 200 || t.length > 1200) p.push(`tamanho ${t.length}`);
   if (!contem(t, d.primeiro_nome)) p.push('sem o nome');
-  if (!contem(t, d.ministerio)) p.push('sem a frente');
+  if (!contem(t, d.ministerio)) p.push('sem o ministério');
+  if (/frente d[aeo]/.test(semAcento(t))) p.push('com "frente de"');
   if (!contem(t, 'salv') || !/contato|numero|agenda/.test(semAcento(t))) p.push('sem o pedido para salvar o contato');
   if (!contem(t, 'respond')) p.push('sem o pedido de resposta');
   if (!t.includes(d.link_grupo)) p.push('sem o link do grupo');
@@ -347,6 +353,7 @@ const problemasEmail = (assunto, abertura) => {
   if (assunto.trim().length < 5 || assunto.length > 90 || /\n/.test(assunto.trim())) p.push('assunto');
   if (abertura.trim().length < 60 || abertura.length > 900) p.push(`abertura com ${abertura.length} caracteres`);
   if (links(assunto + ' ' + abertura).length) p.push('com link');
+  if (/frente d[aeo]/.test(semAcento(assunto + ' ' + abertura))) p.push('com "frente de"');
   if (/[\[\]{}<>]/.test(assunto + abertura)) p.push('com marcação estranha');
   return p;
 };
@@ -610,7 +617,7 @@ def build() -> dict:
                     "3. Nos dois nós da planilha, confira se a aba selecionada é **Inscrições**.\n"
                     "4. Ative o workflow. O site envia para `/webhook/behold-inscricao`.\n\n"
                     "**Textos com IA:** o que a IA deve escrever fica em `ia_instrucoes` (Configurações). "
-                    "Se a IA falhar ou esquecer nome, frente, link ou treinamento, vai o texto fixo. "
+                    "Se a IA falhar ou esquecer nome, ministério, link ou treinamento, vai o texto fixo. "
                     "`ia_ativa` = não desliga a IA.\n\n"
                     "**E-mail:** `email_ativo` = sim liga o e-mail de boas-vindas (precisa da credencial do Gmail). "
                     "Desligado, a planilha marca *desligado* em Status e-mail."
