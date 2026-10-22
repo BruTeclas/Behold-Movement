@@ -3,7 +3,9 @@
 
 Fluxo:
   site -> webhook -> valida e padroniza -> planilha (adiciona ou atualiza pelo
-  telefone) -> responde ao site -> e-mail de boas-vindas (Gmail) -> espera
+  telefone) -> responde ao site -> a IA (Claude) escreve o e-mail e a mensagem
+  de WhatsApp a partir das instruções em Configurações, e o fluxo confere o
+  texto (se falhar, vai o texto fixo) -> e-mail de boas-vindas (Gmail) -> espera
   alguns segundos -> Chatwoot (contato + conversa com a mensagem de WhatsApp)
   -> grava na planilha o status de cada envio.
 
@@ -23,6 +25,19 @@ SITE_ORIGENS = "https://beholdmovement.com.br,https://www.beholdmovement.com.br"
 
 def nid(name: str) -> str:
     return str(uuid.uuid5(uuid.NAMESPACE_URL, "behold-n8n/" + name))
+
+
+# O que a IA deve escrever. Fica no nó Configurações, para a equipe mudar no n8n.
+# As conferências do nó "Conferir texto da IA" exigem nome, frente, link do grupo
+# e data/hora do treinamento; sem eles, vai o texto fixo.
+IA_INSTRUCOES = """Escreva uma mensagem de boas-vindas calorosa e pessoal. Ela precisa ter:
+- o primeiro nome da pessoa;
+- a alegria pela inscrição e a frente em que ela vai servir;
+- o convite para entrar no grupo do WhatsApp do movimento, com o link, porque é lá que saem as notícias e as orientações do Dia 31;
+- a data, o horário e o local do treinamento;
+- o pedido para salvar este número nos contatos;
+- um convite para responder esta mensagem, por exemplo confirmando que entrou no grupo ou mandando uma dúvida.
+Tom: alegre, acolhedor e simples, como uma conversa entre irmãos, sem exageros e sem cara de propaganda. Se quiser, feche com o lema do movimento: "Contemple Cristo e faça Cristo ser contemplado.\""""
 
 
 # ---------------------------------------------------------------- JS dos nós
@@ -96,7 +111,7 @@ return [{
 """.strip()
 
 JS_MENSAGENS = r"""
-// Monta o e-mail (HTML) e a mensagem de WhatsApp a partir da inscrição.
+// Monta os textos fixos (e-mail em HTML e mensagem de WhatsApp) e o pedido para a IA reescrevê-los.
 const d = $('Validar e padronizar').first().json;
 
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -166,11 +181,10 @@ const html = `<!doctype html>
     <div style="font-family:${MONO};font-size:13px;color:${PAPEL};margin-top:18px;">"Eis o Cordeiro de Deus, que tira o pecado do mundo." João 1:29</div>
   </td></tr>
 
-  <tr><td style="padding:32px 32px 8px;">
+  <tr><td style="padding:32px 32px 16px;">
     <div style="font-family:${MONO};font-weight:bold;font-size:12px;letter-spacing:3px;color:${AZUL};">INSCRIÇÃO CONFIRMADA</div>
     <h1 style="margin:10px 0 16px;font-family:${DISPLAY};font-weight:normal;font-size:34px;line-height:1.05;color:${TINTA};text-transform:uppercase;">Que bom ter você com a gente, ${esc(d.primeiro_nome)}.</h1>
-    <p style="margin:0 0 16px;font-family:${TEXTO};font-size:16px;line-height:1.6;color:${TINTA};">Sua inscrição no Behold Movement foi recebida. Você escolheu servir na frente de <strong>${esc(d.ministerio)}</strong>.</p>
-    <p style="margin:0 0 24px;font-family:${TEXTO};font-size:16px;line-height:1.6;color:${TINTA};">As notícias, os avisos e as orientações do movimento são compartilhados no grupo do WhatsApp. Entre agora para não perder nada.</p>
+    <!--ABERTURA-->
   </td></tr>
 
   <tr><td style="padding:0 32px 28px;">
@@ -199,20 +213,165 @@ const html = `<!doctype html>
 </table>
 </body></html>`;
 
+// ---------- Pedido para a IA reescrever os textos (os de cima ficam de reserva)
+const ESTILOS = [
+  'comece pela alegria de ter a pessoa no movimento',
+  'comece agradecendo a disposição de servir',
+  'comece falando da frente em que a pessoa vai servir',
+  'comece com uma saudação curta e simples, e deixe o tom mais caloroso para o fim',
+  'comece com uma frase de encorajamento sobre servir a Cristo',
+  'comece pelo Dia 31 e pelo que ele significa',
+];
+const SISTEMA = [
+  'Você escreve as mensagens de boas-vindas do Behold Movement, um movimento cristão de evangelismo, para quem acabou de se inscrever no site como voluntário. Escreva em português do Brasil.',
+  'Cada mensagem deve parecer escrita à mão por alguém da equipe para aquela pessoa. Varie a abertura, a ordem das informações e as palavras de uma inscrição para outra, sem frases feitas que se repetiriam em todas as mensagens.',
+  '',
+  'O que a equipe pediu:',
+  d.ia_instrucoes,
+  '',
+  'Regras que valem sempre:',
+  '- Use só as informações dos dados da inscrição. Não invente datas, horários, lugares, links, nomes ou versículos.',
+  '- No WhatsApp, o link do grupo aparece exatamente como foi fornecido, sozinho numa linha. Não coloque nenhum outro link.',
+  '- WhatsApp: de 350 a 900 caracteres, parágrafos curtos, no máximo dois emojis e *negrito* do WhatsApp (um asterisco de cada lado) em no máximo duas expressões. Não assine com nome de pessoa.',
+  '- Cite o primeiro nome e a frente exatamente como estão nos dados. Cidade e igreja podem aparecer se soar natural; não é obrigatório.',
+  '- E-mail: o assunto tem até 70 caracteres e cita o primeiro nome. A abertura tem um ou dois parágrafos curtos, separados por uma linha em branco, sem saudação (o título do e-mail já cumprimenta a pessoa pelo nome) e sem links: logo abaixo dela o e-mail já traz o botão do grupo, o treinamento e a programação do Dia 31.',
+].join('\n');
+const dadosInscricao = [
+  'Dados da inscrição:',
+  `- Primeiro nome: ${d.primeiro_nome}`,
+  `- Frente em que vai servir: ${d.ministerio}`,
+  `- Cidade: ${d.cidade}/${d.uf}`,
+  `- Igreja onde congrega: ${d.igreja}`,
+  `- Link do grupo do WhatsApp: ${d.link_grupo}`,
+  `- Treinamento: ${d.treinamento_data
+    ? `${d.treinamento_data}, às ${d.treinamento_hora}, ${d.treinamento_local}`
+    : 'não há treinamento marcado; não mencione treinamento'}`,
+  '',
+  `Desta vez, ${ESTILOS[Math.floor(Math.random() * ESTILOS.length)]}.`,
+].join('\n');
+
+const ia_pedido = {
+  model: d.ia_modelo || 'claude-opus-5-5',
+  max_tokens: 4000,
+  fallbacks: 'default',
+  system: SISTEMA,
+  messages: [{ role: 'user', content: dadosInscricao }],
+  output_config: {
+    effort: 'low',
+    format: {
+      type: 'json_schema',
+      schema: {
+        type: 'object',
+        properties: {
+          whatsapp: { type: 'string', description: 'Mensagem de WhatsApp pronta para enviar.' },
+          email_assunto: { type: 'string', description: 'Assunto do e-mail.' },
+          email_abertura: { type: 'string', description: 'Um ou dois parágrafos que abrem o e-mail, separados por uma linha em branco.' },
+        },
+        required: ['whatsapp', 'email_assunto', 'email_abertura'],
+        additionalProperties: false,
+      },
+    },
+  },
+};
+
 return [{
   json: {
     ...d,
     email_assunto: `Boas-vindas ao Behold Movement, ${d.primeiro_nome}!`,
+    email_abertura: `Sua inscrição no Behold Movement foi recebida. Você escolheu servir na frente de *${d.ministerio}*.\n\n`
+      + 'As notícias, os avisos e as orientações do movimento são compartilhados no grupo do WhatsApp. Entre agora para não perder nada.',
     email_html: html,
     whatsapp_texto: linhas.join('\n'),
     etiquetas: ['behold-movement', etiqueta],
+    ia_pedido,
+  },
+}];
+""".strip()
+
+JS_CONFERIR = r"""
+// Usa os textos da IA quando passam nas conferências; senão, os textos fixos de "Montar mensagens".
+const d = $('Montar mensagens').first().json;
+const r = $input.first().json;
+
+const semAcento = (s) => String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+const contem = (texto, trecho) => semAcento(texto).includes(semAcento(trecho));
+const links = (s) => (String(s).match(/https?:\/\/\S+/g) || []).map((l) => l.replace(/[.,;:!?)]+$/, ''));
+
+// 1. A resposta da IA
+let ia = null;
+let motivo = '';
+if (r.type !== 'message') {
+  motivo = r.error ? 'erro na IA: ' + String(r.error.message || r.error.description || r.error).slice(0, 100) : 'IA desligada';
+} else if (r.stop_reason !== 'end_turn') {
+  motivo = 'resposta incompleta (' + r.stop_reason + ')';
+} else {
+  const texto = (r.content || []).filter((c) => c.type === 'text').map((c) => c.text).pop();
+  try { ia = JSON.parse(texto); } catch (e) { motivo = 'resposta fora do formato'; }
+}
+
+// 2. Conferências: o que precisa estar na mensagem e o que não pode aparecer
+const problemasWhats = (t) => {
+  if (typeof t !== 'string' || !t.trim()) return ['vazia'];
+  const p = [];
+  if (t.length < 200 || t.length > 1200) p.push(`tamanho ${t.length}`);
+  if (!contem(t, d.primeiro_nome)) p.push('sem o nome');
+  if (!contem(t, d.ministerio)) p.push('sem a frente');
+  if (!t.includes(d.link_grupo)) p.push('sem o link do grupo');
+  if (links(t).some((l) => l !== d.link_grupo)) p.push('com outro link');
+  if (d.treinamento_data) {
+    const dia = (d.treinamento_data.match(/\d{1,2}\/\d{1,2}/) || [])[0];
+    const hora = (String(d.treinamento_hora).match(/\d{1,2}/) || [])[0];
+    if ((dia && !t.includes(dia)) || (hora && !t.includes(hora))) p.push('sem a data ou a hora do treinamento');
+  }
+  if (/[\[\]{}<>]/.test(t)) p.push('com marcação estranha');
+  return p;
+};
+const problemasEmail = (assunto, abertura) => {
+  if (typeof assunto !== 'string' || typeof abertura !== 'string') return ['vazio'];
+  const p = [];
+  if (assunto.trim().length < 5 || assunto.length > 90 || /\n/.test(assunto.trim())) p.push('assunto');
+  if (abertura.trim().length < 60 || abertura.length > 900) p.push(`abertura com ${abertura.length} caracteres`);
+  if (links(assunto + ' ' + abertura).length) p.push('com link');
+  if (/[\[\]{}<>]/.test(assunto + abertura)) p.push('com marcação estranha');
+  return p;
+};
+
+let whatsapp = d.whatsapp_texto, assunto = d.email_assunto, abertura = d.email_abertura;
+let origemWhats = 'modelo fixo: ' + motivo, origemEmail = origemWhats;
+if (ia) {
+  const w = String(ia.whatsapp ?? '').replace(/\*\*(.+?)\*\*/g, '*$1*').trim();
+  const pw = problemasWhats(w);
+  if (pw.length) origemWhats = 'modelo fixo: IA ' + pw.join(', ');
+  else { whatsapp = w; origemWhats = 'IA'; }
+
+  const pe = problemasEmail(ia.email_assunto, ia.email_abertura);
+  if (pe.length) origemEmail = 'modelo fixo: IA ' + pe.join(', ');
+  else { assunto = ia.email_assunto.trim(); abertura = ia.email_abertura.trim(); origemEmail = 'IA'; }
+}
+
+// 3. Parágrafos do e-mail (*texto* vira negrito)
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const P = 'margin:0 0 16px;font-family:Arial, Helvetica, sans-serif;font-size:16px;line-height:1.6;color:#16171c;';
+const paragrafos = abertura.split(/\n\s*\n/).filter((p) => p.trim())
+  .map((p) => `<p style="${P}">${esc(p.trim()).replace(/\*([^*\n]+)\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>')}</p>`)
+  .join('\n    ');
+
+const { ia_pedido, ...resto } = d;
+return [{
+  json: {
+    ...resto,
+    whatsapp_texto: whatsapp,
+    email_assunto: assunto,
+    email_abertura: abertura,
+    email_html: d.email_html.replace('<!--ABERTURA-->', paragrafos),
+    origem_textos: { whatsapp: origemWhats, email: origemEmail },
   },
 }];
 """.strip()
 
 JS_ESCOLHER_CONTATO = r"""
 // Procura, no resultado da busca do Chatwoot, o contato com o mesmo telefone.
-const m = $('Montar mensagens').first().json;
+const m = $('Conferir texto da IA').first().json;
 const r = $input.first().json;
 const lista = Array.isArray(r.payload) ? r.payload : [];
 const digitos = (s) => String(s || '').replace(/\D/g, '');
@@ -222,7 +381,7 @@ return [{ json: { contact_id: achado ? achado.id : null } }];
 
 JS_STATUS = r"""
 // Resume o que deu certo e o que falhou, para gravar na planilha.
-const d = $('Montar mensagens').first().json;
+const d = $('Conferir texto da IA').first().json;
 const email = $('Enviar e-mail de boas-vindas').first().json;
 const conversa = $('Chatwoot: criar conversa').first().json;
 
@@ -318,7 +477,7 @@ def if_node(name, pos, left):
     }
 
 
-M = "$('Montar mensagens').first().json"
+M = "$('Conferir texto da IA').first().json"
 CW_BASE = f"={{{{ {M}.chatwoot_url }}}}/api/v1/accounts/{{{{ {M}.chatwoot_account_id }}}}"
 
 
@@ -349,6 +508,37 @@ def chatwoot_node(name, pos, method, path, body=None, query=None):
     }
 
 
+def ia_node(name, pos):
+    """Pede à API da Anthropic (Claude) os textos; o pedido vem pronto de "Montar mensagens"."""
+    return {
+        "parameters": {
+            "method": "POST",
+            "url": "https://api.anthropic.com/v1/messages",
+            "authentication": "genericCredentialType",
+            "genericAuthType": "httpHeaderAuth",
+            "sendHeaders": True,
+            "headerParameters": {"parameters": [
+                {"name": "anthropic-version", "value": "2026-10-21"},
+                {"name": "anthropic-beta", "value": "server-side-fallback-2026-07-01"},
+            ]},
+            "sendBody": True,
+            "specifyBody": "json",
+            "jsonBody": "={{ JSON.stringify($json.ia_pedido) }}",
+            "options": {"timeout": 90000},
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": pos,
+        "id": nid(name),
+        "name": name,
+        "retryOnFail": True,
+        "maxTries": 2,
+        "waitBetweenTries": 5000,
+        "onError": "continueRegularOutput",
+        "credentials": {"httpHeaderAuth": {"id": "", "name": "Anthropic API"}},
+    }
+
+
 def respond_node(name, pos, body, code=None):
     opts = {}
     if code is not None:
@@ -371,16 +561,20 @@ def build() -> dict:
                 "content": (
                     "## Inscrições Behold Movement\n"
                     "Antes de ativar:\n"
-                    "1. **Configurações**: preencha o ID da caixa de entrada do WhatsApp no Chatwoot e o link do grupo.\n"
+                    "1. **Configurações**: confira a caixa de entrada do WhatsApp no Chatwoot (7 = Behold) e preencha o link do grupo.\n"
                     "2. **Credenciais**: Google Sheets e Gmail com a conta do movimento; *Chatwoot API* como Header Auth "
-                    "(nome `api_access_token`, valor = token do seu perfil no Chatwoot).\n"
+                    "(nome `api_access_token`, valor = token do seu perfil no Chatwoot); *Anthropic API* como Header Auth "
+                    "(nome `x-api-key`, valor = chave da API da Anthropic).\n"
                     "3. Nos dois nós da planilha, confira se a aba selecionada é **Inscrições**.\n"
-                    "4. Ative o workflow. O site envia para `/webhook/behold-inscricao`."
+                    "4. Ative o workflow. O site envia para `/webhook/behold-inscricao`.\n\n"
+                    "**Textos com IA:** o que a IA deve escrever fica em `ia_instrucoes` (Configurações). "
+                    "Se a IA falhar ou esquecer nome, frente, link ou treinamento, vai o texto fixo. "
+                    "`ia_ativa` = não desliga a IA."
                 ),
-                "height": 300, "width": 420, "color": 4,
+                "height": 400, "width": 460, "color": 4,
             },
             "type": "n8n-nodes-base.stickyNote", "typeVersion": 1,
-            "position": [-460, -340], "id": nid("nota"), "name": "Como configurar",
+            "position": [-460, -460], "id": nid("nota"), "name": "Como configurar",
         },
         {
             "parameters": {
@@ -401,12 +595,15 @@ def build() -> dict:
                 "assignments": {"assignments": [
                     {"id": nid("cfg/url"), "name": "chatwoot_url", "value": "https://chatwoot.frontia.com.br", "type": "string"},
                     {"id": nid("cfg/acc"), "name": "chatwoot_account_id", "value": "1", "type": "string"},
-                    {"id": nid("cfg/inbox"), "name": "chatwoot_inbox_id", "value": "PREENCHER", "type": "string"},
+                    {"id": nid("cfg/inbox"), "name": "chatwoot_inbox_id", "value": "7", "type": "string"},
                     {"id": nid("cfg/grupo"), "name": "link_grupo", "value": "https://chat.whatsapp.com/PREENCHER", "type": "string"},
                     {"id": nid("cfg/remetente"), "name": "remetente_nome", "value": "Behold Movement", "type": "string"},
                     {"id": nid("cfg/treino-data"), "name": "treinamento_data", "value": "terça-feira, 27/10", "type": "string"},
                     {"id": nid("cfg/treino-hora"), "name": "treinamento_hora", "value": "20h", "type": "string"},
                     {"id": nid("cfg/treino-local"), "name": "treinamento_local", "value": "online, com o link enviado no grupo do WhatsApp", "type": "string"},
+                    {"id": nid("cfg/ia-ativa"), "name": "ia_ativa", "value": "sim", "type": "string"},
+                    {"id": nid("cfg/ia-modelo"), "name": "ia_modelo", "value": "claude-opus-5-5", "type": "string"},
+                    {"id": nid("cfg/ia-instrucoes"), "name": "ia_instrucoes", "value": IA_INSTRUCOES, "type": "string"},
                 ]},
                 "options": {},
             },
@@ -443,6 +640,9 @@ def build() -> dict:
         respond_node("Responder: inscrição recebida", [640, -20],
                      f"={{{{ {{ ok: true, id: {v}.id }} }}}}"),
         code_node("Montar mensagens", [860, -20], JS_MENSAGENS),
+        if_node("Escrever com IA?", [1080, -20], "={{ $json.ia_ativa === 'sim' }}"),
+        ia_node("IA: escrever mensagens", [1300, -120]),
+        code_node("Conferir texto da IA", [1520, -20], JS_CONFERIR),
         {
             "parameters": {
                 "sendTo": "={{ $json.email }}",
@@ -453,7 +653,7 @@ def build() -> dict:
             },
             "type": "n8n-nodes-base.gmail",
             "typeVersion": 2.1,
-            "position": [1080, -20],
+            "position": [1740, -20],
             "id": nid("Enviar e-mail de boas-vindas"),
             "name": "Enviar e-mail de boas-vindas",
             "webhookId": nid("gmail/boas-vindas"),
@@ -464,17 +664,17 @@ def build() -> dict:
             "parameters": {"amount": "={{ 15 + Math.floor(Math.random() * 45) }}", "unit": "seconds"},
             "type": "n8n-nodes-base.wait",
             "typeVersion": 1.1,
-            "position": [1300, -20],
+            "position": [1960, -20],
             "id": nid("Aguardar antes do WhatsApp"),
             "name": "Aguardar antes do WhatsApp",
             "webhookId": nid("wait/whatsapp"),
         },
-        chatwoot_node("Chatwoot: buscar contato", [1520, -20], "GET", "/contacts/search",
+        chatwoot_node("Chatwoot: buscar contato", [2180, -20], "GET", "/contacts/search",
                       query={"q": f"={{{{ {M}.telefone_e164.replace('+', '') }}}}"}),
-        code_node("Escolher contato", [1740, -20], JS_ESCOLHER_CONTATO),
-        if_node("Contato já existe?", [1960, -20], "={{ !!$json.contact_id }}"),
+        code_node("Escolher contato", [2400, -20], JS_ESCOLHER_CONTATO),
+        if_node("Contato já existe?", [2620, -20], "={{ !!$json.contact_id }}"),
         chatwoot_node(
-            "Chatwoot: criar contato", [2180, 140], "POST", "/contacts",
+            "Chatwoot: criar contato", [2840, 140], "POST", "/contacts",
             body=(
                 f"={{{{ JSON.stringify({{ inbox_id: Number({M}.chatwoot_inbox_id), name: {M}.nome, "
                 f"phone_number: {M}.telefone_e164, additional_attributes: {{ city: {M}.cidade, "
@@ -485,7 +685,7 @@ def build() -> dict:
             ),
         ),
         chatwoot_node(
-            "Chatwoot: criar conversa", [2400, -20], "POST", "/conversations",
+            "Chatwoot: criar conversa", [3060, -20], "POST", "/conversations",
             body=(
                 f"={{{{ JSON.stringify({{ inbox_id: Number({M}.chatwoot_inbox_id), "
                 f"contact_id: $json.contact_id ?? $json.payload?.contact?.id, "
@@ -494,12 +694,12 @@ def build() -> dict:
             ),
         ),
         chatwoot_node(
-            "Chatwoot: etiquetas", [2620, -20], "POST",
+            "Chatwoot: etiquetas", [3280, -20], "POST",
             "/conversations/{{ $json.id }}/labels",
             body=f"={{{{ JSON.stringify({{ labels: {M}.etiquetas }}) }}}}",
         ),
-        code_node("Resumir status", [2840, -20], JS_STATUS),
-        sheets_node("Atualizar status na planilha", [3060, -20], {
+        code_node("Resumir status", [3500, -20], JS_STATUS),
+        sheets_node("Atualizar status na planilha", [3720, -20], {
             "Telefone": "={{ $json.telefone_e164 }}",
             "Status e-mail": "={{ $json.status_email }}",
             "Status WhatsApp": "={{ $json.status_whatsapp }}",
@@ -520,7 +720,13 @@ def build() -> dict:
         ]},
         "Salvar na planilha": link("Responder: inscrição recebida"),
         "Responder: inscrição recebida": link("Montar mensagens"),
-        "Montar mensagens": link("Enviar e-mail de boas-vindas"),
+        "Montar mensagens": link("Escrever com IA?"),
+        "Escrever com IA?": {"main": [
+            [{"node": "IA: escrever mensagens", "type": "main", "index": 0}],
+            [{"node": "Conferir texto da IA", "type": "main", "index": 0}],
+        ]},
+        "IA: escrever mensagens": link("Conferir texto da IA"),
+        "Conferir texto da IA": link("Enviar e-mail de boas-vindas"),
         "Enviar e-mail de boas-vindas": link("Aguardar antes do WhatsApp"),
         "Aguardar antes do WhatsApp": link("Chatwoot: buscar contato"),
         "Chatwoot: buscar contato": link("Escolher contato"),
