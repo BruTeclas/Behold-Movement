@@ -32,7 +32,7 @@ Para mudar o site, edite os arquivos da pasta `site/` e publique de novo no Cool
 O DNS de `beholdmovement.com.br` já aponta para o VPS (147.93.68.18), e o repositório no GitHub é público.
 
 1. No Coolify, abra um projeto e clique em **+ New**, depois em **Public Repository**.
-2. Repositório: `https://github.com/BruTeclas/BruTeclas`, branch `claude/behold-movement-sketch-x7qf9h`.
+2. Repositório: `https://github.com/BruTeclas/Behold-Movement`, branch `main`.
 3. Em **Build Pack**, escolha **Dockerfile** (o `Dockerfile` da raiz).
 4. Em **Domains**, coloque `https://beholdmovement.com.br,https://www.beholdmovement.com.br`; em **Ports Exposes**, `80`.
 5. Clique em **Deploy**. O Coolify gera o certificado HTTPS sozinho. Para atualizar o site depois, basta clicar em **Redeploy** (ou ligar o deploy automático).
