@@ -2,984 +2,1580 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Behold Movement: um movimento interdenominacional para revelar Cristo às pessoas em Taboão da Serra, Embu das Artes e Itapecerica da Serra. Inscreva-se para o Dia 31.">
-<meta name="theme-color" content="#1f5bf2">
-<link rel="canonical" href="https://beholdmovement.com.br/">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%231f5bf2'/%3E%3Ctext x='32' y='50' text-anchor='middle' font-family='Impact,Arial Narrow,sans-serif' font-size='46' fill='%2316171c'%3EB%3C/text%3E%3C/svg%3E">
-<meta property="og:type" content="website">
-<meta property="og:locale" content="pt_BR">
-<meta property="og:url" content="https://beholdmovement.com.br/">
-<meta property="og:title" content="Behold Movement · Contemple Cristo">
-<meta property="og:description" content="Behold Movement: um movimento interdenominacional para revelar Cristo às pessoas em Taboão da Serra, Embu das Artes e Itapecerica da Serra. Inscreva-se para o Dia 31.">
-<meta name="twitter:card" content="summary">
-<title>Behold Movement</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Behold Movement — Contemple Cristo</title>
+<meta name="description" content="Behold Movement: um movimento interdenominacional para revelar Cristo às pessoas em Taboão da Serra, Embu das Artes e Itapecerica da Serra. Dia 31 de outubro de 2026 é apenas o começo.">
+<meta property="og:title" content="Behold Movement — Contemple Cristo">
+<meta property="og:description" content="Não é um evento. É um movimento. Escolha sua frente e faça parte.">
+<meta name="theme-color" content="#1F5BF2">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%276%27 fill=%27%231F5BF2%27/%3E%3Ccircle cx=%2716%27 cy=%2716%27 r=%276%27 fill=%27%23EBE9E4%27/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="sites-incriveis.css">
+<script src="sites-incriveis.js" defer></script>
 <style>
-/* Layout: one long scroll of full-bleed "slabs" alternating Azul / Grafite / Papel, as in the deck; content sits on a fixed left edge. */
+/* ===================== identidade ===================== */
 :root {
-  --blue: #1f5bf2;
-  --blue-soft: #3b6ff5;
-  --sky: #6e97ff;
-  --ink: #16171c;
-  --paper: #eceae5;
-  --mute: #8a8f9c;
-  --mute-ink: #3f434d;
+  --azul: #1F5BF2;
+  --azul-mapa: #3D72F5;
+  --azul-claro: #7FA2FF;   /* só sobre preto */
+  --preto: #16171C;
+  --papel: #EBE9E4;
+  --suave-papel: #4A4E58;
+  --suave-preto: #9A9DA6;
+
+  --fx-fundo: var(--azul);
+  --fx-tinta: var(--papel);
+
   --display: "Anton", "Impact", "Arial Narrow", sans-serif;
-  --body: "Archivo", "Helvetica Neue", Arial, sans-serif;
-  --mono: "Space Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
-  --gutter: clamp(16px, 6.5vw, 132px);
-  color-scheme: light;
+  --texto: "Archivo", "Helvetica Neue", Arial, sans-serif;
+
+  /* escala tipográfica: 15 / 18 / 24 / 40 / 72 / 128 */
+  --t15: 0.9375rem;
+  --t18: 1.125rem;
+  --t24: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
+  --t40: clamp(2rem, 1.4rem + 2.4vw, 2.5rem);
+  --t72: clamp(2.75rem, 1.6rem + 5vw, 4.5rem);
+  --t128: clamp(3.5rem, 1.5rem + 8.6vw, 8rem);
+
+  /* espaço: 8 / 16 / 24 / 40 / 64 / 104 / 168 */
+  --e1: 8px; --e2: 16px; --e3: 24px; --e4: 40px; --e5: 64px; --e6: 104px; --e7: 168px;
+  --lateral: clamp(20px, 6.6vw, 96px);
+  --topo: 64px;
 }
-* { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body { margin: 0; background: var(--ink); color: var(--paper); font-family: var(--body); font-size: 17px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--fx-fundo);
+  color: var(--fx-tinta);
+  font-family: var(--texto);
+  font-size: var(--t18);
+  line-height: 1.5;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, p, ul, ol, dl, dd { margin: 0; }
+ul, ol { padding: 0; list-style: none; }
 a { color: inherit; }
-:focus-visible { outline: 3px solid var(--sky); outline-offset: 3px; }
+::selection { background: var(--preto); color: var(--papel); }
 
-/* ---------- slabs ---------- */
-.slab { position: relative; padding-inline: var(--gutter); padding-block: clamp(56px, 9vw, 120px) clamp(40px, 5vw, 64px); display: flex; flex-direction: column; gap: clamp(28px, 4vw, 48px); overflow: hidden; }
-.slab > * { min-width: 0; }
-.s-blue { background: var(--blue); color: var(--paper); }
-.s-ink { background: var(--ink); color: var(--paper); }
-.s-paper { background: var(--paper); color: var(--ink); }
-
-.eyebrow { font-family: var(--mono); font-weight: 700; font-size: 14px; letter-spacing: .18em; text-transform: uppercase; margin: 0; }
-.s-ink .eyebrow { color: var(--sky); }
-.s-paper .eyebrow { color: var(--blue); }
-.s-blue .eyebrow { color: var(--paper); font-weight: 400; }
-
-.slab-foot { display: flex; justify-content: space-between; gap: 16px; font-family: var(--mono); font-weight: 700; font-size: 13px; letter-spacing: .04em; text-transform: uppercase; margin-top: auto; padding-top: clamp(16px, 3vw, 40px); }
-.s-ink .slab-foot { color: var(--mute); }
-.s-paper .slab-foot { color: #5d616c; }
-.s-blue .slab-foot { color: var(--paper); }
-.slab-foot span:last-child { font-variant-numeric: tabular-nums; }
-
-.d { font-family: var(--display); font-weight: 400; text-transform: uppercase; line-height: .95; letter-spacing: .005em; margin: 0; text-wrap: balance; }
-.d-xxl { font-size: clamp(88px, 22vw, 340px); line-height: .82; }
-.d-xl { font-size: clamp(56px, 11vw, 168px); }
-.d-l { font-size: clamp(44px, 7.4vw, 112px); }
-.d-m { font-size: clamp(32px, 4.6vw, 68px); }
-.d-s { font-size: clamp(24px, 2.6vw, 38px); line-height: 1.05; }
-.lede { font-size: clamp(20px, 2.4vw, 34px); font-weight: 600; line-height: 1.25; max-width: 30ch; margin: 0; text-wrap: pretty; }
-.lede.light { font-weight: 400; }
-.s-paper .lede { color: var(--mute-ink); }
-.c-blue { color: var(--blue); }
-.c-sky { color: var(--sky); }
-.c-ink { color: var(--ink); }
-.c-paper { color: var(--paper); }
-.verse { font-family: var(--mono); font-size: clamp(15px, 1.6vw, 21px); line-height: 1.6; margin: 0; }
-
-/* ---------- top bar ---------- */
-.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-inline: var(--gutter); padding-block: 14px; background: var(--ink); border-bottom: 1px solid #2a2c34; font-family: var(--mono); font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-.bar .mark { font-family: var(--display); font-weight: 400; font-size: 22px; letter-spacing: .02em; text-decoration: none; }
-.bar .mark b { color: var(--sky); font-weight: 400; }
-.bar nav { display: flex; gap: clamp(12px, 2.4vw, 28px); flex-wrap: wrap; }
-.bar nav a { text-decoration: none; color: var(--mute); }
-.bar nav a:hover { color: var(--paper); }
-.bar .cta { text-decoration: none; background: var(--blue); color: var(--paper); padding: 9px 14px; border-radius: 4px; white-space: nowrap; }
-.bar .cta:hover { background: var(--blue-soft); }
-@media (max-width: 760px) { .bar nav { display: none; } }
-
-/* ---------- hero ---------- */
-.hero { padding-block-start: clamp(56px, 8vw, 110px); }
-.hero .stack { display: flex; flex-direction: column; }
-.hero .movement { font-family: var(--display); font-size: clamp(52px, 13vw, 200px); line-height: .82; color: var(--paper); text-transform: uppercase; margin: 0; }
-.hero .behold { font-family: var(--display); font-size: clamp(96px, 25vw, 380px); line-height: .8; color: var(--ink); text-transform: uppercase; margin: 0; margin-left: -.02em; }
-.hero .movement { animation: wipe-up .9s cubic-bezier(.2,.7,.1,1) both; }
-.hero .behold { animation: wipe-up 1.1s cubic-bezier(.2,.7,.1,1) .2s both; }
-.hero .hero-meta, .hero .slab-foot { animation: fade-in .8s ease .9s both; }
-@keyframes wipe-up { from { clip-path: inset(0 0 100% 0); transform: translateY(30%); } to { clip-path: inset(0 0 0 0); transform: none; } }
-@keyframes fade-in { from { opacity: 0; } }
-
-/* Revelação ao rolar: o elemento fica visível por padrão; a classe .in (posta pelo script
-   quando ele entra na tela) só toca a animação de entrada. */
-@keyframes rise-in { from { opacity: 0; transform: translateY(40px); } }
-.rv.in { animation: rise-in .8s cubic-bezier(.2,.7,.1,1) both; animation-delay: var(--d, 0s); }
-.hero-meta { display: flex; justify-content: space-between; align-items: end; gap: 24px; flex-wrap: wrap; }
-.date-chip { font-family: var(--mono); font-weight: 700; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; border: 1.5px solid var(--paper); padding: 10px 14px; border-radius: 4px; }
-
-/* ---------- question / problem ---------- */
-.tall { min-height: min(86vh, 820px); }
-.tall .push { margin-top: auto; }
-
-/* ---------- behold = eis ---------- */
-.verbs { display: flex; flex-wrap: wrap; gap: .1em .5em; font-family: var(--display); font-size: clamp(32px, 5.4vw, 80px); line-height: 1; text-transform: uppercase; color: var(--paper); margin: 0; padding: 0; list-style: none; }
-.verbs li { transition: color .2s; }
-.verbs li:hover { color: var(--ink); }
-
-/* ---------- mission pillars ---------- */
-.tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
-.tile { background: var(--ink); color: var(--paper); border-radius: 6px; padding: 22px 24px 26px; display: flex; flex-direction: column; gap: 6px; }
-.tile .n { font-family: var(--mono); font-weight: 700; font-size: 15px; color: var(--sky); font-variant-numeric: tabular-nums; }
-.tile .t { font-family: var(--display); font-size: clamp(24px, 2.6vw, 38px); text-transform: uppercase; line-height: 1; overflow-wrap: anywhere; }
-@media (max-width: 640px) { .tiles { grid-template-columns: minmax(0, 1fr); } }
-
-/* ---------- not a ... ---------- */
-.struck { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .35em; font-family: var(--body); font-weight: 600; font-size: clamp(24px, 3.2vw, 46px); line-height: 1.1; color: var(--mute); }
-.struck li span { background: linear-gradient(currentColor, currentColor) 0 58% / 100% .08em no-repeat; -webkit-box-decoration-break: slice; box-decoration-break: slice; }
-.struck.in li span { animation: strike .7s cubic-bezier(.6,0,.2,1) both; animation-delay: calc(var(--i, 0) * .3s + .2s); }
-@keyframes strike { from { background-size: 0% .08em; } }
-.struck.in + h2.d.rv.in { animation-delay: 1.4s; }
-.map.in polygon { stroke-dasharray: 100; animation: draw 1.8s cubic-bezier(.6,0,.2,1) both; }
-.map.in polygon:nth-child(2) { animation-delay: .25s; }
-.map.in polygon:nth-child(3) { animation-delay: .5s; }
-@keyframes draw { from { stroke-dashoffset: 100; } }
-.orbit .ring-outer { transform-origin: 320px 330px; animation: spin 40s linear infinite; }
-.orbit .ring-mid { transform-origin: 320px 330px; animation: spin 90s linear infinite reverse; }
-.orbit .core { transform-origin: 320px 330px; animation: beat 2.6s ease-in-out infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-@keyframes beat { 50% { transform: scale(1.06); } }
-#front-panel > .split { animation: fade-in .35s ease both; }
-.s-paper .struck { color: #636874; }
-
-/* ---------- vision steps ---------- */
-.steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; list-style: none; margin: 0; padding: 0; }
-.steps li { border-top: 6px solid var(--blue); padding-top: 18px; display: flex; flex-direction: column; gap: 8px; }
-.steps li:last-child { border-color: var(--ink); }
-.steps .n { font-family: var(--mono); font-weight: 700; font-size: 18px; color: var(--blue); }
-.steps li:last-child .n { color: var(--ink); }
-@media (max-width: 900px) { .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 32px; } }
-
-/* ---------- two column ---------- */
-.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: clamp(28px, 5vw, 80px); align-items: center; }
-.split.top { align-items: start; }
-@media (max-width: 900px) { .split { grid-template-columns: minmax(0, 1fr); } }
-.cities { list-style: none; margin: 0; padding: 0; font-family: var(--display); font-size: clamp(26px, 3vw, 44px); text-transform: uppercase; line-height: 1.2; }
-.cities li:first-child { color: var(--ink); }
-.map svg, .orbit svg, .dots svg { width: 100%; height: auto; display: block; max-width: 100%; }
-.caption { font-family: var(--mono); font-size: 13px; text-align: right; margin: 8px 0 0; }
-
-/* ---------- neighbourhoods ---------- */
-.hoods { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: 24px; list-style: none; margin: 0; padding: 0; }
-.hoods li { border-top: 2px solid var(--ink); padding-block: 16px 22px; display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: clamp(17px, 1.6vw, 22px); }
-.hoods li::before { content: ""; width: 14px; height: 14px; border-radius: 50%; background: var(--blue); flex: none; }
-@media (max-width: 900px) { .hoods { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 460px) { .hoods { grid-template-columns: minmax(0, 1fr); } }
-
-/* ---------- six fronts ---------- */
-.fronts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
-.front { all: unset; box-sizing: border-box; cursor: pointer; background: var(--paper); color: var(--ink); border-radius: 6px; padding: 22px 26px 26px; display: flex; flex-direction: column; gap: 6px; transition: transform .15s, background .15s; }
-.front:hover { transform: translateY(-2px); }
-.front:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
-.front[aria-selected="true"] { background: var(--ink); color: var(--paper); }
-.front .n { font-family: var(--mono); font-weight: 700; font-size: 15px; color: var(--blue); }
-.front[aria-selected="true"] .n { color: var(--sky); }
-.front .t { font-family: var(--display); font-size: clamp(24px, 2.8vw, 42px); text-transform: uppercase; line-height: 1; overflow-wrap: anywhere; }
-@media (max-width: 900px) { .fronts { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-
-.panel { background: var(--paper); color: var(--ink); border-radius: 6px; padding: clamp(24px, 4vw, 56px); }
-.panel .split { align-items: start; }
-.checks { list-style: none; margin: 0; padding: 0; }
-.checks li { display: flex; align-items: center; gap: 18px; border-bottom: 2px solid var(--ink); padding-block: 18px; font-weight: 700; font-size: clamp(20px, 2.2vw, 30px); line-height: 1.15; }
-.checks li::before { content: ""; flex: none; width: 22px; height: 14px; border-left: 4px solid var(--blue); border-bottom: 4px solid var(--blue); transform: rotate(-45deg) translate(2px, -3px); }
-.checks.num li::before { display: none; }
-.checks.num .k { font-family: var(--display); font-weight: 400; font-size: 1.9em; color: var(--blue); min-width: 1.4em; line-height: 1; }
-.panel .big { font-family: var(--display); font-size: clamp(96px, 14vw, 200px); color: var(--blue); line-height: .85; }
-.panel .lede { color: var(--mute-ink); font-weight: 400; }
-.panel .lede.accent { color: var(--blue); font-weight: 600; }
-
-/* ---------- training ---------- */
-.placeholder { font-family: var(--mono); color: var(--mute); font-size: 15px; margin: 0; }
-
-/* ---------- schedule ---------- */
-.agenda { width: 100%; border-collapse: collapse; }
-.agenda td { border-top: 1px solid #2f323b; padding-block: 14px; vertical-align: baseline; }
-.agenda tr:last-child td { border-bottom: 1px solid #2f323b; }
-.agenda .h { font-family: var(--display); font-size: clamp(26px, 3.2vw, 46px); color: var(--sky); text-transform: uppercase; white-space: nowrap; padding-right: 32px; width: 28%; line-height: 1; font-variant-numeric: tabular-nums; }
-.agenda .w { font-weight: 600; font-size: clamp(18px, 2vw, 28px); }
-.agenda tr.final .h, .agenda tr.final .w { color: var(--paper); font-weight: 700; }
-@media (max-width: 560px) { .agenda tr { display: flex; flex-direction: column; border-top: 1px solid #2f323b; padding-block: 12px; } .agenda td { border: 0 !important; padding: 0; width: auto; } }
-
-/* ---------- participate ---------- */
-.roles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
-.role { all: unset; box-sizing: border-box; cursor: pointer; border: 2.5px solid var(--ink); border-radius: 6px; padding: 20px 22px 30px; display: flex; flex-direction: column; gap: 6px; min-height: 150px; transition: background .15s, color .15s; }
-.role:hover { background: #e1ded7; }
-.role:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
-.role .n { font-family: var(--mono); font-weight: 700; font-size: 15px; color: var(--blue); }
-.role .t { font-family: var(--display); font-size: clamp(24px, 2.6vw, 38px); text-transform: uppercase; line-height: 1; overflow-wrap: anywhere; }
-.role[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
-.role[aria-pressed="true"] .n { color: var(--sky); }
-.role.signup { background: var(--blue); border-color: var(--blue); color: var(--paper); cursor: default; }
-.role.signup .n { color: var(--paper); font-weight: 400; }
-@media (max-width: 900px) { .roles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-.picked { font-family: var(--mono); font-size: 14px; margin: 0; min-height: 1.5em; color: var(--mute-ink); }
-a.role.signup { cursor: pointer; text-decoration: none; }
-a.role.signup:hover { background: var(--blue-soft); border-color: var(--blue-soft); }
-
-/* ---------- signup form ---------- */
-.signup-form { background: var(--ink); color: var(--paper); border-radius: 6px; padding: clamp(24px, 4vw, 56px); display: flex; flex-direction: column; gap: clamp(24px, 3vw, 36px); scroll-margin-top: 80px; }
-.sf-head { display: flex; flex-direction: column; gap: 12px; }
-.signup-form .eyebrow { color: var(--sky); }
-.sf-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 28px; }
-.sf-grid .wide { grid-column: 1 / -1; }
-@media (max-width: 700px) { .sf-grid { grid-template-columns: minmax(0, 1fr); } }
-.field { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-.field label { font-family: var(--mono); font-weight: 700; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--mute); }
-.field input, .field select { font: 600 19px/1.3 var(--body); color: var(--paper); background: transparent; border: 0; border-bottom: 2px solid #3a3d47; border-radius: 0; padding: 10px 0 12px; width: 100%; transition: border-color .15s; }
-.field select { appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--sky) 50%), linear-gradient(135deg, var(--sky) 50%, transparent 50%); background-position: calc(100% - 14px) 52%, calc(100% - 8px) 52%; background-size: 6px 6px; background-repeat: no-repeat; padding-right: 28px; }
-.field select:invalid { color: #5b5f6a; font-weight: 400; }
-.field select option { background: var(--ink); color: var(--paper); }
-.field input::placeholder { color: #5b5f6a; font-weight: 400; }
-.field input:focus, .field select:focus { outline: none; border-color: var(--sky); }
-.field.invalid input, .field.invalid select { border-color: #ff7a6b; }
-.field .err { font-family: var(--mono); font-size: 12.5px; color: #ff9a8d; margin: 0; }
-.sf-note { margin: 0; color: var(--mute); max-width: 60ch; }
-.addr { border: 0; margin: 0; padding: 0; min-width: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 22px 28px; }
-.addr legend { padding: 0; margin-bottom: 18px; font-family: var(--mono); font-weight: 700; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--sky); }
-.addr .a2 { grid-column: span 2; }
-.addr .a4 { grid-column: span 4; }
-@media (max-width: 700px) { .addr { grid-template-columns: minmax(0, 1fr); } .addr .a2, .addr .a4 { grid-column: auto; } }
-.hint { margin: 0; font-family: var(--mono); font-size: 12.5px; line-height: 1.5; color: var(--mute); }
-.hint a { color: var(--sky); }
-.hint.ok { color: var(--sky); }
-.hint.bad { color: #ff9a8d; }
-.consent .check { display: flex; gap: 14px; align-items: flex-start; font: 400 15px/1.5 var(--body); letter-spacing: 0; text-transform: none; color: var(--paper); cursor: pointer; max-width: 75ch; }
-.consent input[type="checkbox"] { appearance: none; flex: none; width: 22px; height: 22px; margin: 1px 0 0; border: 2px solid var(--sky); border-radius: 3px; background: transparent; cursor: pointer; display: grid; place-content: center; }
-.consent input[type="checkbox"]::after { content: ""; width: 11px; height: 6px; border-left: 3px solid var(--ink); border-bottom: 3px solid var(--ink); transform: rotate(-45deg) translate(1px, -1px); opacity: 0; }
-.consent input[type="checkbox"]:checked { background: var(--sky); }
-.consent input[type="checkbox"]:checked::after { opacity: 1; }
-.consent input[type="checkbox"]:focus-visible { outline: 3px solid var(--sky); outline-offset: 3px; }
-.consent.invalid input[type="checkbox"] { border-color: #ff7a6b; }
-.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
-.sf-foot { display: flex; align-items: center; gap: 20px 28px; flex-wrap: wrap; }
-.sf-send { font: 400 clamp(22px, 2.4vw, 30px)/1 var(--display); text-transform: uppercase; letter-spacing: .02em; color: var(--paper); background: var(--blue); border: 0; border-radius: 4px; padding: 18px 28px 16px; cursor: pointer; transition: background .15s; }
-.sf-send:hover { background: var(--blue-soft); }
-.sf-send:focus-visible { outline: 3px solid var(--sky); outline-offset: 3px; }
-.sf-send[disabled] { opacity: .6; cursor: progress; }
-.sf-status { font-family: var(--mono); font-size: 14px; margin: 0; flex: 1 1 260px; min-width: 0; color: var(--mute); }
-.sf-status.ok { color: var(--sky); }
-.sf-status.bad { color: #ff9a8d; }
-
-/* ---------- imagine ---------- */
-.imagine { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 18px; }
-.imagine li { border-left: 5px solid var(--blue); padding-left: 24px; font-weight: 600; font-size: clamp(20px, 2.6vw, 38px); line-height: 1.2; }
-
-/* ---------- unity ---------- */
-.unity .d { line-height: .98; }
-
-/* ---------- closing ---------- */
-.poster { aspect-ratio: 3 / 4; max-width: 100%; width: min(100%, 420px); justify-self: end; background: var(--blue-soft); box-shadow: 0 30px 60px -20px rgba(10, 20, 60, .55); padding: 9% 7% 6%; display: flex; flex-direction: column; color: var(--paper); position: relative; overflow: hidden; }
-.poster::after { content: ""; position: absolute; inset: 0; background-image: radial-gradient(rgba(10,15,40,.22) 1px, transparent 1.2px); background-size: 4px 4px; mix-blend-mode: multiply; pointer-events: none; }
-.poster .pm { font-family: var(--display); font-size: clamp(36px, 7vw, 92px); line-height: .85; text-transform: uppercase; }
-.poster .pb { font-family: var(--display); font-size: clamp(64px, 13vw, 176px); line-height: .78; text-transform: uppercase; color: var(--ink); transform: scaleY(1.35); transform-origin: top left; }
-.poster .pf { margin-top: auto; display: flex; justify-content: space-between; font-family: var(--mono); font-weight: 700; font-size: 11px; letter-spacing: .04em; }
-@media (max-width: 900px) { .poster { justify-self: start; } }
-
-/* "Reduzir movimento": as animações continuam, mas sem deslocar nada na tela
-   (só aparecem, desenham ou revelam); giros, pulsos e deslizes são desligados. */
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  .hero .movement, .hero .behold { animation-name: wipe-only; }
-  .rv.in { animation-name: fade-only; }
-  .orbit .ring-outer, .orbit .ring-mid, .orbit .core { animation: none; }
-  .front:hover { transform: none; }
+.display {
+  font-family: var(--display);
+  font-weight: 400;
+  text-transform: uppercase;
+  line-height: 0.92;
+  letter-spacing: 0.005em;
 }
-@keyframes wipe-only { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
-@keyframes fade-only { from { opacity: 0; } }
+.rotulo {
+  font-family: var(--texto);
+  font-weight: 800;
+  font-size: 0.8125rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.miolo { padding-inline: var(--lateral); }
+.cena { position: relative; }
+.preto-t { color: var(--preto); }
+.papel-t { color: var(--papel); }
+.azul-t { color: var(--azul); }
+.claro-t { color: var(--azul-claro); }
+
+/* ===================== topo fixo ===================== */
+.barra {
+  position: fixed;
+  top: 16px; left: 50%; transform: translateX(-50%);
+  z-index: 100;
+  width: min(1200px, calc(100% - var(--lateral) * 2));
+  height: var(--topo);
+  display: flex; align-items: center; justify-content: space-between; gap: var(--e2);
+  padding: 0 24px;
+  border-radius: 999px;
+  background: rgba(31, 91, 242, 0.82);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transition: background 0.7s cubic-bezier(0.16, 1, 0.3, 1), color 0.7s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.barra .marca {
+  font-family: var(--display);
+  font-size: 1.35rem;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  transition: transform 0.25s ease;
+}
+.barra .marca:hover { transform: scale(1.02); }
+.barra .data {
+  font-weight: 800;
+  font-size: 0.8125rem;
+  letter-spacing: 0.18em;
+  opacity: 0.9;
+  background: rgba(255, 255, 255, 0.12);
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+.botao {
+  display: inline-flex; align-items: center; gap: 10px;
+  font: 800 0.8125rem/1 var(--texto); letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 12px 22px; border-radius: 999px; text-decoration: none; border: 0; cursor: pointer;
+  background: var(--fx-tinta); color: var(--fx-fundo);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 4px 14px rgba(0, 0, 0, 0.15);
+  transition: background 0.5s ease, color 0.5s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.botao:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 12px 28px -4px rgba(0, 0, 0, 0.3);
+}
+.botao:active {
+  transform: translateY(0) scale(0.98);
+}
+.botao:focus-visible, .campo input:focus-visible, .campo select:focus-visible, .chip:focus-visible {
+  outline: 3px solid var(--azul-claro); outline-offset: 3px;
+}
+@media (max-width: 560px) {
+  .barra { width: calc(100% - 24px); padding: 0 16px; top: 12px; }
+  .barra .data { display: none; }
+  .barra .botao { padding: 10px 14px; font-size: 0.75rem; }
+}
+
+/* ===================== o ponto (movimento-assinatura) ===================== */
+#ponto {
+  position: fixed; left: 0; top: 0; z-index: 30;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--fx-tinta);
+  transform-origin: 0 0;
+  pointer-events: none;
+  transition: background 0.35s ease;
+  will-change: transform;
+  box-shadow: 0 0 24px rgba(255, 255, 255, 0.3);
+}
+#ponto.pulsa::after {
+  content: ""; position: absolute; inset: 0; border-radius: 50%;
+  border: 3px solid currentColor; color: inherit;
+  animation: pulso 1.6s ease-out infinite;
+}
+#ponto.pulsa { color: var(--papel); }
+@keyframes pulso { from { transform: scale(1); opacity: 0.9; } to { transform: scale(3.2); opacity: 0; } }
+.ancora { display: inline-block; visibility: hidden; border-radius: 50%; background: var(--cor, currentColor); }
+.fx-reduzido #ponto { display: none; }
+.fx-reduzido .ancora { visibility: visible; }
+
+/* ===================== 1. abertura ===================== */
+.abertura {
+  min-height: 100vh; min-height: 100svh;
+  padding: calc(var(--topo) + var(--e5)) var(--lateral) var(--e4);
+  display: grid; grid-template-rows: 1fr auto auto; gap: var(--e4);
+}
+.abertura h1 { align-self: center; --tam: min(27vw, 56vh); }
+.abertura .l1 { display: block; font-size: calc(var(--tam) * 0.5); color: var(--papel); text-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+.abertura .l2 { display: block; font-size: var(--tam); color: var(--preto); margin-top: -0.02em; text-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+.abertura .l2 .ancora { width: 0.15em; height: 0.15em; margin-left: 0.04em; --cor: var(--papel); }
+.abertura blockquote { margin: 0; font-size: var(--t24); max-width: 34ch; line-height: 1.4; border-left: 3px solid rgba(255,255,255,0.4); padding-left: 20px; }
+.abertura blockquote cite { display: block; font-style: normal; font-weight: 800; margin-top: var(--e1); font-size: var(--t18); opacity: 0.9; }
+.abertura .rodape-abertura { display: flex; justify-content: space-between; gap: var(--e2); }
+
+/* ===================== 2. a pergunta ===================== */
+.pergunta { padding: var(--e7) var(--lateral) var(--e6); }
+.pergunta h2 { font-size: var(--t128); max-width: 15ch; min-height: 3.7em; }
+.pergunta h2 .claro-t { display: block; text-shadow: 0 0 30px rgba(127, 162, 255, 0.3); }
+.problema { margin-top: var(--e7); display: grid; gap: var(--e3); max-width: 1100px; margin-left: auto; text-align: right; }
+.problema h3 { font-size: var(--t128); }
+
+.problema .diag { font-size: var(--t40); font-weight: 700; line-height: 1.15; max-width: 22ch; margin-left: auto; color: var(--suave-preto); }
+
+/* ===================== 3. o que é behold ===================== */
+.eis { padding: var(--e7) var(--lateral) var(--e6); }
+.eis h2 { font-size: clamp(4rem, 1rem + 15vw, 15rem); color: var(--preto); }
+.eis .verbos { font-family: var(--display); font-size: var(--t72); line-height: 1; margin-top: var(--e3); text-transform: uppercase; word-spacing: 0.25em; }
+.eis .ref { margin-top: var(--e4); font-size: var(--t24); }
+
+.missao { padding: var(--e7) var(--lateral) var(--e6); }
+.missao .bloco { display: grid; grid-template-columns: 1fr; gap: var(--e3); max-width: 1200px; }
+.missao h2 { font-size: var(--t128); }
+.missao .lead { font-size: var(--t40); font-weight: 700; line-height: 1.15; color: var(--suave-papel); max-width: 24ch; }
+.pilares { margin-top: var(--e5); display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--e2); }
+.pilares li {
+  background: var(--preto); color: var(--papel);
+  border-radius: 16px; padding: var(--e3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.12), 0 16px 36px -10px rgba(0,0,0,0.3);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease;
+}
+.pilares li:hover {
+  transform: translateY(-5px) scale(1.02);
+  border-color: rgba(127, 162, 255, 0.3);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.2), 0 24px 48px -12px rgba(0,0,0,0.45);
+}
+.pilares .n { font-weight: 800; font-size: var(--t15); color: var(--azul-claro); letter-spacing: 0.1em; }
+.pilares .nome { font-family: var(--display); font-size: var(--t40); line-height: 1; display: block; margin-top: var(--e1); text-transform: uppercase; }
+.visao { margin-top: var(--e7); }
+.visao h2 { font-size: min(var(--t128), 11vw); text-align: right; }
+.passos { margin-top: var(--e5); display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--e3); }
+.passos li {
+  border-top: 6px solid var(--azul); padding-top: var(--e2);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.passos li:hover { transform: translateY(-4px); }
+.passos li:last-child { border-color: var(--preto); }
+.passos .n { font-weight: 800; color: var(--azul); letter-spacing: 0.1em; }
+.passos li:last-child .n { color: var(--preto); }
+.passos .nome { font-family: var(--display); font-size: var(--t40); line-height: 1; display: block; margin-top: var(--e1); text-transform: uppercase; }
+@media (max-width: 860px) {
+  .passos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pilares { grid-template-columns: minmax(0, 1fr); }
+  .pilares .nome { font-size: clamp(1.25rem, 0.8rem + 2.4vw, 2.5rem); overflow-wrap: anywhere; }
+}
+
+/* ---------- o PICO ---------- */
+.pico .fx-palco { justify-content: flex-start; padding: calc(var(--topo) + var(--e3)) var(--lateral) var(--e4); }
+.pico .conteudo { width: 100%; }
+.pico .rotulo { color: var(--azul-claro); margin-bottom: var(--e4); }
+.pico .negs { display: grid; gap: clamp(6px, 1.2vh, 14px); }
+.pico .neg {
+  --t: clamp(0, (var(--progresso, 1) - var(--a)) / (var(--b) - var(--a)), 1);
+  position: relative; justify-self: start;
+  font-weight: 700; font-size: clamp(1.5rem, 0.9rem + 2.6vw, 3.25rem); line-height: 1.15;
+  color: var(--papel);
+  opacity: calc(1 - var(--t) * 0.6);
+}
+.pico .neg::after {
+  content: ""; position: absolute; left: -0.08em; right: -0.08em; top: 54%;
+  height: 0.09em; background: var(--papel);
+  transform: scaleX(var(--t)); transform-origin: left center;
+}
+.pico .neg:nth-child(1) { --a: 0.05; --b: 0.17; }
+.pico .neg:nth-child(2) { --a: 0.19; --b: 0.31; }
+.pico .neg:nth-child(3) { --a: 0.33; --b: 0.45; }
+.pico .neg:nth-child(4) { --a: 0.47; --b: 0.59; }
+.pico .movimento {
+  --t: clamp(0, (var(--progresso, 1) - 0.62) / 0.2, 1);
+  font-size: min(11.6vw, 24vh);
+  color: var(--azul-claro);
+  margin-top: clamp(12px, 3vh, 40px);
+  opacity: var(--t);
+  transform: scale(calc(0.35 + var(--t) * 0.65));
+  transform-origin: left center;
+  white-space: nowrap;
+  text-shadow: 0 0 50px rgba(127, 162, 255, 0.4);
+}
+.pico .fecho {
+  --t: clamp(0, (var(--progresso, 1) - 0.84) / 0.1, 1);
+  opacity: var(--t);
+  margin-top: var(--e3); font-size: var(--t24); font-weight: 700; color: var(--suave-preto);
+}
+
+/* ===================== 4. o campo ===================== */
+.campo-intro { padding: var(--e7) var(--lateral) var(--e6); }
+.campo-intro h2 { font-size: var(--t128); }
+.campo-intro .cidades { margin-top: var(--e5); font-family: var(--display); font-size: var(--t72); line-height: 1.05; text-transform: uppercase; }
+
+.mapa-cena .fx-palco { padding: calc(var(--topo) + var(--e2)) var(--lateral) var(--e3); }
+.mapa-grade { width: 100%; display: grid; grid-template-columns: 5fr 7fr; align-items: center; gap: var(--e4); }
+.fases { display: grid; }
+.fase {
+  grid-area: 1 / 1;
+  --in: clamp(0, (var(--progresso, 1) - var(--a)) * 18, 1);
+  --out: clamp(0, (var(--b) - var(--progresso, 1)) * 18, 1);
+  opacity: min(var(--in), var(--out));
+}
+.fase:nth-child(1) { --a: -1; --b: 0.3; }
+.fase:nth-child(2) { --a: 0.32; --b: 0.6; }
+.fase:nth-child(3) { --a: 0.62; --b: 9; }
+.fase h3 { font-size: var(--t72); }
+.fase .apoio { margin-top: var(--e2); font-size: var(--t24); font-weight: 700; }
+.fase:nth-child(2) h3 { color: var(--preto); }
+.fx-reduzido .fase { grid-area: auto; opacity: 1; margin-bottom: var(--e4); }
+
+.mapa { position: relative; width: 100%; aspect-ratio: 1 / 1; max-width: 680px; margin-inline: auto; filter: drop-shadow(0 20px 50px rgba(0,0,0,0.4)); }
+.mapa svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.mapa text { font-family: var(--display); text-transform: uppercase; }
+
+.mapa-cena .brasil-contorno {
+  fill: #1C3F96;
+  stroke: #7FA2FF;
+  stroke-width: 2.5px;
+  filter: drop-shadow(0 16px 36px rgba(0,0,0,0.4));
+  transition: fill 0.3s ease;
+}
+
+/* Anéis da Onda de Energia que se expandem com a rolagem (Down e Up) */
+.mapa-cena .anel-energia {
+  transform-box: fill-box; transform-origin: center;
+  --t: clamp(0, (var(--progresso, 0) - var(--delay, 0)) / var(--dur, 0.6), 1);
+  transform: scale(calc(var(--t) * var(--max-s, 1.8)));
+  opacity: calc(var(--t) * (1 - var(--t) * 0.45));
+}
+.mapa-cena .anel-1 { --delay: 0.00; --dur: 0.50; --max-s: 2.2; }
+.mapa-cena .anel-2 { --delay: 0.15; --dur: 0.60; --max-s: 2.6; }
+.mapa-cena .anel-3 { --delay: 0.35; --dur: 0.65; --max-s: 3.2; }
+
+/* Pontos acendendo em sincronia com a onda no scroll */
+.mapa-cena .pt {
+  --raio-onda: calc(var(--progresso, 0) * 720);
+  --dist-pt: var(--d-px, 999);
+  --dif: calc(var(--raio-onda) - var(--dist-pt));
+  --visivel: clamp(0, (var(--dif) + 30) / 40, 1);
+  opacity: var(--visivel);
+  transform-box: fill-box; transform-origin: center;
+  transform: scale(var(--visivel));
+  fill: #EBE9E4;
+  filter: drop-shadow(0 0 8px #FFFFFF) drop-shadow(0 0 14px #7FA2FF);
+  transition: opacity 0.12s ease-out, transform 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pulso-origem {
+  transform-box: fill-box; transform-origin: center;
+  animation: pulso-origem-anim 1.8s ease-out infinite;
+}
+@keyframes pulso-origem-anim {
+  0% { transform: scale(1); opacity: 0.9; }
+  100% { transform: scale(2.8); opacity: 0; }
+}
+
+.mapa-legenda { margin-top: var(--e1); font-size: 0.8125rem; opacity: 0.85; text-align: right; font-weight: 700; letter-spacing: 0.08em; }
+
+@media (max-width: 860px) {
+  .mapa-grade { grid-template-columns: 1fr; gap: var(--e3); }
+  .mapa { max-height: 52vh; max-width: 52vh; margin-inline: auto; }
+  .mapa-cena .fx-palco { align-items: flex-start; }
+}
+
+.bairros { padding: var(--e6) var(--lateral) var(--e7); }
+.bairros h2 { font-size: var(--t72); color: var(--preto); max-width: 18ch; }
+.lista-bairros { margin-top: var(--e4); display: grid; grid-template-columns: repeat(4, 1fr); gap: 0 var(--e3); }
+.lista-bairros li {
+  border-top: 2px solid var(--preto); padding: 16px 0 20px; font-weight: 700; display: flex; align-items: center; gap: 10px;
+  transition: transform 0.25s ease, padding-left 0.25s ease;
+}
+.lista-bairros li:hover { transform: translateX(4px); }
+.lista-bairros li::before { content: ""; width: 12px; height: 12px; border-radius: 50%; background: var(--preto); flex: none; }
+.cada { margin-top: var(--e6); font-size: var(--t72); }
+.cada span { display: block; }
+@media (max-width: 860px) { .lista-bairros { grid-template-columns: 1fr 1fr; } }
+
+/* ===================== 5. o dia 31 ===================== */
+.comeco { padding: var(--e7) var(--lateral) var(--e6); }
+.comeco .quando { margin-bottom: var(--e3); color: var(--azul); }
+.comeco h2 { font-size: clamp(3.5rem, 1rem + 11vw, 11rem); }
+
+.frentes .fx-palco { flex-direction: column; align-items: stretch; justify-content: center; gap: var(--e4); padding-top: calc(var(--topo) + var(--e2)); }
+.frentes .cabeca { padding-inline: var(--lateral); display: flex; justify-content: space-between; align-items: flex-end; gap: var(--e3); }
+.frentes .cabeca h2 { font-size: var(--t128); }
+.frentes .cabeca p { max-width: 30ch; color: var(--suave-papel); font-weight: 500; }
+.trilho { gap: var(--e3); padding-left: var(--lateral); width: 100%; align-items: stretch; }
+.trilho .fim { flex: 0 0 var(--lateral); }
+.frente {
+  flex: 0 0 min(440px, 84vw);
+  background: #FFFFFF; border: 1.5px solid rgba(22, 23, 28, 0.12); border-radius: 16px;
+  padding: clamp(24px, 2.6vw, 36px);
+  display: flex; flex-direction: column; gap: var(--e2);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 20px 48px -12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease;
+}
+.frente:hover {
+  transform: translateY(-6px) scale(1.015);
+  border-color: var(--azul);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,1), 0 28px 60px -15px rgba(31, 91, 242, 0.18);
+}
+.frente .rotulo { color: var(--azul); letter-spacing: 0.14em; }
+.frente h3 { font-size: clamp(1.75rem, 1rem + 3.4vw, 3.25rem); }
+.frente .desc { font-size: var(--t18); color: var(--suave-papel); line-height: 1.45; }
+.frente .desc.forte { color: var(--azul); font-weight: 700; }
+.frente ul li, .frente ol li { border-bottom: 1.5px solid rgba(22, 23, 28, 0.08); padding: 9px 0; font-weight: 700; display: flex; gap: 12px; align-items: baseline; }
+.frente ul li::before { content: "✓"; color: var(--azul); font-weight: 800; }
+.frente ol .n { font-family: var(--display); color: var(--azul); font-size: 1.5rem; line-height: 1; }
+.frente .hora { font-family: var(--display); font-size: 4.5rem; line-height: 0.9; color: var(--azul); }
+@media (max-height: 760px) and (min-width: 861px) {
+  .frente ul li, .frente ol li { padding: 6px 0; font-size: var(--t15); }
+}
+@media (max-width: 560px) {
+  .frente { gap: 12px; }
+  .frente ul li, .frente ol li { padding: 6px 0; font-size: var(--t15); }
+  .frente .desc { font-size: var(--t15); }
+  .frentes .cabeca p { display: none; }
+}
+
+.treino { padding: var(--e6) var(--lateral) 0; }
+.treino .cartao {
+  background: var(--preto); color: var(--papel); border-radius: 20px;
+  padding: clamp(28px, 5vw, 68px); display: grid; gap: var(--e3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.15), 0 32px 80px -20px rgba(0,0,0,0.5);
+}
+.treino .rotulo { color: var(--azul-claro); letter-spacing: 0.14em; }
+.treino h2 { font-size: var(--t128); color: var(--azul-claro); text-shadow: 0 0 30px rgba(127, 162, 255, 0.25); }
+.treino .txt { font-size: var(--t24); font-weight: 700; max-width: 40ch; line-height: 1.4; }
+.aviso {
+  border: 1.5px solid var(--azul-claro); border-radius: 12px; padding: var(--e2) var(--e3);
+  font-weight: 700; font-size: var(--t24); display: flex; gap: var(--e2); align-items: center;
+  background: rgba(127, 162, 255, 0.06); backdrop-filter: blur(10px);
+}
+.aviso svg { flex: none; }
+.detalhes { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--e3); border-top: 1px solid #3A3C44; padding-top: var(--e3); }
+.detalhes dt { font-weight: 800; font-size: 0.8125rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--suave-preto); }
+.detalhes dd { margin-top: 4px; font-weight: 700; font-size: var(--t24); }
+.detalhes dd.vazio { color: var(--suave-preto); font-weight: 500; }
+@media (max-width: 700px) { .detalhes { grid-template-columns: 1fr; } }
+
+.dia { padding: var(--e7) var(--lateral) var(--e7); }
+.dia .rotulo { color: var(--azul); }
+.dia h2 { font-size: var(--t128); margin-top: var(--e1); }
+.agenda { margin-top: var(--e4); border-top: 1.5px solid var(--preto); }
+.agenda li {
+  display: grid; grid-template-columns: minmax(150px, 2fr) 5fr; gap: var(--e3); align-items: baseline;
+  padding: var(--e2) 0; border-bottom: 1.5px solid var(--preto);
+  transition: transform 0.25s ease, padding-left 0.25s ease;
+}
+.agenda li:hover { transform: translateX(6px); }
+.agenda .h { font-family: var(--display); font-size: var(--t40); color: var(--azul); line-height: 1; font-variant-numeric: tabular-nums; }
+.agenda .o { font-weight: 700; font-size: var(--t24); }
+.agenda li.final { background: var(--preto); color: var(--papel); padding: var(--e2) var(--e3); border-radius: 12px; border: 0; margin-top: var(--e2); box-shadow: 0 16px 36px -10px rgba(0,0,0,0.3); }
+.agenda li.final:hover { transform: translateY(-2px); }
+.agenda li.final .h { color: var(--azul-claro); }
+@media (max-width: 560px) { .agenda li { grid-template-columns: 1fr; gap: 4px; } }
+
+/* ===================== 6. o chamado ===================== */
+.chamado { padding: var(--e7) var(--lateral) var(--e6); }
+.chamado h2 { font-size: var(--t128); max-width: 14ch; }
+.imagine { margin-top: var(--e5); }
+.imagine .rotulo { color: var(--azul-claro); }
+.imagine ul { margin-top: var(--e3); display: grid; gap: var(--e2); }
+.imagine li { border-left: 4px solid var(--azul); padding-left: var(--e3); font-size: var(--t40); font-weight: 700; line-height: 1.15; }
+
+.sonho { margin-top: var(--e7); max-width: 1200px; }
+.sonho .rotulo { color: var(--azul-claro); }
+.sonho s { display: inline-block; margin-top: var(--e3); font-size: var(--t40); font-weight: 700; color: var(--suave-preto); text-decoration-thickness: 0.08em; }
+.sonho h3 { font-size: var(--t128); margin-top: var(--e2); }
+.sonho .conhecido { font-family: var(--display); font-size: var(--t72); color: var(--azul-claro); text-transform: uppercase; line-height: 1; margin-top: var(--e3); text-shadow: 0 0 35px rgba(127, 162, 255, 0.3); }
+
+.um { margin-top: var(--e7); text-align: right; }
+.um .rotulo { color: var(--azul-claro); }
+.um h3 { margin-top: var(--e3); font-size: var(--t128); }
+.um h3 span { display: block; }
+.um h3 span:first-child { color: var(--azul-claro); }
+
+.ide { padding: var(--e7) var(--lateral); min-height: 100vh; min-height: 100svh; display: grid; align-content: center; }
+.ide .rotulo { color: var(--azul-claro); }
+.ide blockquote { margin: var(--e3) 0 0; }
+.ide blockquote p { font-size: clamp(3rem, 0.8rem + 8vw, 9.5rem); }
+.ide cite { display: block; margin-top: var(--e3); font-style: normal; font-weight: 800; letter-spacing: 0.14em; color: var(--azul-claro); }
+
+/* ===================== 7. inscrição ===================== */
+.participar { padding: var(--e7) var(--lateral) var(--e6); }
+.participar .rotulo { color: var(--azul); }
+.participar h2 { font-size: var(--t128); margin-top: var(--e1); }
+.chips { margin-top: var(--e4); display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--e2); }
+.chip {
+  text-align: left; cursor: pointer; font: inherit; color: var(--preto);
+  background: rgba(22, 23, 28, 0.03); border: 2px solid var(--preto); border-radius: 14px;
+  padding: var(--e2) var(--e3) var(--e3); min-height: 120px;
+  display: flex; flex-direction: column; gap: var(--e1);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), background 0.25s ease, color 0.25s ease, box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.chip .n { font-weight: 800; color: var(--azul); font-size: var(--t15); letter-spacing: 0.1em; }
+.chip .nome { font-family: var(--display); font-size: clamp(1.35rem, 0.9rem + 2vw, 2.5rem); overflow-wrap: anywhere; line-height: 0.95; text-transform: uppercase; }
+.chip:hover, .chip[aria-pressed="true"] {
+  background: var(--preto); color: var(--papel);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px -10px rgba(0,0,0,0.35);
+}
+.chip:hover .n, .chip[aria-pressed="true"] .n { color: var(--azul-claro); }
+.chip.cta { background: var(--azul); border-color: var(--azul); color: var(--papel); text-decoration: none; box-shadow: 0 12px 32px -8px rgba(31, 91, 242, 0.4); }
+.chip.cta:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 20px 44px -10px rgba(31, 91, 242, 0.55); }
+.chip.cta .n { color: var(--papel); opacity: 0.9; }
+@media (max-width: 860px) { .chips { grid-template-columns: repeat(2, minmax(0, 1fr)); } .chip { min-height: 96px; padding: var(--e2); } }
+@media (max-width: 480px) { .chip .nome { font-size: 1.25rem; overflow-wrap: normal; } }
+
+/* ===================== Quadro de Inscrição Dark ===================== */
+.inscricao-secao {
+  padding: var(--e5) clamp(8px, 1.2vw, 24px) var(--e6);
+  background: var(--papel);
+}
+
+.quadro-form-dark {
+  background: linear-gradient(150deg, #1A1B22 0%, #111216 100%);
+  color: #EBE9E4;
+  border-radius: 20px;
+  padding: clamp(28px, 4vw, 56px);
+  width: 100%;
+  max-width: 100%;
+  margin-inline: auto;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 40px 100px -20px rgba(22, 23, 28, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.quadro-form-dark .cabecalho-form {
+  margin-bottom: 24px;
+}
+.quadro-form-dark .rotulo-tag {
+  font-weight: 800;
+  font-size: 0.8125rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--azul-claro);
+}
+.quadro-form-dark h2 {
+  font-family: var(--display);
+  font-size: clamp(1.85rem, 1rem + 3.2vw, 3.25rem);
+  line-height: 0.95;
+  text-transform: uppercase;
+  margin-top: 6px;
+  color: #EBE9E4;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+.quadro-form-dark .sub {
+  font-size: var(--t18);
+  color: var(--suave-preto);
+  margin-top: 8px;
+  max-width: 60ch;
+  line-height: 1.45;
+}
+
+.form-grid-dark {
+  display: grid;
+  gap: 18px;
+  width: 100%;
+}
+
+.form-linha {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px 28px;
+}
+.form-linha.unica {
+  grid-template-columns: 1fr;
+}
+
+.divisao-secao {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 18px;
+  margin-top: 10px;
+}
+.subtitulo-form {
+  font-weight: 800;
+  font-size: 0.8125rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--azul-claro);
+  margin-bottom: 12px;
+}
+
+.campo-dark {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+}
+.campo-dark label {
+  font-weight: 800;
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--suave-preto);
+}
+.campo-dark input,
+.campo-dark select {
+  font-family: var(--texto);
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #EBE9E4;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 12px 16px;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), background 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.campo-dark input::placeholder {
+  color: #6C707C;
+}
+.campo-dark select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237FA2FF' stroke-width='2' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.campo-dark select option {
+  background: #16171C;
+  color: #EBE9E4;
+}
+.campo-dark input:hover,
+.campo-dark select:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.06);
+}
+.campo-dark input:focus,
+.campo-dark select:focus {
+  border-color: var(--azul-claro);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 4px rgba(127, 162, 255, 0.2), inset 0 1px 2px rgba(0,0,0,0.2);
+}
+.campo-dark input[aria-invalid="true"],
+.campo-dark select[aria-invalid="true"] {
+  border-color: #FF5A50;
+  box-shadow: 0 0 0 4px rgba(255, 90, 80, 0.2);
+}
+.campo-dark .erro {
+  color: #FF5A50;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  min-height: 18px;
+  margin-top: 2px;
+}
+.cep-status-msg {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--azul-claro);
+  margin-top: 4px;
+}
+.cep-status-msg.erro-cep {
+  color: #FF5A50;
+}
+
+.lgpd-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: var(--e2);
+  font-size: 0.875rem;
+  color: var(--suave-preto);
+  cursor: pointer;
+}
+.lgpd-box input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--azul);
+  margin-top: 2px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.botao-submit-dark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--display);
+  font-size: 1.25rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 18px 44px;
+  border-radius: 999px;
+  background: var(--azul);
+  color: #EBE9E4;
+  border: none;
+  cursor: pointer;
+  justify-self: start;
+  margin-top: var(--e3);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 16px 36px -8px rgba(31, 91, 242, 0.5);
+  transition: background 0.35s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.botao-submit-dark:hover {
+  background: #3D72F5;
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 24px 48px -10px rgba(31, 91, 242, 0.65);
+}
+.botao-submit-dark:active {
+  transform: translateY(0) scale(0.98);
+}
+.botao-submit-dark[disabled] {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+@media (max-width: 768px) {
+  .form-linha {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+/* ===================== instagram ===================== */
+.barra .direita { display: flex; align-items: center; gap: 10px; }
+.barra .ig-topo {
+  width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center;
+  color: inherit; text-decoration: none;
+  box-shadow: inset 0 0 0 1.5px currentColor; opacity: 0.92;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+.barra .ig-topo:hover { transform: scale(1.06); opacity: 1; }
+.barra .ig-topo:focus-visible, .ig-faixa a:focus-visible { outline: 3px solid var(--azul-claro); outline-offset: 3px; }
+.barra .marca { white-space: nowrap; }
+@media (max-width: 560px) {
+  .barra .marca { font-size: 1.1rem; }
+  .barra .direita { gap: 8px; }
+  .barra .ig-topo { width: 36px; height: 36px; }
+  .barra .direita .botao { white-space: nowrap; padding: 10px 12px; font-size: 0.6875rem; letter-spacing: 0.08em; }
+}
+
+.ig-faixa { padding: var(--e7) var(--lateral); display: grid; gap: var(--e3); }
+.ig-faixa .rotulo { color: var(--azul-claro); }
+.ig-faixa a.arroba {
+  display: inline-flex; align-items: center; gap: 0.12em; justify-self: start;
+  font-family: var(--display); text-transform: lowercase; line-height: 0.95;
+  font-size: clamp(3rem, 0.6rem + 11vw, 11rem);
+  color: var(--papel); text-decoration: none;
+  transition: color 0.25s ease;
+}
+.ig-faixa a.arroba:hover { color: var(--azul-claro); }
+.ig-faixa a.arroba .seta { font-size: 0.5em; transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+.ig-faixa a.arroba:hover .seta { transform: translate(0.08em, -0.08em); }
+.ig-faixa .txt { font-size: var(--t24); font-weight: 700; max-width: 34ch; color: var(--suave-preto); }
+.ig-faixa .botao { justify-self: start; background: var(--papel); color: var(--preto); }
+.estado .ig-link { color: inherit; font-weight: 800; }
+
+/* ===================== fechamento ===================== */
+.fecho-final { padding: var(--e7) var(--lateral) var(--e4); min-height: 100vh; min-height: 100svh; display: grid; grid-template-rows: 1fr auto; gap: var(--e6); }
+.fecho-final .marca-final { font-size: clamp(4rem, 1rem + 14vw, 14rem); color: var(--papel); text-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+.fecho-final .frase { margin-top: var(--e4); font-size: var(--t72); }
+.fecho-final .frase span { display: block; }
+.fecho-final .frase .preto-t { color: var(--preto); }
+.fecho-final .acoes { margin-top: var(--e5); display: flex; flex-wrap: wrap; gap: var(--e2); }
+.fecho-final .botao.claro { background: var(--papel); color: var(--azul); }
+.fecho-final .botao.contorno { background: transparent; color: var(--papel); box-shadow: inset 0 0 0 2px var(--papel); }
+.fecho-final footer { display: flex; justify-content: space-between; gap: var(--e2); flex-wrap: wrap; border-top: 1.5px solid rgba(235, 233, 228, 0.4); padding-top: var(--e3); font-weight: 800; font-size: 0.8125rem; letter-spacing: 0.14em; text-transform: uppercase; }
+
+/* Celular: "VERDADEIRAMENTE" não cabia na largura da tela no tamanho padrão dos títulos. */
+.cena.pergunta h2.display { font-size: min(var(--t128), 11.5vw); }
+/* Textos que entram deslizando de lado ficam fora da tela antes de aparecer;
+   o recorte evita que eles alarguem a página (rolagem lateral no celular). */
+.cena { overflow-x: clip; }
 </style>
 </head>
 <body>
-<header class="bar">
-  <a class="mark" href="#topo">Behold <b>Movement</b></a>
-  <nav aria-label="Seções">
-    <a href="#missao">Missão</a>
-    <a href="#campo">Campo</a>
-    <a href="#frentes">Frentes</a>
-    <a href="#dia31">Dia 31</a>
-  </nav>
-  <a class="cta" href="#participar">Escolha sua frente</a>
+
+<header class="barra">
+  <a class="marca" href="#topo">Behold Movement</a>
+  <span class="data">31 · 10 · 2026</span>
+  <div class="direita">
+    <a class="ig-topo js-instagram" href="https://www.instagram.com/beholdmvmt" target="_blank" rel="noopener" aria-label="Instagram do Behold Movement (@beholdmvmt)"><svg class="ig-icone" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.4" cy="6.6" r="1.3" fill="currentColor"/></svg></a>
+    <a class="botao" href="#inscricao">Quero participar</a>
+  </div>
 </header>
 
-<main>
-<!-- 01 HERO -->
-<section class="slab s-blue hero" id="topo">
-  <div class="stack">
-    <h1 class="movement">Movement</h1>
-    <p class="behold" aria-hidden="true">Behold</p>
-  </div>
-  <div class="hero-meta">
-    <p class="verse">"Eis o Cordeiro de Deus, que tira o pecado do mundo."<br>João 1:29</p>
-    <span class="date-chip">Dia 31 · Taboão da Serra</span>
-  </div>
-  <div class="slab-foot"><span>2026</span><span>Contemple Cristo</span></div>
-</section>
+<div id="ponto" aria-hidden="true"></div>
 
-<!-- 02 PERGUNTA -->
-<section class="slab s-ink tall">
-  <p class="eyebrow">Uma pergunta</p>
-  <h2 class="d d-l push">Quantas pessoas vivem ao nosso redor sem conhecer <span class="c-sky">verdadeiramente Jesus?</span></h2>
-  <div class="slab-foot"><span>Behold Movement</span><span>02</span></div>
-</section>
+<main id="topo">
 
-<!-- 03 PROBLEMA -->
-<section class="slab s-paper">
-  <p class="eyebrow">O problema</p>
-  <h2 class="d d-l">Não é a falta<br>de pessoas.</h2>
-  <p class="lede">O problema é que muitos ainda não <span class="c-blue">contemplaram Cristo.</span></p>
-  <div class="slab-foot"><span>Behold Movement</span><span>03</span></div>
-</section>
-
-<!-- 04 BEHOLD = EIS -->
-<section class="slab s-blue">
-  <p class="eyebrow">O que significa Behold?</p>
-  <h2 class="d d-xl c-ink">Behold = Eis</h2>
-  <ul class="verbs"><li>Olhe.</li><li>Contemple.</li><li>Reconheça.</li><li>Veja.</li></ul>
-  <p class="verse">"Eis o Cordeiro de Deus." João 1:29</p>
-  <div class="slab-foot"><span>Behold Movement</span><span>04</span></div>
-</section>
-
-<!-- 05 MISSÃO -->
-<section class="slab s-paper" id="missao">
-  <p class="eyebrow">Nossa missão</p>
-  <h2 class="d d-l">Revelar Cristo<br>às pessoas.</h2>
-  <p class="lede">Levar Jesus além das quatro paredes da igreja.</p>
-  <p class="eyebrow">Através de</p>
-  <div class="tiles">
-    <div class="tile"><span class="n">01</span><span class="t">Adoração</span></div>
-    <div class="tile"><span class="n">02</span><span class="t">Palavra</span></div>
-    <div class="tile"><span class="n">03</span><span class="t">Relacionamento</span></div>
-  </div>
-  <div class="slab-foot"><span>Behold Movement</span><span>05</span></div>
-</section>
-
-<!-- 06 É UM MOVIMENTO -->
-<section class="slab s-ink">
-  <p class="eyebrow">O Behold</p>
-  <ul class="struck">
-    <li><span>Não é um evento.</span></li>
-    <li><span>Não é uma programação.</span></li>
-    <li><span>Não é uma campanha.</span></li>
-    <li><span>Não é um culto especial.</span></li>
-  </ul>
-  <h2 class="d d-xl c-sky">É um movimento.</h2>
-  <div class="slab-foot"><span>Behold Movement</span><span>06</span></div>
-</section>
-
-<!-- 07 DIA 31 -->
-<section class="slab s-blue">
-  <p class="eyebrow">Dia 31</p>
-  <h2 class="d d-xl c-ink">O dia 31 é<br>apenas <span class="c-paper">o começo.</span></h2>
-  <div class="slab-foot"><span>Behold Movement</span><span>07</span></div>
-</section>
-
-<!-- 08 VISÃO -->
-<section class="slab s-paper">
-  <p class="eyebrow">Nossa visão</p>
-  <h2 class="d d-l">Do olhar<br>à transformação.</h2>
-  <ol class="steps">
-    <li><span class="n">01</span><span class="d d-s">Contemplar<br>Cristo</span></li>
-    <li><span class="n">02</span><span class="d d-s">Apresentar<br>Cristo</span></li>
-    <li><span class="n">03</span><span class="d d-s">Alcançar<br>pessoas</span></li>
-    <li><span class="n">04</span><span class="d d-s">Transformar<br>comunidades</span></li>
-  </ol>
-  <div class="slab-foot"><span>Behold Movement</span><span>08</span></div>
-</section>
-
-<!-- 09 CAMPO MISSIONÁRIO -->
-<section class="slab s-blue" id="campo">
-  <p class="eyebrow">Nosso campo missionário</p>
-  <div class="split">
-    <div style="display:flex;flex-direction:column;gap:clamp(28px,5vw,72px)">
-      <h2 class="d d-l">Onde Deus<br>nos enviar.</h2>
-      <ul class="cities"><li>Taboão da Serra</li><li>Embu das Artes</li><li>Itapecerica da Serra</li></ul>
+  <!-- ============ 1. ABERTURA ============ -->
+  <section class="cena abertura" data-fx-fundo="#1F5BF2" data-fx-tinta="#EBE9E4">
+    <h1 class="display" aria-label="Behold Movement">
+      <span class="l1" data-fx="subir" data-fx-duracao="1100">Movement</span>
+      <span class="l2" data-fx="subir" data-fx-atraso="220" data-fx-duracao="1200">Behold<span class="ancora" data-ancora aria-hidden="true"></span></span>
+    </h1>
+    <blockquote data-fx="surgir" data-fx-atraso="700">
+      “Eis o Cordeiro de Deus, que tira o pecado do mundo.”
+      <cite>João 1:29</cite>
+    </blockquote>
+    <div class="rodape-abertura rotulo" data-fx="surgir" data-fx-atraso="900">
+      <span>2026</span><span>Contemple Cristo</span>
     </div>
-    <div class="map">
-      <svg viewBox="0 0 760 640" role="img" aria-label="Mapa ilustrativo de Embu das Artes, Taboão da Serra e Itapecerica da Serra">
-        <g stroke="#eceae5" stroke-width="3" stroke-linejoin="round" font-family="Anton, Impact, sans-serif" text-anchor="middle">
-          <polygon pathLength="100" points="170,20 335,52 408,135 400,272 302,335 170,355 52,295 0,185 22,82" fill="#3b6ff5"/>
-          <polygon pathLength="100" points="415,112 545,40 668,70 752,168 735,295 625,345 505,320 415,250" fill="#eceae5"/>
-          <polygon pathLength="100" points="52,315 170,365 305,345 410,282 505,320 545,425 505,565 380,635 210,625 85,540 22,425" fill="#3b6ff5"/>
-          <g stroke="none" font-size="42">
-            <text x="210" y="168" fill="#eceae5">EMBU</text><text x="210" y="214" fill="#eceae5">DAS ARTES</text>
-            <text x="585" y="140" fill="#16171c">TABOÃO</text><text x="585" y="186" fill="#16171c">DA SERRA</text>
-            <text x="295" y="458" fill="#eceae5">ITAPECERICA</text><text x="295" y="504" fill="#eceae5">DA SERRA</text>
-          </g>
-          <circle cx="542" cy="250" r="14" fill="#16171c" stroke="none"/>
-        </g>
-      </svg>
-      <p class="caption">Mapa ilustrativo, fora de escala</p>
+  </section>
+
+  <!-- ============ 2. A PERGUNTA ============ -->
+  <section class="cena pergunta" data-fx-fundo="#16171C" data-fx-tinta="#EBE9E4">
+    <p class="rotulo claro-t" data-fx="surgir">Uma pergunta</p>
+    <h2 class="display" style="margin-top: var(--e4)">
+      <span data-fx="digitar" data-fx-duracao="2600">Quantas pessoas vivem ao nosso redor sem conhecer</span>
+      <span class="claro-t" data-fx="surgir" data-fx-atraso="2700" data-fx-duracao="1400">verdadeiramente Jesus?</span>
+    </h2>
+
+    <div class="problema">
+      <p class="rotulo claro-t" data-fx="surgir">O problema</p>
+      <h3 class="display" data-fx="subir">Não é a falta de pessoas.</h3>
+      <p class="diag" data-fx="subir" data-fx-atraso="250">O problema é que muitos ainda não <span class="claro-t">contemplaram Cristo.</span></p>
     </div>
-  </div>
-  <div class="slab-foot"><span>Behold Movement</span><span>09</span></div>
-</section>
+  </section>
 
-<!-- 10 TUDO COMEÇA AQUI -->
-<section class="slab s-ink">
-  <p class="eyebrow">Taboão da Serra</p>
-  <div class="split">
-    <div style="display:flex;flex-direction:column;gap:24px">
-      <h2 class="d d-l">Tudo começa<br>aqui.</h2>
-      <p class="d d-l c-sky">Mas não<br>termina aqui.</p>
+  <!-- ============ 3. O QUE É BEHOLD ============ -->
+  <section class="cena eis" data-fx-fundo="#1F5BF2" data-fx-tinta="#EBE9E4">
+    <p class="rotulo" data-fx="surgir">O que significa Behold?</p>
+    <h2 class="display" data-fx="subir" style="margin-top: var(--e3)">Behold = Eis</h2>
+    <p class="verbos" data-fx="palavras" data-fx-duracao="1400">Olhe. Contemple. Reconheça. Veja.</p>
+    <p class="ref" data-fx="surgir" data-fx-atraso="600">“Eis o Cordeiro de Deus.” João 1:29</p>
+  </section>
+
+  <section class="cena missao" data-fx-fundo="#EBE9E4" data-fx-tinta="#16171C">
+    <div class="bloco">
+      <p class="rotulo azul-t" data-fx="surgir">Nossa missão</p>
+      <h2 class="display" data-fx="subir">Revelar Cristo<br>às pessoas.</h2>
+      <p class="lead" data-fx="subir" data-fx-atraso="200">Levar Jesus além das quatro paredes da igreja.</p>
     </div>
-    <div class="orbit">
-      <svg viewBox="0 0 640 640" role="img" aria-label="Círculos a partir da Igreja Asafe, para os bairros e as cidades">
-        <circle class="ring-outer" cx="320" cy="330" r="290" fill="none" stroke="#6e97ff" stroke-width="2.5" stroke-dasharray="6 6"/>
-        <circle class="ring-mid" cx="320" cy="330" r="200" fill="none" stroke="#6e97ff" stroke-width="2.5" stroke-dasharray="2 10"/>
-        <circle class="core" cx="320" cy="330" r="115" fill="#1f5bf2" stroke="#6e97ff" stroke-width="2.5"/>
-        <circle cx="320" cy="330" r="18" fill="#eceae5"/>
-        <g font-family="'Space Mono', monospace" font-weight="700" font-size="20" text-anchor="middle">
-          <rect x="250" y="22" width="140" height="34" fill="#16171c"/><text x="320" y="46" fill="#6e97ff">CIDADES</text>
-          <rect x="255" y="112" width="130" height="34" fill="#16171c"/><text x="320" y="136" fill="#6e97ff">BAIRROS</text>
-          <text x="320" y="380" fill="#eceae5">IGREJA ASAFE</text>
-        </g>
-      </svg>
+    <p class="rotulo azul-t" style="margin-top: var(--e5)" data-fx="surgir">Através de</p>
+    <ul class="pilares" style="margin-top: var(--e2)">
+      <li data-fx="subir"><span class="n">01</span><span class="nome">Adoração</span></li>
+      <li data-fx="subir" data-fx-atraso="120"><span class="n">02</span><span class="nome">Palavra</span></li>
+      <li data-fx="subir" data-fx-atraso="240"><span class="n">03</span><span class="nome">Relacionamento</span></li>
+    </ul>
+
+    <div class="visao">
+      <p class="rotulo azul-t" style="text-align:right" data-fx="surgir">Nossa visão</p>
+      <h2 class="display" data-fx="direita" style="margin-top: var(--e2)">Do olhar<br>à transformação.</h2>
+      <ol class="passos">
+        <li data-fx="esquerda"><span class="n">01</span><span class="nome">Contemplar<br>Cristo</span></li>
+        <li data-fx="esquerda" data-fx-atraso="140"><span class="n">02</span><span class="nome">Apresentar<br>Cristo</span></li>
+        <li data-fx="esquerda" data-fx-atraso="280"><span class="n">03</span><span class="nome">Alcançar<br>pessoas</span></li>
+        <li data-fx="esquerda" data-fx-atraso="420"><span class="n">04</span><span class="nome">Transformar<br>comunidades</span></li>
+      </ol>
     </div>
-  </div>
-  <div class="slab-foot"><span>Behold Movement</span><span>10</span></div>
-</section>
+  </section>
 
-<!-- 11 BAIRROS -->
-<section class="slab s-paper">
-  <h2 class="d d-m">Quem ainda não contemplou Cristo?</h2>
-  <ul class="hoods">
-    <li>Jardim Saporito</li><li>Jardim São Judas</li><li>Jardim Comunitário</li><li>Parque Pinheiros</li>
-    <li>Jardim Salete</li><li>Saint Moritz</li><li>Jardim Record</li><li>Jardim Clementino</li>
-  </ul>
-  <h3 class="d d-m" style="margin-top:clamp(12px,4vw,56px)">Cada ponto representa pessoas.<br>Cada pessoa representa uma história.<br><span class="c-blue">Cada história importa para Deus.</span></h3>
-  <div class="slab-foot"><span>Behold Movement</span><span>11</span></div>
-</section>
-
-<!-- 12–19 FRENTES -->
-<section class="slab s-blue" id="frentes">
-  <p class="eyebrow">Uma missão</p>
-  <h2 class="d d-xl c-ink">Cinco frentes.</h2>
-  <div class="fronts" role="tablist" aria-label="Frentes do movimento">
-    <button class="front" role="tab" id="tab-0" aria-controls="front-panel" aria-selected="true" data-i="0"><span class="n">01</span><span class="t">Coordenação</span></button>
-    <button class="front" role="tab" id="tab-1" aria-controls="front-panel" aria-selected="false" data-i="1"><span class="n">02</span><span class="t">Mídia</span></button>
-    <button class="front" role="tab" id="tab-2" aria-controls="front-panel" aria-selected="false" data-i="2"><span class="n">03</span><span class="t">Comissionamento</span></button>
-    <button class="front" role="tab" id="tab-3" aria-controls="front-panel" aria-selected="false" data-i="3"><span class="n">04</span><span class="t">Ação social</span></button>
-    <button class="front" role="tab" id="tab-4" aria-controls="front-panel" aria-selected="false" data-i="4"><span class="n">05</span><span class="t">Suprimento</span></button>
-  </div>
-  <div class="panel" id="front-panel" role="tabpanel" aria-labelledby="tab-0"></div>
-  <div class="slab-foot"><span>Behold Movement</span><span>12 — 19</span></div>
-</section>
-
-<!-- 16 TREINAMENTO -->
-<section class="slab s-ink">
-  <p class="eyebrow">Comissionamento</p>
-  <h2 class="d d-xl c-sky">Treinamento</h2>
-  <p class="lede" style="max-width:40ch">Antes da ação teremos um treinamento especial. Uma missionária estará conosco preparando todos os participantes.</p>
-  <p class="placeholder">[Data, horário e local do treinamento]</p>
-  <div class="slab-foot"><span>Behold Movement</span><span>16</span></div>
-</section>
-
-<!-- 20 DIA -->
-<section class="slab s-ink" id="dia31" style="padding-top:0">
-  <p class="eyebrow">Dia 31</p>
-  <h2 class="d d-l">Como será o dia?</h2>
-  <div style="overflow-x:auto">
-    <table class="agenda">
-      <tbody>
-        <tr><td class="h">12h00</td><td class="w">Encontro no Arena</td></tr>
-        <tr><td class="h">12h00 às 14h00</td><td class="w">Evangelismo</td></tr>
-        <tr><td class="h">14h00</td><td class="w">Retorno ao ponto de encontro</td></tr>
-        <tr><td class="h">14h30</td><td class="w">Almoço na ASAFE</td></tr>
-        <tr><td class="h">16h00</td><td class="w">Intercessão e oração</td></tr>
-        <tr><td class="h">17h00</td><td class="w">Preparação final</td></tr>
-        <tr class="final"><td class="h">18h00</td><td class="w">Culto Evangelístico</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="slab-foot"><span>Behold Movement</span><span>20</span></div>
-</section>
-
-<!-- 21 INTERDENOMINACIONAL -->
-<section class="slab s-blue unity">
-  <p class="eyebrow">Um movimento interdenominacional</p>
-  <h2 class="d d-xl c-ink">Igrejas diferentes.<br><span class="c-paper">Uma missão.<br>Um evangelho.<br>Um reino.</span></h2>
-  <div class="slab-foot"><span>Behold Movement</span><span>21</span></div>
-</section>
-
-<!-- 22 PARTICIPAR -->
-<section class="slab s-paper" id="participar">
-  <p class="eyebrow">Seu lugar no movimento</p>
-  <h2 class="d d-l">Como você pode participar?</h2>
-  <div class="roles" id="roles">
-    <button class="role" aria-pressed="false"><span class="n">01</span><span class="t">Evangelizando</span></button>
-    <button class="role" aria-pressed="false"><span class="n">02</span><span class="t">Mídia</span></button>
-    <button class="role" aria-pressed="false"><span class="n">03</span><span class="t">Suprimento</span></button>
-    <button class="role" aria-pressed="false"><span class="n">04</span><span class="t">Ação social</span></button>
-    <button class="role" aria-pressed="false"><span class="n">05</span><span class="t">Intercessão</span></button>
-    <a class="role signup" href="#inscricao"><span class="n">[Inscrição]</span><span class="t">Escolha sua frente</span></a>
-  </div>
-  <p class="picked" id="picked" aria-live="polite">Toque em uma frente para escolher onde você quer servir.</p>
-
-  <!--
-    Inscrição: envia os dados para o webhook do n8n (data-webhook) como
-    application/x-www-form-urlencoded. O webhook precisa responder com
-    Access-Control-Allow-Origin para o navegador confirmar o envio.
-  -->
-  <form class="signup-form" id="inscricao" data-webhook="https://n8nai.frontia.com.br/webhook/behold-inscricao" novalidate>
-    <div class="sf-head">
-      <p class="eyebrow">Inscrição · Dia 31</p>
-      <h3 class="d d-m">Faça parte do movimento.</h3>
-      <p class="sf-note">Depois de se inscrever, você recebe as boas-vindas por e-mail e no WhatsApp, com o link do grupo do movimento.</p>
-    </div>
-    <div class="sf-grid">
-      <div class="field">
-        <label for="f-nome">Nome</label>
-        <input id="f-nome" name="nome" type="text" autocomplete="name" required maxlength="120" placeholder="Seu nome completo">
-      </div>
-      <div class="field">
-        <label for="f-telefone">Telefone (WhatsApp)</label>
-        <input id="f-telefone" name="telefone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="(11) 90000-0000" maxlength="16">
-      </div>
-      <div class="field wide">
-        <label for="f-email">E-mail</label>
-        <input id="f-email" name="email" type="email" inputmode="email" autocomplete="email" required maxlength="160" placeholder="voce@exemplo.com">
-      </div>
-      <fieldset class="addr wide">
-        <legend>Endereço</legend>
-        <div class="field a2">
-          <label for="f-cep">CEP</label>
-          <input id="f-cep" name="cep" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="9" placeholder="00000-000" aria-describedby="f-cep-hint">
-          <p class="hint" id="f-cep-hint" aria-live="polite">Digite o CEP e preenchemos o endereço. <a href="https://buscacepinter.correios.com.br/app/endereco/index.php" target="_blank" rel="noopener">Não sei meu CEP</a></p>
-        </div>
-        <div class="field a4">
-          <label for="f-endereco">Rua</label>
-          <input id="f-endereco" name="endereco" type="text" autocomplete="address-line1" required maxlength="160" placeholder="Rua, avenida, travessa…">
-        </div>
-        <div class="field a2">
-          <label for="f-numero">Número e complemento</label>
-          <input id="f-numero" name="numero" type="text" autocomplete="address-line2" required maxlength="40" placeholder="Ex.: 120, apto 32">
-        </div>
-        <div class="field a4">
-          <label for="f-bairro">Bairro</label>
-          <input id="f-bairro" name="bairro" type="text" autocomplete="address-level3" required maxlength="80" placeholder="Seu bairro">
-        </div>
-        <div class="field a4">
-          <label for="f-cidade">Cidade</label>
-          <input id="f-cidade" name="cidade" type="text" list="cidades" autocomplete="address-level2" required maxlength="80" placeholder="Sua cidade">
-          <datalist id="cidades"></datalist>
-        </div>
-        <div class="field a2">
-          <label for="f-uf">Estado</label>
-          <select id="f-uf" name="uf" autocomplete="address-level1" required>
-            <option value="">Selecione</option>
-            <option value="AC">Acre (AC)</option>
-            <option value="AL">Alagoas (AL)</option>
-            <option value="AP">Amapá (AP)</option>
-            <option value="AM">Amazonas (AM)</option>
-            <option value="BA">Bahia (BA)</option>
-            <option value="CE">Ceará (CE)</option>
-            <option value="DF">Distrito Federal (DF)</option>
-            <option value="ES">Espírito Santo (ES)</option>
-            <option value="GO">Goiás (GO)</option>
-            <option value="MA">Maranhão (MA)</option>
-            <option value="MT">Mato Grosso (MT)</option>
-            <option value="MS">Mato Grosso do Sul (MS)</option>
-            <option value="MG">Minas Gerais (MG)</option>
-            <option value="PA">Pará (PA)</option>
-            <option value="PB">Paraíba (PB)</option>
-            <option value="PR">Paraná (PR)</option>
-            <option value="PE">Pernambuco (PE)</option>
-            <option value="PI">Piauí (PI)</option>
-            <option value="RJ">Rio de Janeiro (RJ)</option>
-            <option value="RN">Rio Grande do Norte (RN)</option>
-            <option value="RS">Rio Grande do Sul (RS)</option>
-            <option value="RO">Rondônia (RO)</option>
-            <option value="RR">Roraima (RR)</option>
-            <option value="SC">Santa Catarina (SC)</option>
-            <option value="SP">São Paulo (SP)</option>
-            <option value="SE">Sergipe (SE)</option>
-            <option value="TO">Tocantins (TO)</option>
-          </select>
-        </div>
-      </fieldset>
-      <div class="field">
-        <label for="f-igreja">Igreja onde congrega</label>
-        <input id="f-igreja" name="igreja" type="text" required maxlength="120" placeholder="Nome da sua igreja">
-      </div>
-      <div class="field">
-        <label for="f-ministerio">Ministério de atuação</label>
-        <select id="f-ministerio" name="ministerio" required>
-          <option value="">Selecione uma frente</option>
-          <option>Evangelizando</option>
-          <option>Mídia</option>
-          <option>Suprimento</option>
-          <option>Ação social</option>
-          <option>Intercessão</option>
-        </select>
+  <!-- ---------- O PICO: a rolagem risca ---------- -->
+  <section class="cena pico" data-fx-fixa data-fx-altura="5" data-fx-fundo="#16171C" data-fx-tinta="#EBE9E4" aria-label="O Behold não é um evento, é um movimento">
+    <div class="fx-palco">
+      <div class="conteudo">
+        <p class="rotulo">O Behold</p>
+        <ul class="negs">
+          <li class="neg">Não é um evento.</li>
+          <li class="neg">Não é uma programação.</li>
+          <li class="neg">Não é uma campanha.</li>
+          <li class="neg">Não é um culto especial.</li>
+        </ul>
+        <p class="display movimento">É um movimento.</p>
+        <p class="fecho">E um movimento precisa de gente.</p>
       </div>
     </div>
-    <div class="field consent">
-      <label class="check" for="f-consentimento">
-        <input id="f-consentimento" name="consentimento" type="checkbox" value="sim" required>
-        <span>Autorizo o Behold Movement a guardar meus dados e a falar comigo por e-mail e WhatsApp sobre o movimento. Posso pedir para sair a qualquer momento.</span>
-      </label>
-    </div>
-    <div class="hp" aria-hidden="true">
-      <label for="f-site">Não preencha este campo</label>
-      <input id="f-site" name="site" type="text" tabindex="-1" autocomplete="off">
-    </div>
-    <div class="sf-foot">
-      <button type="submit" class="sf-send" id="f-send">Enviar inscrição</button>
-      <p class="sf-status" id="f-status" role="status" aria-live="polite"></p>
-    </div>
-  </form>
-  <div class="slab-foot"><span>Behold Movement</span><span>22</span></div>
-</section>
+  </section>
 
-<!-- 23 IMAGINE -->
-<section class="slab s-ink">
-  <h2 class="d d-l">E se todos nós fizermos<br>a nossa parte?</h2>
-  <p class="eyebrow">Imagine</p>
-  <ul class="imagine">
-    <li>Uma família restaurada.</li>
-    <li>Um jovem encontrando propósito.</li>
-    <li>Uma criança ouvindo sobre Jesus pela primeira vez.</li>
-    <li>Uma vida sendo transformada.</li>
-  </ul>
-  <div class="slab-foot"><span>Behold Movement</span><span>23</span></div>
-</section>
+  <!-- ============ 4. O CAMPO ============ -->
+  <section class="cena campo-intro" data-fx-fundo="#1F5BF2" data-fx-tinta="#EBE9E4">
+    <p class="rotulo" data-fx="surgir">Nosso campo missionário</p>
+    <h2 class="display" data-fx="subir" style="margin-top: var(--e3)">Um movimento<br>nacional.</h2>
+    <ul class="cidades">
+      <li class="preto-t" data-fx="esquerda">Começando em Taboão da Serra</li>
+      <li data-fx="esquerda" data-fx-atraso="150">Expandindo pelos Estados</li>
+      <li data-fx="esquerda" data-fx-atraso="300">Alcançando todo o Brasil</li>
+    </ul>
+  </section>
 
-<!-- 24 SONHO -->
-<section class="slab s-paper">
-  <p class="eyebrow">Nosso sonho</p>
-  <ul class="struck"><li><span>Não é realizar um grande evento.</span></li></ul>
-  <h2 class="d d-l">É construir uma<br>cultura missionária.</h2>
-  <p class="d d-m c-blue">É fazer com que Cristo seja conhecido.</p>
-  <div class="slab-foot"><span>Behold Movement</span><span>24</span></div>
-</section>
-
-<!-- 25 REGIÃO -->
-<section class="slab s-blue">
-  <p class="eyebrow">Nossa região</p>
-  <div class="split">
-    <h2 class="d d-l">Ainda há<br>muito a ser<br>feito.</h2>
-    <div class="dots"><canvas id="dots" width="760" height="650" aria-label="Mapa da região com pontos representando pessoas" role="img" style="width:100%;height:auto;display:block"></canvas></div>
-  </div>
-  <div class="slab-foot"><span>Behold Movement · Contemple Cristo</span><span>25</span></div>
-</section>
-
-<!-- 26 CHAMADO -->
-<section class="slab s-ink tall">
-  <p class="eyebrow">O chamado</p>
-  <div class="push" style="display:flex;flex-direction:column;gap:24px">
-    <h2 class="d d-l">"Ide por todo o mundo e pregai o evangelho <span class="c-sky">a toda criatura."</span></h2>
-    <p class="eyebrow" style="font-size:clamp(16px,1.8vw,22px)">Marcos 16:15</p>
-  </div>
-  <div class="slab-foot"><span>Behold Movement</span><span>26</span></div>
-</section>
-
-<!-- 27 FECHAMENTO -->
-<section class="slab s-blue">
-  <div class="split">
-    <div style="display:flex;flex-direction:column;gap:clamp(32px,6vw,96px)">
-      <h2 class="d d-xl">Behold<br>Movement</h2>
-      <div>
-        <p class="d d-m c-ink">Contemple Cristo</p>
-        <p class="d d-m">e faça Cristo ser contemplado.</p>
+  <section class="cena mapa-cena" data-fx-fixa data-fx-altura="5" data-fx-fundo="#1F5BF2" data-fx-tinta="#EBE9E4">
+    <div class="fx-palco">
+      <div class="mapa-grade">
+        <div>
+          <p class="rotulo" style="margin-bottom: var(--e3)">Taboão da Serra → Brasil</p>
+          <div class="fases">
+            <div class="fase">
+              <h3 class="display">Tudo começa em Taboão.</h3>
+              <p class="apoio">Igreja Asafe · O ponto de partida.</p>
+            </div>
+            <div class="fase">
+              <h3 class="display">Uma onda que se espalha.</h3>
+              <p class="apoio">De Taboão da Serra para o Estado e regiões vizinhas.</p>
+            </div>
+            <div class="fase">
+              <h3 class="display">Um movimento nacional.</h3>
+              <p class="apoio">Alcançando vidas por todo o Brasil. Cada ponto representa pessoas.</p>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="mapa" id="mapa-grande" role="img" aria-label="Mapa interativo do Brasil mostrando a expansão nacional a partir de Taboão da Serra">
+            <span class="ancora" data-ancora data-cor="#EBE9E4" style="left:65.8%; top:70.6%; width:22px; height:22px; --cor: var(--papel)" aria-hidden="true"></span>
+          </div>
+          <p class="mapa-legenda">Onda de expansão missionária pelo Brasil</p>
+        </div>
       </div>
     </div>
-    <div class="poster" aria-hidden="true">
-      <span class="pm">Movement</span>
-      <span class="pb">Behold</span>
-      <span class="pf"><span>2026</span><span>CONTEMPLE CRISTO</span></span>
+  </section>
+
+  <section class="cena bairros" data-fx-fundo="#1F5BF2" data-fx-tinta="#EBE9E4">
+    <h2 class="display" data-fx="subir">Quem ainda não contemplou Cristo?</h2>
+    <ul class="lista-bairros">
+      <li data-fx="surgir">Taboão da Serra</li>
+      <li data-fx="surgir" data-fx-atraso="80">Grande São Paulo</li>
+      <li data-fx="surgir" data-fx-atraso="160">Região Sudeste</li>
+      <li data-fx="surgir" data-fx-atraso="240">Região Sul</li>
+      <li data-fx="surgir" data-fx-atraso="320">Centro-Oeste</li>
+      <li data-fx="surgir" data-fx-atraso="400">Região Nordeste</li>
+      <li data-fx="surgir" data-fx-atraso="480">Região Norte</li>
+      <li data-fx="surgir" data-fx-atraso="560">Todo o Brasil</li>
+    </ul>
+    <p class="display cada">
+      <span data-fx="subir">Cada ponto representa pessoas.</span>
+      <span data-fx="subir" data-fx-atraso="200">Cada pessoa representa uma história.</span>
+      <span class="preto-t" data-fx="subir" data-fx-atraso="400">Cada história importa para Deus.</span>
+    </p>
+  </section>
+
+  <!-- ============ 5. O DIA 31 ============ -->
+  <section class="cena comeco" data-fx-fundo="#EBE9E4" data-fx-tinta="#16171C">
+    <p class="rotulo quando" data-fx="surgir">Sábado · 31 de outubro de 2026</p>
+    <h2 class="display" data-fx="subir">O dia 31 é<br>apenas <span class="azul-t">o começo.</span></h2>
+  </section>
+
+  <section class="cena frentes" data-fx-fixa data-fx-altura="3.5" data-fx-fundo="#EBE9E4" data-fx-tinta="#16171C">
+    <div class="fx-palco">
+      <div class="cabeca">
+        <div>
+          <p class="rotulo azul-t">Uma missão</p>
+          <h2 class="display">Cinco frentes.</h2>
+        </div>
+        <p>Cada frente sustenta uma parte do movimento. Juntas, caminham na mesma direção.</p>
+      </div>
+      <div class="trilho" data-fx="trilho">
+        <article class="frente">
+          <p class="rotulo">Frente 01 / 05</p>
+          <h3 class="display">Coordenação</h3>
+          <p class="desc">A equipe que mantém todas as frentes caminhando juntas, na mesma direção.</p>
+          <p class="rotulo">Responsável por</p>
+          <ul><li>Organização</li><li>Planejamento</li><li>Comunicação</li><li>Direcionamento</li></ul>
+        </article>
+        <article class="frente">
+          <p class="rotulo">Frente 02 / 05</p>
+          <h3 class="display">Equipe de mídia</h3>
+          <p class="desc">Quem conta a história do movimento para dentro e para fora da igreja.</p>
+          <p class="rotulo">Responsável por</p>
+          <ul><li>Divulgação</li><li>Redes sociais</li><li>Registros</li><li>Identidade visual</li><li>Conteúdo</li></ul>
+        </article>
+        <article class="frente">
+          <p class="rotulo">Frente 03 / 05</p>
+          <h3 class="display">Comissionamento</h3>
+          <p class="desc forte">A equipe que irá às ruas.</p>
+          <p class="rotulo">Objetivos</p>
+          <ul><li>Evangelizar</li><li>Ouvir</li><li>Orar</li><li>Convidar</li><li>Acolher</li></ul>
+        </article>
+        <article class="frente">
+          <p class="rotulo">Frente 04 / 05</p>
+          <h3 class="display">Ação social</h3>
+          <p class="desc forte">O Evangelho também alcança necessidades reais.</p>
+          <p class="desc">Quando uma vulnerabilidade for identificada:</p>
+          <ol>
+            <li><span class="n">01</span>O caso será registrado.</li>
+            <li><span class="n">02</span>Encaminhado à equipe social.</li>
+            <li><span class="n">03</span>Avaliado por assistentes sociais.</li>
+            <li><span class="n">04</span>Acompanhado com responsabilidade.</li>
+          </ol>
+        </article>
+        <article class="frente">
+          <p class="rotulo">Frente 05 / 05</p>
+          <h3 class="display">Suprimento</h3>
+          <p class="desc forte">Uma equipe servindo quem está servindo.</p>
+          <p class="rotulo">Responsável por</p>
+          <ul><li>Alimentação</li><li>Água</li><li>Apoio logístico</li><li>Estrutura</li></ul>
+        </article>
+        <div class="fim" aria-hidden="true"></div>
+      </div>
     </div>
-  </div>
-  <div class="slab-foot"><span>2026</span><span>Contemple Cristo</span></div>
-</section>
+  </section>
+
+  <section class="cena treino" data-fx-fundo="#EBE9E4" data-fx-tinta="#16171C">
+    <div class="cartao" data-fx="crescer">
+      <p class="rotulo">Comissionamento</p>
+      <h2 class="display">Treinamento</h2>
+      <p class="txt">Antes da ação teremos um treinamento especial. Uma missionária estará conosco preparando todos os participantes.</p>
+      <dl class="detalhes">
+        <div><dt>Data</dt><dd id="treino-data">Terça-feira, 27 de outubro</dd></div>
+        <div><dt>Horário</dt><dd id="treino-horario">20h</dd></div>
+        <div><dt>Local</dt><dd id="treino-local">Online · o link será enviado no grupo do WhatsApp</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="cena dia" data-fx-fundo="#EBE9E4" data-fx-tinta="#16171C">
+    <p class="rotulo" data-fx="surgir">Dia 31</p>
+    <h2 class="display" data-fx="subir">Como será o dia?</h2>
+    <ol class="agenda">
+      <li data-fx="subir"><span class="h">12h00</span><span class="o">Encontro no Arena</span></li>
+      <li data-fx="subir"><span class="h">12h00 às 14h00</span><span class="o">Evangelismo</span></li>
+      <li data-fx="subir"><span class="h">14h00</span><span class="o">Retorno ao ponto de encontro</span></li>
+      <li data-fx="subir"><span class="h">14h30</span><span class="o">Almoço na Asafe</span></li>
+      <li data-fx="subir"><span class="h">16h00</span><span class="o">Intercessão e oração</span></li>
+      <li data-fx="subir"><span class="h">17h00</span><span class="o">Preparação final</span></li>
+      <li data-fx="subir" class="final"><span class="h">18h00</span><span class="o">Culto Evangelístico</span></li>
+    </ol>
+  </section>
+
+  <!-- ============ 6. O CHAMADO ============ -->
+  <section class="cena chamado" data-fx-fundo="#16171C" data-fx-tinta="#EBE9E4">
+    <h2 class="display" data-fx="subir">E se todos nós fizermos a nossa parte?</h2>
+    <div class="imagine">
+      <p class="rotulo" data-fx="surgir">Imagine</p>
+      <ul>
+        <li data-fx="esquerda">Uma família restaurada.</li>
+        <li data-fx="esquerda" data-fx-atraso="120">Um jovem encontrando propósito.</li>
+        <li data-fx="esquerda" data-fx-atraso="240">Uma criança ouvindo sobre Jesus pela primeira vez.</li>
+        <li data-fx="esquerda" data-fx-atraso="360">Uma vida sendo transformada.</li>
+      </ul>
+    </div>
+
+    <div class="sonho">
+      <p class="rotulo" data-fx="surgir">Nosso sonho</p>
+      <s data-fx="surgir">Não é realizar um grande evento.</s>
+      <h3 class="display" data-fx="subir">É construir uma cultura missionária.</h3>
+      <p class="conhecido" data-fx="subir" data-fx-atraso="200">É fazer com que Cristo seja conhecido.</p>
+    </div>
+
+    <div class="um">
+      <p class="rotulo" data-fx="surgir">Um movimento interdenominacional</p>
+      <h3 class="display">
+        <span data-fx="direita">Igrejas diferentes.</span>
+        <span data-fx="direita" data-fx-atraso="150">Uma missão.</span>
+        <span data-fx="direita" data-fx-atraso="300">Um Evangelho.</span>
+        <span data-fx="direita" data-fx-atraso="450">Um Reino.</span>
+      </h3>
+    </div>
+  </section>
+
+  <section class="cena ide" data-fx-fundo="#16171C" data-fx-tinta="#EBE9E4">
+    <p class="rotulo" data-fx="surgir">O chamado</p>
+    <blockquote>
+      <p class="display" data-fx="palavras" data-fx-duracao="1800">“Ide por todo o mundo e pregai o Evangelho a toda criatura.”</p>
+      <cite data-fx="surgir" data-fx-atraso="1600">Marcos 16:15</cite>
+    </blockquote>
+  </section>
+
+  <!-- ============ 7. INSCRIÇÃO ============ -->
+  <section class="cena participar" data-fx-fundo="#EBE9E4" data-fx-tinta="#16171C">
+    <p class="rotulo" data-fx="surgir">Seu lugar no movimento</p>
+    <h2 class="display" data-fx="subir">Como você pode participar?</h2>
+    <div class="chips" id="chips">
+      <button type="button" class="chip" data-fx="subir" data-frente="Evangelizando"><span class="n">01</span><span class="nome">Evangelizando</span></button>
+      <button type="button" class="chip" data-fx="subir" data-fx-atraso="60" data-frente="Mídia"><span class="n">02</span><span class="nome">Mídia</span></button>
+      <button type="button" class="chip" data-fx="subir" data-fx-atraso="120" data-frente="Suprimento"><span class="n">03</span><span class="nome">Suprimento</span></button>
+      <button type="button" class="chip" data-fx="subir" data-fx-atraso="180" data-frente="Ação social"><span class="n">04</span><span class="nome">Ação social</span></button>
+      <button type="button" class="chip" data-fx="subir" data-fx-atraso="240" data-frente="Intercessão"><span class="n">05</span><span class="nome">Intercessão</span></button>
+      <a class="chip cta" data-fx="subir" data-fx-atraso="300" href="#inscricao"><span class="n">Inscrição</span><span class="nome">Escolha sua frente</span></a>
+    </div>
+  </section>
+
+  <section class="cena inscricao-secao" id="inscricao" data-fx-fundo="#EBE9E4" data-fx-tinta="#16171C">
+    <div class="quadro-form-dark" data-fx="crescer">
+      <div class="cabecalho-form">
+        <p class="rotulo-tag">INSCRIÇÃO · DIA 31</p>
+        <h2 class="display">FAÇA PARTE DO MOVIMENTO.</h2>
+        <p class="sub">Depois de se inscrever, você recebe as boas-vindas por e-mail e no WhatsApp, com o link do grupo do movimento.</p>
+      </div>
+
+      <form id="form-inscricao" class="form-grid-dark" novalidate>
+        <div class="form-linha">
+          <div class="campo-dark">
+            <label for="f-nome">Nome</label>
+            <input id="f-nome" name="nome" type="text" autocomplete="name" placeholder="Seu nome completo" required>
+            <p class="erro" id="e-nome" aria-live="polite"></p>
+          </div>
+          <div class="campo-dark">
+            <label for="f-telefone">Telefone (WhatsApp)</label>
+            <input id="f-telefone" name="telefone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(11) 90000-0000" required>
+            <p class="erro" id="e-telefone" aria-live="polite"></p>
+          </div>
+        </div>
+
+        <div class="form-linha unica">
+          <div class="campo-dark">
+            <label for="f-email">E-mail</label>
+            <input id="f-email" name="email" type="email" autocomplete="email" placeholder="voce@exemplo.com" required>
+            <p class="erro" id="e-email" aria-live="polite"></p>
+          </div>
+        </div>
+
+        <div class="divisao-secao">
+          <p class="subtitulo-form">Endereço</p>
+        </div>
+
+        <div class="form-linha">
+          <div class="campo-dark">
+            <label for="f-cep">CEP</label>
+            <input id="f-cep" name="cep" type="text" inputmode="numeric" placeholder="06147-100" required>
+            <p class="cep-status-msg" id="cep-status" style="display:none;" aria-live="polite"></p>
+            <p class="erro" id="e-cep" aria-live="polite"></p>
+          </div>
+          <div class="campo-dark">
+            <label for="f-rua">Rua</label>
+            <input id="f-rua" name="rua" type="text" placeholder="Nome da rua / avenida" required>
+            <p class="erro" id="e-rua" aria-live="polite"></p>
+          </div>
+        </div>
+
+        <div class="form-linha">
+          <div class="campo-dark">
+            <label for="f-numero">Número e complemento</label>
+            <input id="f-numero" name="numero" type="text" placeholder="Ex.: 120, apto 32" required>
+            <p class="erro" id="e-numero" aria-live="polite"></p>
+          </div>
+          <div class="campo-dark">
+            <label for="f-bairro">Bairro</label>
+            <input id="f-bairro" name="bairro" type="text" placeholder="Seu bairro" required>
+            <p class="erro" id="e-bairro" aria-live="polite"></p>
+          </div>
+        </div>
+
+        <div class="form-linha">
+          <div class="campo-dark">
+            <label for="f-cidade">Cidade</label>
+            <input id="f-cidade" name="cidade" type="text" placeholder="Sua cidade" required>
+            <p class="erro" id="e-cidade" aria-live="polite"></p>
+          </div>
+          <div class="campo-dark">
+            <label for="f-estado">Estado</label>
+            <select id="f-estado" name="estado" required>
+              <option value="">Selecione o estado</option>
+              <option value="AC">Acre (AC)</option>
+              <option value="AL">Alagoas (AL)</option>
+              <option value="AP">Amapá (AP)</option>
+              <option value="AM">Amazonas (AM)</option>
+              <option value="BA">Bahia (BA)</option>
+              <option value="CE">Ceará (CE)</option>
+              <option value="DF">Distrito Federal (DF)</option>
+              <option value="ES">Espírito Santo (ES)</option>
+              <option value="GO">Goiás (GO)</option>
+              <option value="MA">Maranhão (MA)</option>
+              <option value="MT">Mato Grosso (MT)</option>
+              <option value="MS">Mato Grosso do Sul (MS)</option>
+              <option value="MG">Minas Gerais (MG)</option>
+              <option value="PA">Pará (PA)</option>
+              <option value="PB">Paraíba (PB)</option>
+              <option value="PR">Paraná (PR)</option>
+              <option value="PE">Pernambuco (PE)</option>
+              <option value="PI">Piauí (PI)</option>
+              <option value="RJ">Rio de Janeiro (RJ)</option>
+              <option value="RN">Rio Grande do Norte (RN)</option>
+              <option value="RS">Rio Grande do Sul (RS)</option>
+              <option value="RO">Rondônia (RO)</option>
+              <option value="RR">Roraima (RR)</option>
+              <option value="SC">Santa Catarina (SC)</option>
+              <option value="SP">São Paulo (SP)</option>
+              <option value="SE">Sergipe (SE)</option>
+              <option value="TO">Tocantins (TO)</option>
+            </select>
+            <p class="erro" id="e-estado" aria-live="polite"></p>
+          </div>
+        </div>
+
+        <div class="form-linha">
+          <div class="campo-dark">
+            <label for="f-igreja">Igreja onde congrega</label>
+            <input id="f-igreja" name="igreja" type="text" placeholder="Nome da sua igreja" required>
+            <p class="erro" id="e-igreja" aria-live="polite"></p>
+          </div>
+          <div class="campo-dark">
+            <label for="f-frente">Ministério de atuação</label>
+            <select id="f-frente" name="frente" required>
+              <option value="">Selecione uma frente</option>
+              <option value="Evangelizando">Evangelizando</option>
+              <option value="Mídia">Mídia</option>
+              <option value="Suprimento">Suprimento</option>
+              <option value="Ação social">Ação social</option>
+              <option value="Intercessão">Intercessão</option>
+            </select>
+            <p class="erro" id="e-frente" aria-live="polite"></p>
+          </div>
+        </div>
+
+        <label class="lgpd-box">
+          <input type="checkbox" id="f-lgpd" name="lgpd" required checked>
+          <span>Autorizo o Behold Movement a guardar meus dados e a falar comigo por e-mail e WhatsApp sobre o movimento. Posso pedir para sair a qualquer momento.</span>
+        </label>
+
+        <div class="hp" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden">
+          <label for="f-site">Não preencha este campo</label>
+          <input id="f-site" name="site" type="text" tabindex="-1" autocomplete="off">
+        </div>
+
+        <button class="botao-submit-dark" type="submit">ENVIAR INSCRIÇÃO</button>
+        <p class="estado" id="estado" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </section>
+
+  <!-- ============ INSTAGRAM ============ -->
+  <section class="cena ig-faixa" data-fx-fundo="#16171C" data-fx-tinta="#EBE9E4" aria-label="Instagram do movimento">
+    <p class="rotulo" data-fx="surgir">Acompanhe o movimento</p>
+    <a class="arroba js-instagram" href="https://www.instagram.com/beholdmvmt" target="_blank" rel="noopener" data-fx="esquerda">@beholdmvmt<span class="seta" aria-hidden="true">↗</span></a>
+    <p class="txt" data-fx="subir" data-fx-atraso="150">Avisos, bastidores e tudo o que acontece no movimento, antes e depois do Dia 31.</p>
+    <a class="botao js-instagram" href="https://www.instagram.com/beholdmvmt" target="_blank" rel="noopener" data-fx="surgir" data-fx-atraso="300"><svg class="ig-icone" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.4" cy="6.6" r="1.3" fill="currentColor"/></svg> Seguir no Instagram</a>
+  </section>
+
+  <!-- ============ FECHAMENTO ============ -->
+  <section class="cena fecho-final" data-fx-fundo="#1F5BF2" data-fx-tinta="#EBE9E4">
+    <div>
+      <p class="display marca-final" data-fx="subir">Behold<br>Movement</p>
+      <p class="display frase">
+        <span class="preto-t" data-fx="subir">Contemple Cristo</span>
+        <span data-fx="subir" data-fx-atraso="150">e faça Cristo ser contemplado.</span>
+      </p>
+      <div class="acoes" data-fx="surgir" data-fx-atraso="300">
+        <a class="botao claro" href="#inscricao">Quero participar</a>
+        <a class="botao contorno js-instagram" id="link-instagram" href="https://www.instagram.com/beholdmvmt" target="_blank" rel="noopener"><svg class="ig-icone" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.4" cy="6.6" r="1.3" fill="currentColor"/></svg> @beholdmvmt</a>
+      </div>
+    </div>
+    <footer>
+      <span>2026</span>
+      <span>Igreja Asafe · Taboão da Serra</span>
+      <a class="js-instagram" href="https://www.instagram.com/beholdmvmt" target="_blank" rel="noopener" style="text-decoration:none">Instagram @beholdmvmt</a>
+      <span>Contemple Cristo</span>
+    </footer>
+  </section>
+
 </main>
 
 <script>
+/* =====================================================================
+   CONFIGURAÇÃO — preencha aqui quando tiver as informações
+   ===================================================================== */
+var CONFIG = {
+  // Webhook do n8n que recebe as inscrições (POST application/x-www-form-urlencoded).
+  // Grava na planilha, manda o e-mail de boas-vindas e o WhatsApp pelo Chatwoot.
+  WEBHOOK_URL: "https://n8nai.frontia.com.br/webhook/behold-inscricao",
+
+  // Link do Instagram do movimento, ex.: "https://instagram.com/beholdmovement"
+  INSTAGRAM_URL: "https://www.instagram.com/beholdmvmt",
+
+  // Treinamento do comissionamento (deixe "" para mostrar "A definir")
+  TREINAMENTO: {
+    data: "Terça-feira, 27 de outubro",
+    horario: "20h",
+    local: "Online · o link será enviado no grupo do WhatsApp"
+  }
+};
+
 (function () {
-  // ---- Frentes (slides 13–19)
-  var F = [
-    { tag: "Frente 01 / 05", title: "Coordenação", lede: "A equipe que mantém todas as frentes caminhando juntas, na mesma direção.", label: "Responsável por", items: ["Organização", "Planejamento", "Comunicação", "Direcionamento"] },
-    { tag: "Frente 02 / 05", title: "Equipe de mídia", lede: "Quem conta a história do movimento para dentro e para fora da igreja.", label: "Responsável por", items: ["Divulgação", "Redes sociais", "Registros", "Identidade visual", "Conteúdo"] },
-    { tag: "Frente 03 / 05", title: "Comissionamento", lede: "A equipe que irá às ruas.", accent: true, label: "Objetivos", items: ["Evangelizar", "Ouvir", "Orar", "Convidar", "Acolher"] },
-    { tag: "Frente 04 / 05", title: "Ação social", lede: "O Evangelho também alcança necessidades reais.", accent: true, sub: "Quando uma vulnerabilidade for identificada:", label: "", num: true, items: ["O caso será registrado.", "Encaminhado à equipe social.", "Avaliado por assistentes sociais.", "Acompanhado com responsabilidade."] },
-    { tag: "Frente 05 / 05", title: "Suprimento", lede: "Uma equipe servindo quem está servindo.", accent: true, label: "Responsável por", items: ["Alimentação", "Água", "Apoio logístico", "Estrutura"] }
+  "use strict";
+  var reduzido = window.location.search.indexOf("reduced=1") !== -1;
+
+  /* ---------- movimento reduzido: cada seção com a sua cor, sem transição ---------- */
+  if (reduzido) {
+    document.querySelectorAll("[data-fx-fundo]").forEach(function (s) {
+      s.style.background = s.dataset.fxFundo;
+      s.style.color = s.dataset.fxTinta;
+    });
+  }
+
+  /* ---------- placeholders configuráveis ---------- */
+  ["data", "horario", "local"].forEach(function (k) {
+    var v = CONFIG.TREINAMENTO[k];
+    var el = document.getElementById("treino-" + k);
+    if (v) el.textContent = v; else el.classList.add("vazio");
+  });
+  document.querySelectorAll(".js-instagram").forEach(function (a) { a.href = CONFIG.INSTAGRAM_URL; });
+
+  /* ---------- mapa do Brasil (expansão de energia nacional a partir de Taboão da Serra) ---------- */
+  var NS = "http://www.w3.org/2000/svg";
+  var VB = [0, 0, 800, 800];
+  var ASAFE = [524, 562]; // Taboão da Serra / SP
+
+  var POLY_BRASIL = [
+    [295, 60], [360, 68], [442, 75], [461, 117], [476, 160],
+    [566, 195], [663, 216], [719, 252], [726, 275], [724, 291],
+    [711, 319], [689, 341], [663, 378], [655, 437], [633, 505],
+    [604, 552], [531, 569], [493, 595], [493, 632], [410, 738],
+    [347, 670], [365, 649], [389, 595], [371, 543], [339, 482],
+    [300, 412], [227, 367], [165, 324], [82, 284], [130, 225],
+    [177, 153], [279, 74]
   ];
-  var panel = document.getElementById("front-panel");
-  var tabs = Array.prototype.slice.call(document.querySelectorAll(".front"));
-  function esc(s) { return s.replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
-  function render(i) {
-    var f = F[i];
-    var list = f.items.map(function (t, k) {
-      return "<li>" + (f.num ? '<span class="k">0' + (k + 1) + "</span>" : "") + "<span>" + esc(t) + "</span></li>";
-    }).join("");
-    panel.innerHTML =
-      '<div class="split">' +
-        '<div style="display:flex;flex-direction:column;gap:20px">' +
-          '<p class="eyebrow">' + esc(f.tag) + "</p>" +
-          '<h3 class="d d-m">' + esc(f.title) + "</h3>" +
-          '<p class="lede' + (f.accent ? " accent" : "") + '">' + esc(f.lede) + "</p>" +
-          (f.sub ? '<p class="lede">' + esc(f.sub) + "</p>" : "") +
-          (f.big ? '<div class="big">' + esc(f.big) + "</div>" : "") +
-        "</div>" +
-        '<div style="display:flex;flex-direction:column;gap:8px">' +
-          (f.label ? '<p class="eyebrow">' + esc(f.label) + "</p>" : "") +
-          '<ul class="checks' + (f.num ? " num" : "") + '">' + list + "</ul>" +
-        "</div>" +
-      "</div>";
-    panel.setAttribute("aria-labelledby", "tab-" + i);
-    tabs.forEach(function (t, k) { t.setAttribute("aria-selected", k === i ? "true" : "false"); t.tabIndex = k === i ? 0 : -1; });
-  }
-  tabs.forEach(function (t, k) {
-    t.addEventListener("click", function () { render(k); });
-    t.addEventListener("keydown", function (e) {
-      var d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
-      if (!d) return;
-      e.preventDefault();
-      var n = (k + d + tabs.length) % tabs.length;
-      render(n); tabs[n].focus();
-    });
-  });
-  render(0);
 
-  // ---- Participar (slide 22) — cartões e campo "Ministério de atuação" ficam sincronizados
-  var picked = document.getElementById("picked");
-  var roles = Array.prototype.slice.call(document.querySelectorAll(".role[aria-pressed]"));
-  var form = document.getElementById("inscricao");
-  var min = document.getElementById("f-ministerio");
-  function choose(name) {
-    roles.forEach(function (r) { r.setAttribute("aria-pressed", r.querySelector(".t").textContent === name ? "true" : "false"); });
-    if (min.value !== name) min.value = name;
-    picked.textContent = name ? "Sua frente: " + name + ". Complete a inscrição abaixo." : "Toque em uma frente para escolher onde você quer servir.";
-  }
-  roles.forEach(function (r) {
-    r.addEventListener("click", function () {
-      var name = r.querySelector(".t").textContent;
-      choose(r.getAttribute("aria-pressed") === "true" ? "" : name);
-      if (min.value) clearErr(min);
-    });
-  });
-  min.addEventListener("change", function () { choose(min.value); clearErr(min); });
+  var MAPA_BRASIL_PATH = "M " + POLY_BRASIL.map(function (p) { return p.join(","); }).join(" L ") + " Z";
 
-  // ---- Inscrição via webhook
-  // ---- Endereço: CEP (ViaCEP) preenche rua, bairro, cidade e estado; IBGE sugere as cidades do estado
-  var cep = document.getElementById("f-cep");
-  var cepHint = document.getElementById("f-cep-hint");
-  var cepHintBase = cepHint.innerHTML;
-  var uf = document.getElementById("f-uf");
-  var cidadesList = document.getElementById("cidades");
-  var cidadesCache = {};
-  var ultimoCep = "";
-  function hint(text, kind) {
-    if (!text) { cepHint.innerHTML = cepHintBase; cepHint.className = "hint"; return; }
-    cepHint.textContent = text; cepHint.className = "hint" + (kind ? " " + kind : "");
+  function el(nome, attrs, pai) {
+    var e = document.createElementNS(NS, nome);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (pai) pai.appendChild(e);
+    return e;
   }
-  function preenche(id, valor) {
-    var el = document.getElementById(id);
-    if (!valor) return;
-    el.value = valor;
-    clearErr(el);
-  }
-  function carregaCidades(sigla) {
-    if (!sigla) { cidadesList.innerHTML = ""; return; }
-    function mostra(nomes) {
-      if (uf.value !== sigla) return;
-      cidadesList.innerHTML = nomes.map(function (n) { return '<option value="' + n.replace(/"/g, "&quot;") + '">'; }).join("");
+  function semente(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function dist(a, b) { return Math.hypot(a[0] - b[0], a[1] - b[1]); }
+
+  function dentroPolygon(p, poly) {
+    var x = p[0], y = p[1], inside = false;
+    for (var i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+      var xi = poly[i][0], yi = poly[i][1];
+      var xj = poly[j][0], yj = poly[j][1];
+      var intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+      if (intersect) inside = !inside;
     }
-    if (cidadesCache[sigla]) { mostra(cidadesCache[sigla]); return; }
-    fetch("https://servicodados.ibge.gov.br/api/v1/localidades/estados/" + sigla + "/municipios")
-      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
-      .then(function (lista) {
-        cidadesCache[sigla] = lista.map(function (m) { return m.nome; }).sort(function (a, b) { return a.localeCompare(b, "pt-BR"); });
-        mostra(cidadesCache[sigla]);
-      })
-      .catch(function () { /* sem sugestões: a cidade continua sendo digitada livremente */ });
+    return inside;
   }
-  uf.addEventListener("change", function () { carregaCidades(uf.value); });
-  cep.addEventListener("input", function () {
-    var d = cep.value.replace(/\D/g, "").slice(0, 8);
-    cep.value = d.length > 5 ? d.slice(0, 5) + "-" + d.slice(5) : d;
-    if (d.length < 8) { if (ultimoCep) { ultimoCep = ""; hint(""); } return; }
-    if (d === ultimoCep) return;
-    ultimoCep = d;
-    hint("Buscando o endereço…");
-    fetch("https://viacep.com.br/ws/" + d + "/json/")
-      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
-      .then(function (e) {
-        if (ultimoCep !== d) return;
-        if (e.erro) { hint("Não encontramos esse CEP. Confira os números ou preencha o endereço abaixo.", "bad"); return; }
-        preenche("f-endereco", e.logradouro);
-        preenche("f-bairro", e.bairro);
-        preenche("f-cidade", e.localidade);
-        if (e.uf) { uf.value = e.uf; clearErr(uf); carregaCidades(e.uf); }
-        hint("Endereço encontrado. Confira e informe o número.", "ok");
-        document.getElementById(e.logradouro ? "f-numero" : "f-endereco").focus();
-      })
-      .catch(function () {
-        if (ultimoCep === d) hint("Não conseguimos buscar o CEP agora. Preencha o endereço abaixo.", "bad");
-      });
+
+  function distPontoSegmento(p, v, w) {
+    var l2 = Math.pow(w[0] - v[0], 2) + Math.pow(w[1] - v[1], 2);
+    if (l2 === 0) return dist(p, v);
+    var t = Math.max(0, Math.min(1, ((p[0] - v[0]) * (w[0] - v[0]) + (p[1] - v[1]) * (w[1] - v[1])) / l2));
+    return dist(p, [v[0] + t * (w[0] - v[0]), v[1] + t * (w[1] - v[1])]);
+  }
+
+  function pontoValidoNoBrasil(p) {
+    if (!dentroPolygon(p, POLY_BRASIL)) return false;
+    for (var i = 0; i < POLY_BRASIL.length; i++) {
+      var v = POLY_BRASIL[i];
+      var w = POLY_BRASIL[(i + 1) % POLY_BRASIL.length];
+      if (distPontoSegmento(p, v, w) < 22) return false;
+    }
+    return true;
+  }
+
+  var aleatorio = semente(37);
+  var PONTOS = [];
+  var tentativas = 0;
+
+  while (PONTOS.length < 150 && tentativas < 6000) {
+    tentativas++;
+    var p = [
+      Math.round(80 + aleatorio() * 640),
+      Math.round(60 + aleatorio() * 670)
+    ];
+    if (!pontoValidoNoBrasil(p)) continue;
+    if (dist(p, ASAFE) < 18) continue;
+    if (PONTOS.some(function (q) { return dist(p, q) < 20; })) continue;
+    PONTOS.push(p);
+  }
+
+  function desenharMapa(caixa, comAneis) {
+    if (!caixa) return;
+    var svg = el("svg", { viewBox: VB.join(" "), "aria-hidden": "true" });
+    caixa.insertBefore(svg, caixa.firstChild);
+
+    var gBrasil = el("g", { class: "brasil-grupo" }, svg);
+    el("path", { class: "brasil-contorno", d: MAPA_BRASIL_PATH }, gBrasil);
+
+    if (comAneis) {
+      el("circle", { class: "anel-energia anel-1", cx: ASAFE[0], cy: ASAFE[1], r: 110, fill: "none", stroke: "#7FA2FF", "stroke-width": 2, "stroke-dasharray": "6 6" }, svg);
+      el("circle", { class: "anel-energia anel-2", cx: ASAFE[0], cy: ASAFE[1], r: 260, fill: "none", stroke: "#EBE9E4", "stroke-width": 2.5 }, svg);
+      el("circle", { class: "anel-energia anel-3", cx: ASAFE[0], cy: ASAFE[1], r: 480, fill: "none", stroke: "#7FA2FF", "stroke-width": 2, "stroke-dasharray": "10 8" }, svg);
+    }
+
+    PONTOS.forEach(function (p) {
+      var dPx = dist(p, ASAFE);
+      var c = el("circle", { class: "pt", cx: p[0], cy: p[1], r: 5 }, svg);
+      c.style.setProperty("--d-px", dPx.toFixed(1));
+    });
+
+    var gOrigem = el("g", { class: "marcador-origem" }, svg);
+    el("circle", { class: "pulso-origem", cx: ASAFE[0], cy: ASAFE[1], r: 16, fill: "none", stroke: "#EBE9E4", "stroke-width": 2 }, gOrigem);
+    el("circle", { cx: ASAFE[0], cy: ASAFE[1], r: 8, fill: "#EBE9E4", stroke: "#16171C", "stroke-width": 2.5 }, gOrigem);
+
+    var gRot = el("g", { transform: "translate(" + (ASAFE[0] + 16) + "," + (ASAFE[1] - 14) + ")" }, gOrigem);
+    el("rect", { x: -4, y: -18, width: 235, height: 26, rx: 4, fill: "#16171C", opacity: 0.9, stroke: "#7FA2FF", "stroke-width": 1 }, gRot);
+    var tSigla = el("text", { x: 6, y: 0, fill: "#EBE9E4", "font-size": 13, "font-weight": "bold", "letter-spacing": 1 }, gRot);
+    tSigla.textContent = "TABOÃO DA SERRA / SP";
+  }
+
+  desenharMapa(document.getElementById("mapa-grande"), true);
+  desenharMapa(document.getElementById("mapa-pequeno"), false);
+
+  /* ---------- o ponto que acompanha o visitante ---------- */
+  var ponto = document.getElementById("ponto");
+  var ancoras = Array.prototype.slice.call(document.querySelectorAll("[data-ancora]"));
+  var BASE = 40, aceso = false;
+  var ancoraLugar = document.querySelector("#mapa-pequeno [data-ancora]");
+  function suave(t) { return t * t * (3 - 2 * t); }
+  function quadro() {
+    var vh = window.innerHeight, vw = window.innerWidth, centro = vh / 2;
+    var melhor = null, peso = 0;
+    ancoras.forEach(function (a) {
+      var r = a.getBoundingClientRect();
+      if (!r.width) return;
+      var d = Math.abs(r.top + r.height / 2 - centro) / vh;
+      var w = suave(Math.max(0, Math.min(1, (0.6 - d) / 0.36)));
+      if (w > peso) { peso = w; melhor = { r: r, a: a }; }
+    });
+    var repouso = { x: vw < 600 ? 9 : 26, y: centro, tam: vw < 600 ? 6 : 9 };
+    var x = repouso.x, y = repouso.y, tam = repouso.tam;
+    if (melhor) {
+      var ax = melhor.r.left + melhor.r.width / 2, ay = melhor.r.top + melhor.r.height / 2, at = melhor.r.width;
+      x += (ax - x) * peso; y += (ay - y) * peso; tam += (at - tam) * peso;
+    }
+    ponto.style.transform = "translate(" + (x - tam / 2).toFixed(1) + "px," + (y - tam / 2).toFixed(1) + "px) scale(" + (tam / BASE).toFixed(4) + ")";
+    ponto.style.background = melhor && peso > 0.5 && melhor.a.dataset.cor ? melhor.a.dataset.cor : "";
+    ponto.classList.toggle("pulsa", !!(aceso && melhor && peso > 0.5 && melhor.a === ancoraLugar));
+    requestAnimationFrame(quadro);
+  }
+  if (!reduzido) requestAnimationFrame(quadro);
+
+  /* ---------- links internos com rolagem suave ---------- */
+  document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+    a.addEventListener("click", function (e) {
+      var alvo = document.querySelector(a.getAttribute("href"));
+      if (!alvo) return;
+      e.preventDefault();
+      alvo.scrollIntoView({ behavior: reduzido ? "auto" : "smooth" });
+    });
   });
 
+  /* ---------- frentes: os botões escolhem a frente no formulário ---------- */
+  var selFrente = document.getElementById("f-frente");
+  var chips = document.querySelectorAll(".chip[data-frente]");
+  function marcarChips() {
+    chips.forEach(function (c) { c.setAttribute("aria-pressed", String(c.dataset.frente === selFrente.value)); });
+  }
+  chips.forEach(function (c) {
+    c.addEventListener("click", function () {
+      selFrente.value = c.dataset.frente;
+      marcarChips();
+      document.getElementById("inscricao").scrollIntoView({ behavior: reduzido ? "auto" : "smooth" });
+      setTimeout(function () { document.getElementById("f-nome").focus({ preventScroll: true }); }, reduzido ? 0 : 700);
+    });
+  });
+  selFrente.addEventListener("change", marcarChips);
+  marcarChips();
+
+  /* ---------- ViaCEP & Formulário Nacional ---------- */
+  var form = document.getElementById("form-inscricao");
   var tel = document.getElementById("f-telefone");
-  var send = document.getElementById("f-send");
-  var status = document.getElementById("f-status");
-  tel.addEventListener("input", function () {
-    var d = tel.value.replace(/\D/g, "").slice(0, 11);
-    var out = d;
-    if (d.length > 2) out = "(" + d.slice(0, 2) + ") " + d.slice(2);
-    if (d.length > 7) out = "(" + d.slice(0, 2) + ") " + d.slice(2, d.length - 4) + "-" + d.slice(-4);
-    tel.value = out;
-  });
+  var fCep = document.getElementById("f-cep");
+  var fRua = document.getElementById("f-rua");
+  var fBairro = document.getElementById("f-bairro");
+  var fCidade = document.getElementById("f-cidade");
+  var fEstado = document.getElementById("f-estado");
+  var fNumero = document.getElementById("f-numero");
+  var cepStatus = document.getElementById("cep-status");
 
-  var MSG = {
-    nome: "Informe seu nome.",
-    telefone: "Informe um celular com WhatsApp e DDD, por exemplo (11) 91234-5678.",
-    email: "Informe um e-mail válido, por exemplo maria@gmail.com.",
-    cep: "O CEP tem 8 números, por exemplo 06750-000.",
-    endereco: "Informe a rua.",
-    numero: "Informe o número (ou S/N).",
-    bairro: "Informe seu bairro.",
-    cidade: "Informe sua cidade.",
-    uf: "Escolha seu estado.",
-    igreja: "Informe a igreja onde você congrega.",
-    ministerio: "Escolha um ministério de atuação.",
-    consentimento: "Marque a autorização para recebermos sua inscrição."
-  };
-  var SKIP = { site: true };
-  function fieldOf(el) { return el.closest(".field"); }
-  function clearErr(el) {
-    var f = fieldOf(el); f.classList.remove("invalid"); el.removeAttribute("aria-invalid");
-    var e = f.querySelector(".err"); if (e) e.remove();
+  // Máscara de Telefone
+  if (tel) {
+    tel.addEventListener("input", function () {
+      var d = tel.value.replace(/\D/g, "").slice(0, 11);
+      var f = d;
+      if (d.length > 2) f = "(" + d.slice(0, 2) + ") " + d.slice(2);
+      if (d.length > 7) f = "(" + d.slice(0, 2) + ") " + d.slice(2, d.length - 4) + "-" + d.slice(d.length - 4);
+      tel.value = f;
+    });
   }
-  function setErr(el, msg) {
-    clearErr(el);
-    var f = fieldOf(el); f.classList.add("invalid"); el.setAttribute("aria-invalid", "true");
-    var p = document.createElement("p"); p.className = "err"; p.id = el.id + "-err"; p.textContent = msg;
-    el.setAttribute("aria-describedby", p.id); f.appendChild(p);
-  }
-  function valid(el) {
-    if (el.type === "checkbox") return el.checked;
-    var v = el.value.trim();
-    if (el.name === "telefone") { var d = v.replace(/\D/g, ""); return d.length === 11 && d.charAt(2) === "9"; }
-    if (el.name === "email") return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
-    if (el.name === "nome") return v.length >= 3;
-    if (el.name === "cep") return v === "" || v.replace(/\D/g, "").length === 8;
-    return v.length > 0;
-  }
-  Array.prototype.forEach.call(form.elements, function (el) {
-    if (!el.name || SKIP[el.name]) return;
-    el.addEventListener("blur", function () { if (el.type !== "checkbox" && el.value && !valid(el)) setErr(el, MSG[el.name]); });
-    el.addEventListener("input", function () { if (valid(el)) clearErr(el); });
-    el.addEventListener("change", function () { if (valid(el)) clearErr(el); });
-  });
-  function say(text, kind) { status.textContent = text; status.className = "sf-status" + (kind ? " " + kind : ""); }
 
+  // Máscara CEP & Consulta ViaCEP
+  if (fCep) {
+    fCep.addEventListener("input", function () {
+      var digits = fCep.value.replace(/\D/g, "").slice(0, 8);
+      var formatted = digits;
+      if (digits.length > 5) {
+        formatted = digits.slice(0, 5) + "-" + digits.slice(5);
+      }
+      fCep.value = formatted;
+
+      if (digits.length === 8) {
+        cepStatus.style.display = "block";
+        cepStatus.className = "cep-status-msg";
+        cepStatus.textContent = "Buscando endereço...";
+
+        fetch("https://viacep.com.br/ws/" + digits + "/json/")
+          .then(function (res) { return res.json(); })
+          .then(function (data) {
+            if (data.erro) {
+              cepStatus.className = "cep-status-msg erro-cep";
+              cepStatus.textContent = "Endereço não encontrado. Confira o CEP e preencha o número.";
+            } else {
+              if (data.logradouro) fRua.value = data.logradouro;
+              if (data.bairro) fBairro.value = data.bairro;
+              if (data.localidade) fCidade.value = data.localidade;
+              if (data.uf) fEstado.value = data.uf;
+
+              cepStatus.className = "cep-status-msg";
+              cepStatus.textContent = "Endereço encontrado!";
+              if (fNumero) fNumero.focus();
+            }
+          })
+          .catch(function () {
+            cepStatus.className = "cep-status-msg erro-cep";
+            cepStatus.textContent = "Erro ao buscar CEP. Preencha seu endereço manualmente.";
+          });
+      } else {
+        cepStatus.style.display = "none";
+        cepStatus.textContent = "";
+      }
+    });
+  }
+
+  function validar() {
+    var ok = true, primeiro = null;
+    var regras = {
+      nome: function (v) { return v.trim().length >= 3 ? "" : "Informe seu nome completo."; },
+      telefone: function (v) { var d = v.replace(/\D/g, ""); return d.length === 11 && d.charAt(2) === "9" ? "" : "Informe um celular com WhatsApp e DDD, por exemplo (11) 91234-5678."; },
+      email: function (v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? "" : "Informe um e-mail válido."; },
+      cep: function (v) { return v.replace(/\D/g, "").length === 8 ? "" : "Informe o CEP (8 dígitos)."; },
+      rua: function (v) { return v.trim() ? "" : "Informe o nome da rua."; },
+      numero: function (v) { return v.trim() ? "" : "Informe o número/complemento."; },
+      bairro: function (v) { return v.trim() ? "" : "Informe seu bairro."; },
+      cidade: function (v) { return v.trim() ? "" : "Informe sua cidade."; },
+      estado: function (v) { return v ? "" : "Selecione o estado."; },
+      igreja: function (v) { return v.trim() ? "" : "Informe a igreja onde congrega."; },
+      frente: function (v) { return v ? "" : "Selecione uma frente."; }
+    };
+
+    Object.keys(regras).forEach(function (k) {
+      var campo = form.elements[k];
+      if (!campo) return;
+      var msg = regras[k](campo.value);
+      var errEl = document.getElementById("e-" + k);
+      if (errEl) errEl.textContent = msg;
+      campo.setAttribute("aria-invalid", msg ? "true" : "false");
+      if (msg) { ok = false; if (!primeiro) primeiro = campo; }
+    });
+
+    var lgpd = form.elements.lgpd;
+    if (lgpd && !lgpd.checked) {
+      ok = false;
+      if (!primeiro) primeiro = lgpd;
+    }
+
+    if (primeiro) primeiro.focus();
+    return ok;
+  }
+
+  var estadoMsg = document.getElementById("estado");
   form.addEventListener("submit", function (e) {
     e.preventDefault();
-    var first = null;
-    Array.prototype.forEach.call(form.elements, function (el) {
-      if (!el.name || SKIP[el.name]) return;
-      if (valid(el)) clearErr(el); else { setErr(el, MSG[el.name]); first = first || el; }
+    estadoMsg.className = "estado"; estadoMsg.textContent = "";
+    if (!validar()) return;
+
+    var el_ = form.elements;
+    var dados = {
+      nome: el_.nome.value.trim(),
+      telefone: el_.telefone.value.trim(),
+      email: el_.email.value.trim().toLowerCase(),
+      cep: el_.cep.value.trim(),
+      endereco: el_.rua.value.trim(),
+      numero: el_.numero.value.trim(),
+      bairro: el_.bairro.value.trim(),
+      cidade: el_.cidade.value.trim(),
+      uf: el_.estado.value,
+      igreja: el_.igreja.value.trim(),
+      ministerio: el_.frente.value,
+      site: el_.site ? el_.site.value : "",
+      telefone_e164: "+55" + el_.telefone.value.replace(/\D/g, ""),
+      consentimento: el_.lgpd && el_.lgpd.checked ? "sim" : "nao",
+      evento: "Behold Movement · Dia 31",
+      enviado_em: new Date().toISOString()
+    };
+    var corpo = new URLSearchParams();
+    Object.keys(dados).forEach(function (k) { corpo.append(k, dados[k]); });
+
+    var botao = form.querySelector("button[type=submit]");
+    botao.disabled = true; botao.textContent = "ENVIANDO…";
+
+    var envio = CONFIG.WEBHOOK_URL
+      ? fetch(CONFIG.WEBHOOK_URL, { method: "POST", body: corpo })
+          .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); })
+      : new Promise(function (ok) { console.info("[Behold] MODO DE TESTE — webhook não configurado. Dados:", dados); setTimeout(ok, 600); });
+
+    envio.then(function () {
+      form.reset(); marcarChips();
+      estadoMsg.className = "estado";
+      estadoMsg.textContent = "Inscrição recebida, " + dados.nome.split(" ")[0] + "! Em instantes você recebe as boas-vindas por e-mail e no WhatsApp, com o link do grupo. Enquanto isso, siga ";
+      var igMsg = document.createElement("a");
+      igMsg.className = "ig-link"; igMsg.href = CONFIG.INSTAGRAM_URL; igMsg.target = "_blank"; igMsg.rel = "noopener"; igMsg.textContent = "@beholdmvmt";
+      estadoMsg.appendChild(igMsg);
+      estadoMsg.appendChild(document.createTextNode(" no Instagram." + (CONFIG.WEBHOOK_URL ? "" : " (modo de teste)")));
+    }).catch(function () {
+      estadoMsg.className = "estado erro";
+      estadoMsg.textContent = "Não conseguimos enviar agora. Confira sua conexão e tente de novo.";
+    }).then(function () {
+      botao.disabled = false; botao.textContent = "ENVIAR INSCRIÇÃO";
     });
-    if (first) { first.focus(); say("Confira os campos destacados.", "bad"); return; }
-
-    var url = (form.getAttribute("data-webhook") || "").trim();
-    if (!url) { say("As inscrições ainda não estão abertas. O link de envio será configurado pela coordenação.", "bad"); return; }
-
-    var body = new URLSearchParams();
-    ["nome", "telefone", "cep", "endereco", "numero", "bairro", "cidade", "uf", "igreja", "ministerio", "site"].forEach(function (k) { body.append(k, form.elements[k].value.trim()); });
-    body.append("email", form.elements.email.value.trim().toLowerCase());
-    body.append("telefone_e164", "+55" + form.elements.telefone.value.replace(/\D/g, ""));
-    body.append("consentimento", form.elements.consentimento.checked ? "sim" : "nao");
-    body.append("evento", "Behold Movement · Dia 31");
-    body.append("enviado_em", new Date().toISOString());
-
-    send.disabled = true; send.textContent = "Enviando…"; say("");
-    fetch(url, { method: "POST", body: body })
-      .then(function (res) {
-        if (!res.ok) throw new Error("status " + res.status);
-        form.reset(); choose(""); ultimoCep = ""; hint(""); cidadesList.innerHTML = "";
-        say("Inscrição recebida! Em instantes você recebe as boas-vindas por e-mail e no WhatsApp, com o link do grupo.", "ok");
-      })
-      .catch(function () {
-        say("Não conseguimos enviar sua inscrição. Verifique sua conexão e tente de novo.", "bad");
-      })
-      .then(function () { send.disabled = false; send.textContent = "Enviar inscrição"; });
   });
 
-  // ---- Região com pontos (slide 25)
-  var cv = document.getElementById("dots");
-  var ctx = cv.getContext("2d");
-  var shapes = [
-    [[30,85],[220,0],[430,40],[520,145],[512,325],[395,405],[220,430],[75,350],[0,220]],
-    [[565,125],[715,45],[875,75],[935,195],[915,355],[790,425],[625,385],[565,300]],
-    [[75,375],[220,440],[395,430],[530,335],[655,395],[705,530],[655,700],[480,800],[270,790],[110,690],[30,540]]
-  ];
-  var S = 760 / 940;
-  function inside(p, poly) {
-    var c = false;
-    for (var i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-      var a = poly[i], b = poly[j];
-      if ((a[1] > p[1]) !== (b[1] > p[1]) && p[0] < (b[0] - a[0]) * (p[1] - a[1]) / (b[1] - a[1]) + a[0]) c = !c;
-    }
-    return c;
-  }
-  var seed = 31;
-  function rnd() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
-  var pts = [];
-  shapes.forEach(function (poly) {
-    var tries = 0, want = poly.length > 9 ? 30 : poly.length > 8 ? 22 : 14, got = 0;
-    while (got < want && tries < 4000) {
-      tries++;
-      var p = [rnd() * 940, rnd() * 800];
-      if (!inside(p, poly)) continue;
-      if (pts.some(function (q) { return Math.hypot(q[0] - p[0], q[1] - p[1]) < 62; })) continue;
-      pts.push(p); got++;
-    }
-  });
-  var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var ondas = [], proximaOnda = 0;
-  function draw(t) {
-    ctx.clearRect(0, 0, cv.width, cv.height);
-    ctx.save(); ctx.scale(S, S);
-    shapes.forEach(function (poly) {
-      ctx.beginPath(); poly.forEach(function (p, i) { i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); }); ctx.closePath();
-      ctx.fillStyle = "#3b6ff5"; ctx.fill(); ctx.lineWidth = 3.5; ctx.strokeStyle = "#eceae5"; ctx.stroke();
-    });
-    if (!reduce && t > proximaOnda) {
-      ondas.push({ p: pts[Math.floor(rnd() * pts.length)], t0: t });
-      proximaOnda = t + 450;
-    }
-    ondas = ondas.filter(function (o) { return t - o.t0 < 1600; });
-    ondas.forEach(function (o) {
-      var k = (t - o.t0) / 1600;
-      ctx.beginPath(); ctx.arc(o.p[0], o.p[1], 12 + k * 44, 0, Math.PI * 2);
-      ctx.lineWidth = 3; ctx.strokeStyle = "rgba(236,234,229," + (0.85 * (1 - k)).toFixed(3) + ")"; ctx.stroke();
-    });
-    pts.forEach(function (p, i) {
-      var r = 11 + (reduce ? 0 : Math.sin(t / 600 + i * 1.7) * 3);
-      ctx.beginPath(); ctx.arc(p[0], p[1], r, 0, Math.PI * 2); ctx.fillStyle = "#16171c"; ctx.fill();
-    });
-    ctx.restore();
-    if (!reduce) requestAnimationFrame(draw);
-  }
-  draw(0);
-
-  // ---- Revelação ao rolar: cada bloco sobe quando entra na tela; listas e cartões, um por vez
-  if ("IntersectionObserver" in window) {
-    var avulsos = ".slab:not(.hero) > .eyebrow, .slab:not(.hero) > .d, .slab:not(.hero) > h2, .slab:not(.hero) > h3, .slab:not(.hero) > .lede, " +
-      ".slab:not(.hero) > .verse, .split > div > .d, .split > div > h2, .split > div > p.d, .split > h2, .poster, .placeholder, .panel";
-    var grupos = ".verbs, .tiles, .steps, .hoods, .fronts, .roles, .agenda tbody, .imagine, .cities";
-    var alvos = [];
-    document.querySelectorAll(avulsos).forEach(function (el) { el.classList.add("rv"); alvos.push(el); });
-    document.querySelectorAll(grupos).forEach(function (g) {
-      Array.prototype.forEach.call(g.children, function (el, i) {
-        el.classList.add("rv"); el.style.setProperty("--d", Math.min(i * 0.07, 0.6) + "s"); alvos.push(el);
-      });
-    });
-    document.querySelectorAll(".struck").forEach(function (ul) {
-      Array.prototype.forEach.call(ul.children, function (li, i) { li.style.setProperty("--i", i); });
-      alvos.push(ul);
-    });
-    document.querySelectorAll(".map").forEach(function (m) { alvos.push(m); });
-    var io = new IntersectionObserver(function (entradas) {
-      entradas.forEach(function (e) {
-        if (!e.isIntersecting) return;
-        e.target.classList.add("in");
-        io.unobserve(e.target);
-      });
-    }, { rootMargin: "0px 0px 60px 0px" });
-    alvos.forEach(function (el) { io.observe(el); });
+  function acenderLugar() {
+    var lugar = document.getElementById("lugar");
+    lugar.classList.add("aceso");
+    document.getElementById("legenda-lugar").textContent = "Este é o seu lugar no movimento.";
+    aceso = true;
+    var svg = document.querySelector("#mapa-pequeno svg");
+    el("circle", { cx: SEU_LUGAR[0], cy: SEU_LUGAR[1], r: 12, fill: "#EBE9E4" }, svg);
+    if (reduzido) return;
+    lugar.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 })();
 </script>

@@ -112,6 +112,9 @@ const linhas = [
   'Entre no grupo do movimento para receber as notícias e as orientações do Dia 31:',
   d.link_grupo,
 ];
+if (d.treinamento_data) {
+  linhas.push('', `*Treinamento:* ${d.treinamento_data}, às ${d.treinamento_hora}, ${d.treinamento_local}.`);
+}
 linhas.push(
   '',
   'Salve este número nos seus contatos para não perder nenhuma mensagem. Se tiver dúvida, é só responder aqui.',
@@ -140,6 +143,15 @@ const agenda = [
   </tr>`).join('');
 
 
+const blocoTreino = d.treinamento_data ? `
+  <tr><td style="padding:0 32px 28px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:2px solid ${AZUL};border-radius:6px;">
+      <tr><td style="padding:16px 18px;font-family:${TEXTO};font-size:15px;line-height:1.5;color:${TINTA};">
+        <strong>Treinamento:</strong> ${esc(d.treinamento_data)}, às ${esc(d.treinamento_hora)}, ${esc(d.treinamento_local)}.
+      </td></tr>
+    </table>
+  </td></tr>` : '';
+
 const html = `<!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Behold Movement</title></head>
 <body style="margin:0;padding:0;background:${PAPEL};">
@@ -164,6 +176,7 @@ const html = `<!doctype html>
   <tr><td style="padding:0 32px 28px;">
     <a href="${esc(d.link_grupo)}" style="display:inline-block;background:${AZUL};color:#ffffff;text-decoration:none;font-family:${DISPLAY};font-size:20px;letter-spacing:1px;padding:16px 26px;border-radius:4px;text-transform:uppercase;">Entrar no grupo do WhatsApp</a>
   </td></tr>
+  ${blocoTreino}
 
   <tr><td style="padding:8px 32px 28px;">
     <div style="font-family:${MONO};font-weight:bold;font-size:12px;letter-spacing:3px;color:${AZUL};margin-bottom:8px;">COMO SERÁ O DIA 31</div>
@@ -391,6 +404,9 @@ def build() -> dict:
                     {"id": nid("cfg/inbox"), "name": "chatwoot_inbox_id", "value": "PREENCHER", "type": "string"},
                     {"id": nid("cfg/grupo"), "name": "link_grupo", "value": "https://chat.whatsapp.com/PREENCHER", "type": "string"},
                     {"id": nid("cfg/remetente"), "name": "remetente_nome", "value": "Behold Movement", "type": "string"},
+                    {"id": nid("cfg/treino-data"), "name": "treinamento_data", "value": "terça-feira, 27/10", "type": "string"},
+                    {"id": nid("cfg/treino-hora"), "name": "treinamento_hora", "value": "20h", "type": "string"},
+                    {"id": nid("cfg/treino-local"), "name": "treinamento_local", "value": "online, com o link enviado no grupo do WhatsApp", "type": "string"},
                 ]},
                 "options": {},
             },
