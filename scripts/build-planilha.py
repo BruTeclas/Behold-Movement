@@ -46,8 +46,7 @@ COLUNAS = [
 COL = {nome: get_column_letter(i + 1) for i, (nome, _) in enumerate(COLUNAS)}
 ULTIMA = get_column_letter(len(COLUNAS))
 
-MINISTERIOS = ["Evangelizando", "Liderando grupos", "Mídia", "Louvor",
-               "Suprimento", "Ação social", "Intercessão"]
+MINISTERIOS = ["Evangelizando", "Mídia", "Suprimento", "Ação social", "Intercessão"]
 
 
 def rng(nome: str) -> str:

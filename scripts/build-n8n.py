@@ -41,7 +41,7 @@ const capitaliza = (s) => limpa(s).toLowerCase().split(' ')
 let digitos = limpa(b.telefone_e164 || b.telefone).replace(/\D/g, '');
 if (digitos.startsWith('55') && digitos.length >= 12) digitos = digitos.slice(2);
 
-const MINISTERIOS = ['Evangelizando', 'Liderando grupos', 'Mídia', 'Louvor', 'Suprimento', 'Ação social', 'Intercessão'];
+const MINISTERIOS = ['Evangelizando', 'Mídia', 'Suprimento', 'Ação social', 'Intercessão'];
 const UFS = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR',
   'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'];
 
@@ -100,7 +100,6 @@ JS_MENSAGENS = r"""
 const d = $('Validar e padronizar').first().json;
 
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const lider = d.ministerio === 'Liderando grupos';
 const etiqueta = 'frente-' + d.ministerio.normalize('NFD').replace(/[̀-ͯ]/g, '')
   .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
@@ -113,9 +112,6 @@ const linhas = [
   'Entre no grupo do movimento para receber as notícias e as orientações do Dia 31:',
   d.link_grupo,
 ];
-if (lider) {
-  linhas.push('', 'Como você vai liderar um grupo, participe do treinamento antes da ação. A data, o horário e o local serão avisados no grupo.');
-}
 linhas.push(
   '',
   'Salve este número nos seus contatos para não perder nenhuma mensagem. Se tiver dúvida, é só responder aqui.',
@@ -143,14 +139,6 @@ const agenda = [
     <td style="padding:10px 0;border-top:1px solid #d6d3cc;font-family:${TEXTO};font-size:16px;color:${TINTA};">${o}</td>
   </tr>`).join('');
 
-const blocoLider = lider ? `
-  <tr><td style="padding:0 32px 24px;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:2px solid ${AZUL};border-radius:6px;">
-      <tr><td style="padding:16px 18px;font-family:${TEXTO};font-size:15px;line-height:1.5;color:${TINTA};">
-        <strong>Treinamento para líderes.</strong> Quem vai liderar um grupo precisa participar do treinamento antes da ação. A data, o horário e o local serão avisados no grupo.
-      </td></tr>
-    </table>
-  </td></tr>` : '';
 
 const html = `<!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Behold Movement</title></head>
@@ -176,7 +164,6 @@ const html = `<!doctype html>
   <tr><td style="padding:0 32px 28px;">
     <a href="${esc(d.link_grupo)}" style="display:inline-block;background:${AZUL};color:#ffffff;text-decoration:none;font-family:${DISPLAY};font-size:20px;letter-spacing:1px;padding:16px 26px;border-radius:4px;text-transform:uppercase;">Entrar no grupo do WhatsApp</a>
   </td></tr>
-  ${blocoLider}
 
   <tr><td style="padding:8px 32px 28px;">
     <div style="font-family:${MONO};font-weight:bold;font-size:12px;letter-spacing:3px;color:${AZUL};margin-bottom:8px;">COMO SERÁ O DIA 31</div>

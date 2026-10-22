@@ -96,11 +96,11 @@ a { color: inherit; }
 .verbs li:hover { color: var(--ink); }
 
 /* ---------- mission pillars ---------- */
-.tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
 .tile { background: var(--ink); color: var(--paper); border-radius: 6px; padding: 22px 24px 26px; display: flex; flex-direction: column; gap: 6px; }
 .tile .n { font-family: var(--mono); font-weight: 700; font-size: 15px; color: var(--sky); font-variant-numeric: tabular-nums; }
 .tile .t { font-family: var(--display); font-size: clamp(24px, 2.6vw, 38px); text-transform: uppercase; line-height: 1; overflow-wrap: anywhere; }
-@media (max-width: 900px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .tiles { grid-template-columns: minmax(0, 1fr); } }
 
 /* ---------- not a ... ---------- */
 .struck { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .35em; font-family: var(--body); font-weight: 600; font-size: clamp(24px, 3.2vw, 46px); line-height: 1.1; color: var(--mute); }
@@ -167,8 +167,6 @@ a { color: inherit; }
 .panel .lede.accent { color: var(--blue); font-weight: 600; }
 
 /* ---------- training ---------- */
-.alert { border: 2px solid var(--sky); border-radius: 6px; padding: 22px 26px; display: flex; align-items: center; gap: 20px; font-weight: 700; font-size: clamp(19px, 2.2vw, 30px); line-height: 1.2; }
-.alert svg { flex: none; width: 44px; height: 44px; }
 .placeholder { font-family: var(--mono); color: var(--mute); font-size: 15px; margin: 0; }
 
 /* ---------- schedule ---------- */
@@ -181,7 +179,7 @@ a { color: inherit; }
 @media (max-width: 560px) { .agenda tr { display: flex; flex-direction: column; border-top: 1px solid #2f323b; padding-block: 12px; } .agenda td { border: 0 !important; padding: 0; width: auto; } }
 
 /* ---------- participate ---------- */
-.roles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.roles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
 .role { all: unset; box-sizing: border-box; cursor: pointer; border: 2.5px solid var(--ink); border-radius: 6px; padding: 20px 22px 30px; display: flex; flex-direction: column; gap: 6px; min-height: 150px; transition: background .15s, color .15s; }
 .role:hover { background: #e1ded7; }
 .role:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
@@ -324,10 +322,9 @@ a.role.signup:hover { background: var(--blue-soft); border-color: var(--blue-sof
   <p class="lede">Levar Jesus além das quatro paredes da igreja.</p>
   <p class="eyebrow">Através de</p>
   <div class="tiles">
-    <div class="tile"><span class="n">01</span><span class="t">Louvor</span></div>
-    <div class="tile"><span class="n">02</span><span class="t">Adoração</span></div>
-    <div class="tile"><span class="n">03</span><span class="t">Palavra</span></div>
-    <div class="tile"><span class="n">04</span><span class="t">Relacionamento</span></div>
+    <div class="tile"><span class="n">01</span><span class="t">Adoração</span></div>
+    <div class="tile"><span class="n">02</span><span class="t">Palavra</span></div>
+    <div class="tile"><span class="n">03</span><span class="t">Relacionamento</span></div>
   </div>
   <div class="slab-foot"><span>Behold Movement</span><span>05</span></div>
 </section>
@@ -432,14 +429,13 @@ a.role.signup:hover { background: var(--blue-soft); border-color: var(--blue-sof
 <!-- 12–19 FRENTES -->
 <section class="slab s-blue" id="frentes">
   <p class="eyebrow">Uma missão</p>
-  <h2 class="d d-xl c-ink">Seis frentes.</h2>
+  <h2 class="d d-xl c-ink">Cinco frentes.</h2>
   <div class="fronts" role="tablist" aria-label="Frentes do movimento">
     <button class="front" role="tab" id="tab-0" aria-controls="front-panel" aria-selected="true" data-i="0"><span class="n">01</span><span class="t">Coordenação</span></button>
     <button class="front" role="tab" id="tab-1" aria-controls="front-panel" aria-selected="false" data-i="1"><span class="n">02</span><span class="t">Mídia</span></button>
     <button class="front" role="tab" id="tab-2" aria-controls="front-panel" aria-selected="false" data-i="2"><span class="n">03</span><span class="t">Comissionamento</span></button>
     <button class="front" role="tab" id="tab-3" aria-controls="front-panel" aria-selected="false" data-i="3"><span class="n">04</span><span class="t">Ação social</span></button>
-    <button class="front" role="tab" id="tab-4" aria-controls="front-panel" aria-selected="false" data-i="4"><span class="n">05</span><span class="t">Louvor</span></button>
-    <button class="front" role="tab" id="tab-5" aria-controls="front-panel" aria-selected="false" data-i="5"><span class="n">06</span><span class="t">Suprimento</span></button>
+    <button class="front" role="tab" id="tab-4" aria-controls="front-panel" aria-selected="false" data-i="4"><span class="n">05</span><span class="t">Suprimento</span></button>
   </div>
   <div class="panel" id="front-panel" role="tabpanel" aria-labelledby="tab-0"></div>
   <div class="slab-foot"><span>Behold Movement</span><span>12 — 19</span></div>
@@ -450,10 +446,6 @@ a.role.signup:hover { background: var(--blue-soft); border-color: var(--blue-sof
   <p class="eyebrow">Comissionamento</p>
   <h2 class="d d-xl c-sky">Treinamento</h2>
   <p class="lede" style="max-width:40ch">Antes da ação teremos um treinamento especial. Uma missionária estará conosco preparando todos os participantes.</p>
-  <div class="alert">
-    <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 5 45 42H3Z" fill="none" stroke="#6e97ff" stroke-width="4" stroke-linejoin="round"/><path d="M24 19v11" stroke="#6e97ff" stroke-width="4" stroke-linecap="round"/><circle cx="24" cy="36" r="2.6" fill="#6e97ff"/></svg>
-    <span>Quem deseja liderar um grupo deverá participar.</span>
-  </div>
   <p class="placeholder">[Data, horário e local do treinamento]</p>
   <div class="slab-foot"><span>Behold Movement</span><span>16</span></div>
 </section>
@@ -491,12 +483,10 @@ a.role.signup:hover { background: var(--blue-soft); border-color: var(--blue-sof
   <h2 class="d d-l">Como você pode participar?</h2>
   <div class="roles" id="roles">
     <button class="role" aria-pressed="false"><span class="n">01</span><span class="t">Evangelizando</span></button>
-    <button class="role" aria-pressed="false"><span class="n">02</span><span class="t">Liderando grupos</span></button>
-    <button class="role" aria-pressed="false"><span class="n">03</span><span class="t">Mídia</span></button>
-    <button class="role" aria-pressed="false"><span class="n">04</span><span class="t">Louvor</span></button>
-    <button class="role" aria-pressed="false"><span class="n">05</span><span class="t">Suprimento</span></button>
-    <button class="role" aria-pressed="false"><span class="n">06</span><span class="t">Ação social</span></button>
-    <button class="role" aria-pressed="false"><span class="n">07</span><span class="t">Intercessão</span></button>
+    <button class="role" aria-pressed="false"><span class="n">02</span><span class="t">Mídia</span></button>
+    <button class="role" aria-pressed="false"><span class="n">03</span><span class="t">Suprimento</span></button>
+    <button class="role" aria-pressed="false"><span class="n">04</span><span class="t">Ação social</span></button>
+    <button class="role" aria-pressed="false"><span class="n">05</span><span class="t">Intercessão</span></button>
     <a class="role signup" href="#inscricao"><span class="n">[Inscrição]</span><span class="t">Escolha sua frente</span></a>
   </div>
   <p class="picked" id="picked" aria-live="polite">Toque em uma frente para escolher onde você quer servir.</p>
@@ -592,9 +582,7 @@ a.role.signup:hover { background: var(--blue-soft); border-color: var(--blue-sof
         <select id="f-ministerio" name="ministerio" required>
           <option value="">Selecione uma frente</option>
           <option>Evangelizando</option>
-          <option>Liderando grupos</option>
           <option>Mídia</option>
-          <option>Louvor</option>
           <option>Suprimento</option>
           <option>Ação social</option>
           <option>Intercessão</option>
@@ -685,12 +673,11 @@ a.role.signup:hover { background: var(--blue-soft); border-color: var(--blue-sof
 (function () {
   // ---- Frentes (slides 13–19)
   var F = [
-    { tag: "Frente 01 / 06", title: "Coordenação", lede: "A equipe que mantém todas as frentes caminhando juntas, na mesma direção.", label: "Responsável por", items: ["Organização", "Planejamento", "Comunicação", "Direcionamento"] },
-    { tag: "Frente 02 / 06", title: "Equipe de mídia", lede: "Quem conta a história do movimento para dentro e para fora da igreja.", label: "Responsável por", items: ["Divulgação", "Redes sociais", "Registros", "Identidade visual", "Conteúdo"] },
-    { tag: "Frente 03 / 06", title: "Comissionamento", lede: "A equipe que irá às ruas.", accent: true, label: "Objetivos", items: ["Evangelizar", "Ouvir", "Orar", "Convidar", "Acolher"] },
-    { tag: "Frente 04 / 06", title: "Ação social", lede: "O Evangelho também alcança necessidades reais.", accent: true, sub: "Quando uma vulnerabilidade for identificada:", label: "", num: true, items: ["O caso será registrado.", "Encaminhado à equipe social.", "Avaliado por assistentes sociais.", "Acompanhado com responsabilidade."] },
-    { tag: "Frente 05 / 06", title: "Louvor e culto", lede: "Às 18h teremos um culto evangelístico.", big: "18H", label: "No culto", items: ["Louvor", "Adoração", "Palavra", "Oração", "Ministração"] },
-    { tag: "Frente 06 / 06", title: "Suprimento", lede: "Uma equipe servindo quem está servindo.", accent: true, label: "Responsável por", items: ["Alimentação", "Água", "Apoio logístico", "Estrutura"] }
+    { tag: "Frente 01 / 05", title: "Coordenação", lede: "A equipe que mantém todas as frentes caminhando juntas, na mesma direção.", label: "Responsável por", items: ["Organização", "Planejamento", "Comunicação", "Direcionamento"] },
+    { tag: "Frente 02 / 05", title: "Equipe de mídia", lede: "Quem conta a história do movimento para dentro e para fora da igreja.", label: "Responsável por", items: ["Divulgação", "Redes sociais", "Registros", "Identidade visual", "Conteúdo"] },
+    { tag: "Frente 03 / 05", title: "Comissionamento", lede: "A equipe que irá às ruas.", accent: true, label: "Objetivos", items: ["Evangelizar", "Ouvir", "Orar", "Convidar", "Acolher"] },
+    { tag: "Frente 04 / 05", title: "Ação social", lede: "O Evangelho também alcança necessidades reais.", accent: true, sub: "Quando uma vulnerabilidade for identificada:", label: "", num: true, items: ["O caso será registrado.", "Encaminhado à equipe social.", "Avaliado por assistentes sociais.", "Acompanhado com responsabilidade."] },
+    { tag: "Frente 05 / 05", title: "Suprimento", lede: "Uma equipe servindo quem está servindo.", accent: true, label: "Responsável por", items: ["Alimentação", "Água", "Apoio logístico", "Estrutura"] }
   ];
   var panel = document.getElementById("front-panel");
   var tabs = Array.prototype.slice.call(document.querySelectorAll(".front"));
@@ -955,7 +942,7 @@ a.role.signup:hover { background: var(--blue-soft); border-color: var(--blue-sof
   // ---- Revelação ao rolar: cada bloco sobe quando entra na tela; listas e cartões, um por vez
   if ("IntersectionObserver" in window) {
     var avulsos = ".slab:not(.hero) > .eyebrow, .slab:not(.hero) > .d, .slab:not(.hero) > h2, .slab:not(.hero) > h3, .slab:not(.hero) > .lede, " +
-      ".slab:not(.hero) > .verse, .split > div > .d, .split > div > h2, .split > div > p.d, .split > h2, .alert, .poster, .placeholder, .panel";
+      ".slab:not(.hero) > .verse, .split > div > .d, .split > div > h2, .split > div > p.d, .split > h2, .poster, .placeholder, .panel";
     var grupos = ".verbs, .tiles, .steps, .hoods, .fronts, .roles, .agenda tbody, .imagine, .cities";
     var alvos = [];
     document.querySelectorAll(avulsos).forEach(function (el) { el.classList.add("rv"); alvos.push(el); });
