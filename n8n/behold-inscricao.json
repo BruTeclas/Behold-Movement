@@ -127,7 +127,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Lê o formulário do site, padroniza os campos e diz se a inscrição é válida.\nconst cfg = $('Configurações').first().json;\nconst b = $('Inscrição no site').first().json.body || {};\n\nconst limpa = (v) => String(v ?? '').trim().replace(/\\s+/g, ' ');\nconst MINUSCULAS = ['da', 'de', 'do', 'das', 'dos', 'e'];\nconst capitaliza = (s) => limpa(s).toLowerCase().split(' ')\n  .map((p, i) => (i > 0 && MINUSCULAS.includes(p)) ? p : p.charAt(0).toUpperCase() + p.slice(1))\n  .join(' ');\n\nlet digitos = limpa(b.telefone_e164 || b.telefone).replace(/\\D/g, '');\nif (digitos.startsWith('55') && digitos.length >= 12) digitos = digitos.slice(2);\n\nconst MINISTERIOS = ['Evangelizando', 'Mídia', 'Suprimento', 'Ação social', 'Intercessão'];\nconst UFS = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR',\n  'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'];\n\nconst cepDigitos = limpa(b.cep).replace(/\\D/g, '');\nconst rua = limpa(b.endereco);\nconst numero = limpa(b.numero);\n\nconst dados = {\n  nome: capitaliza(b.nome),\n  email: limpa(b.email).toLowerCase(),\n  cep: cepDigitos.length === 8 ? cepDigitos.slice(0, 5) + '-' + cepDigitos.slice(5) : '',\n  rua,\n  numero,\n  endereco: [rua, numero].filter(Boolean).join(', '),\n  bairro: capitaliza(b.bairro),\n  cidade: capitaliza(b.cidade),\n  uf: limpa(b.uf).toUpperCase(),\n  igreja: limpa(b.igreja),\n  ministerio: limpa(b.ministerio),\n  consentimento: limpa(b.consentimento) === 'sim' ? 'sim' : 'não',\n};\n\nconst erros = [];\nif (dados.nome.length < 3) erros.push('nome');\nif (!(digitos.length === 11 && digitos.charAt(2) === '9')) erros.push('telefone');\nif (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/.test(dados.email)) erros.push('email');\nif (cepDigitos && cepDigitos.length !== 8) erros.push('cep');\nfor (const campo of ['rua', 'numero', 'bairro', 'cidade', 'igreja']) {\n  if (!dados[campo]) erros.push(campo);\n}\nif (!UFS.includes(dados.uf)) erros.push('uf');\nif (!MINISTERIOS.includes(dados.ministerio)) erros.push('ministerio');\nif (dados.consentimento !== 'sim') erros.push('consentimento');\n\n// Campo escondido \"site\": pessoas não veem, robôs preenchem.\nconst bot = limpa(b.site) !== '';\n\nconst agora = DateTime.now().setZone('America/Sao_Paulo');\nreturn [{\n  json: {\n    valido: !bot && erros.length === 0,\n    bot,\n    erros,\n    id: 'BHD-' + agora.toFormat('yyMMdd') + '-' + Math.random().toString(36).slice(2, 6).toUpperCase(),\n    data_hora: agora.toFormat('yyyy-MM-dd HH:mm:ss'),\n    ...dados,\n    primeiro_nome: dados.nome.split(' ')[0] || '',\n    telefone_e164: '+55' + digitos,\n    ...cfg,\n  },\n}];"
+        "jsCode": "// Lê o formulário do site, padroniza os campos e diz se a inscrição é válida.\nconst cfg = $('Configurações').first().json;\nconst b = $('Inscrição no site').first().json.body || {};\n\nconst limpa = (v) => String(v ?? '').trim().replace(/\\s+/g, ' ');\nconst MINUSCULAS = ['da', 'de', 'do', 'das', 'dos', 'e'];\n// \"comeco\" = o texto abre o nome; no sobrenome, \"da\", \"de\"... ficam minúsculos já na primeira palavra.\nconst capitaliza = (s, comeco = true) => limpa(s).toLowerCase().split(' ')\n  .map((p, i) => ((i > 0 || !comeco) && MINUSCULAS.includes(p)) ? p : p.charAt(0).toUpperCase() + p.slice(1))\n  .join(' ');\n\nlet digitos = limpa(b.telefone_e164 || b.telefone).replace(/\\D/g, '');\nif (digitos.startsWith('55') && digitos.length >= 12) digitos = digitos.slice(2);\n\nconst MINISTERIOS = ['Evangelizando', 'Mídia', 'Suprimento', 'Ação social', 'Intercessão'];\nconst UFS = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR',\n  'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'];\n\nconst cepDigitos = limpa(b.cep).replace(/\\D/g, '');\nconst rua = limpa(b.endereco);\nconst numero = limpa(b.numero);\n\nconst dados = {\n  nome: capitaliza(b.nome),\n  sobrenome: capitaliza(b.sobrenome, false),\n  email: limpa(b.email).toLowerCase(),\n  cep: cepDigitos.length === 8 ? cepDigitos.slice(0, 5) + '-' + cepDigitos.slice(5) : '',\n  rua,\n  numero,\n  endereco: [rua, numero].filter(Boolean).join(', '),\n  bairro: capitaliza(b.bairro),\n  cidade: capitaliza(b.cidade),\n  uf: limpa(b.uf).toUpperCase(),\n  igreja: limpa(b.igreja),\n  ministerio: limpa(b.ministerio),\n  consentimento: limpa(b.consentimento) === 'sim' ? 'sim' : 'não',\n};\n\nconst erros = [];\nif (dados.nome.length < 2) erros.push('nome');\n// A versão antiga do site não tem o campo sobrenome; nela, o sobrenome não é exigido.\nif (b.sobrenome !== undefined && dados.sobrenome.length < 2) erros.push('sobrenome');\nif (!(digitos.length === 11 && digitos.charAt(2) === '9')) erros.push('telefone');\nif (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/.test(dados.email)) erros.push('email');\nif (cepDigitos && cepDigitos.length !== 8) erros.push('cep');\nfor (const campo of ['rua', 'numero', 'bairro', 'cidade', 'igreja']) {\n  if (!dados[campo]) erros.push(campo);\n}\nif (!UFS.includes(dados.uf)) erros.push('uf');\nif (!MINISTERIOS.includes(dados.ministerio)) erros.push('ministerio');\nif (dados.consentimento !== 'sim') erros.push('consentimento');\n\n// Campo escondido \"site\": pessoas não veem, robôs preenchem.\nconst bot = limpa(b.site) !== '';\n\nconst agora = DateTime.now().setZone('America/Sao_Paulo');\nreturn [{\n  json: {\n    valido: !bot && erros.length === 0,\n    bot,\n    erros,\n    id: 'BHD-' + agora.toFormat('yyMMdd') + '-' + Math.random().toString(36).slice(2, 6).toUpperCase(),\n    data_hora: agora.toFormat('yyyy-MM-dd HH:mm:ss'),\n    ...dados,\n    primeiro_nome: dados.nome.split(' ')[0] || '',\n    // Quem escreve o nome completo em \"Nome\" e repete o sobrenome não fica com ele duplicado.\n    nome_completo: dados.sobrenome && !(' ' + dados.nome).toLowerCase().endsWith(' ' + dados.sobrenome.toLowerCase())\n      ? `${dados.nome} ${dados.sobrenome}` : dados.nome,\n    telefone_e164: '+55' + digitos,\n    ...cfg,\n  },\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -207,6 +207,7 @@
             "ID": "={{ $('Validar e padronizar').first().json.id }}",
             "Data/hora": "={{ $('Validar e padronizar').first().json.data_hora }}",
             "Nome": "={{ $('Validar e padronizar').first().json.nome }}",
+            "Sobrenome": "={{ $('Validar e padronizar').first().json.sobrenome }}",
             "Telefone": "={{ $('Validar e padronizar').first().json.telefone_e164 }}",
             "E-mail": "={{ $('Validar e padronizar').first().json.email }}",
             "CEP": "={{ $('Validar e padronizar').first().json.cep }}",
@@ -247,6 +248,16 @@
             {
               "id": "Nome",
               "displayName": "Nome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Sobrenome",
+              "displayName": "Sobrenome",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -835,7 +846,7 @@
           "value": "={{ $('Conferir texto da IA').first().json.chatwoot_account_id }}",
           "mode": "id"
         },
-        "name": "={{ $('Conferir texto da IA').first().json.nome }}",
+        "name": "={{ $('Conferir texto da IA').first().json.nome_completo }}",
         "phoneNumber": "={{ $('Conferir texto da IA').first().json.telefone_e164 }}",
         "additionalFields": {
           "city": "={{ $('Conferir texto da IA').first().json.cidade }}",
@@ -1037,6 +1048,16 @@
             {
               "id": "Nome",
               "displayName": "Nome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Sobrenome",
+              "displayName": "Sobrenome",
               "required": false,
               "defaultMatch": false,
               "display": true,

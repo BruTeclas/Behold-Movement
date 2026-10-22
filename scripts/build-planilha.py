@@ -27,7 +27,8 @@ FONT = "Arial"
 COLUNAS = [
     ("ID", 16),
     ("Data/hora", 20),
-    ("Nome", 28),
+    ("Nome", 20),
+    ("Sobrenome", 24),
     ("Telefone", 17),
     ("E-mail", 30),
     ("CEP", 11),

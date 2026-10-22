@@ -49,8 +49,9 @@ const b = $('Inscrição no site').first().json.body || {};
 
 const limpa = (v) => String(v ?? '').trim().replace(/\s+/g, ' ');
 const MINUSCULAS = ['da', 'de', 'do', 'das', 'dos', 'e'];
-const capitaliza = (s) => limpa(s).toLowerCase().split(' ')
-  .map((p, i) => (i > 0 && MINUSCULAS.includes(p)) ? p : p.charAt(0).toUpperCase() + p.slice(1))
+// "comeco" = o texto abre o nome; no sobrenome, "da", "de"... ficam minúsculos já na primeira palavra.
+const capitaliza = (s, comeco = true) => limpa(s).toLowerCase().split(' ')
+  .map((p, i) => ((i > 0 || !comeco) && MINUSCULAS.includes(p)) ? p : p.charAt(0).toUpperCase() + p.slice(1))
   .join(' ');
 
 let digitos = limpa(b.telefone_e164 || b.telefone).replace(/\D/g, '');
@@ -66,6 +67,7 @@ const numero = limpa(b.numero);
 
 const dados = {
   nome: capitaliza(b.nome),
+  sobrenome: capitaliza(b.sobrenome, false),
   email: limpa(b.email).toLowerCase(),
   cep: cepDigitos.length === 8 ? cepDigitos.slice(0, 5) + '-' + cepDigitos.slice(5) : '',
   rua,
@@ -80,7 +82,9 @@ const dados = {
 };
 
 const erros = [];
-if (dados.nome.length < 3) erros.push('nome');
+if (dados.nome.length < 2) erros.push('nome');
+// A versão antiga do site não tem o campo sobrenome; nela, o sobrenome não é exigido.
+if (b.sobrenome !== undefined && dados.sobrenome.length < 2) erros.push('sobrenome');
 if (!(digitos.length === 11 && digitos.charAt(2) === '9')) erros.push('telefone');
 if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(dados.email)) erros.push('email');
 if (cepDigitos && cepDigitos.length !== 8) erros.push('cep');
@@ -104,6 +108,9 @@ return [{
     data_hora: agora.toFormat('yyyy-MM-dd HH:mm:ss'),
     ...dados,
     primeiro_nome: dados.nome.split(' ')[0] || '',
+    // Quem escreve o nome completo em "Nome" e repete o sobrenome não fica com ele duplicado.
+    nome_completo: dados.sobrenome && !(' ' + dados.nome).toLowerCase().endsWith(' ' + dados.sobrenome.toLowerCase())
+      ? `${dados.nome} ${dados.sobrenome}` : dados.nome,
     telefone_e164: '+55' + digitos,
     ...cfg,
   },
@@ -451,8 +458,8 @@ return [{
 
 # ------------------------------------------------------------ helpers de nós
 
-COLUNAS = ["ID", "Data/hora", "Nome", "Telefone", "E-mail", "CEP", "Endereço", "Bairro",
-           "Cidade", "Estado", "Igreja", "Ministério", "Consentimento", "Status e-mail",
+COLUNAS = ["ID", "Data/hora", "Nome", "Sobrenome", "Telefone", "E-mail", "CEP", "Endereço",
+           "Bairro", "Cidade", "Estado", "Igreja", "Ministério", "Consentimento", "Status e-mail",
            "Status WhatsApp", "Conversa Chatwoot", "Observações"]
 
 
@@ -664,6 +671,7 @@ def build() -> dict:
             "ID": f"={{{{ {v}.id }}}}",
             "Data/hora": f"={{{{ {v}.data_hora }}}}",
             "Nome": f"={{{{ {v}.nome }}}}",
+            "Sobrenome": f"={{{{ {v}.sobrenome }}}}",
             "Telefone": f"={{{{ {v}.telefone_e164 }}}}",
             "E-mail": f"={{{{ {v}.email }}}}",
             "CEP": f"={{{{ {v}.cep }}}}",
@@ -724,7 +732,7 @@ def build() -> dict:
         if_node("Conversa aberta?", [3940, -120], "={{ !!$json.id }}"),
         chatwoot_node(
             "Chatwoot: criar contato", [3500, 140], "contact", "create",
-            name=f"={{{{ {M}.nome }}}}",
+            name=f"={{{{ {M}.nome_completo }}}}",
             phoneNumber=f"={{{{ {M}.telefone_e164 }}}}",
             additionalFields={
                 "city": f"={{{{ {M}.cidade }}}}",

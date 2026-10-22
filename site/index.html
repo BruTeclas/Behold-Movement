@@ -1057,17 +1057,22 @@ a { color: inherit; }
         <div class="form-linha">
           <div class="campo-dark">
             <label for="f-nome">Nome</label>
-            <input id="f-nome" name="nome" type="text" autocomplete="name" placeholder="Seu nome completo" required>
+            <input id="f-nome" name="nome" type="text" autocomplete="given-name" placeholder="Seu nome" required>
             <p class="erro" id="e-nome" aria-live="polite"></p>
           </div>
+          <div class="campo-dark">
+            <label for="f-sobrenome">Sobrenome</label>
+            <input id="f-sobrenome" name="sobrenome" type="text" autocomplete="family-name" placeholder="Seu sobrenome" required>
+            <p class="erro" id="e-sobrenome" aria-live="polite"></p>
+          </div>
+        </div>
+
+        <div class="form-linha">
           <div class="campo-dark">
             <label for="f-telefone">Telefone (WhatsApp)</label>
             <input id="f-telefone" name="telefone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(11) 90000-0000" required>
             <p class="erro" id="e-telefone" aria-live="polite"></p>
           </div>
-        </div>
-
-        <div class="form-linha unica">
           <div class="campo-dark">
             <label for="f-email">E-mail</label>
             <input id="f-email" name="email" type="email" autocomplete="email" placeholder="voce@exemplo.com" required>
@@ -1482,7 +1487,8 @@ var CONFIG = {
   function validar() {
     var ok = true, primeiro = null;
     var regras = {
-      nome: function (v) { return v.trim().length >= 3 ? "" : "Informe seu nome completo."; },
+      nome: function (v) { return v.trim().length >= 2 ? "" : "Informe seu nome."; },
+      sobrenome: function (v) { return v.trim().length >= 2 ? "" : "Informe seu sobrenome."; },
       telefone: function (v) { var d = v.replace(/\D/g, ""); return d.length === 11 && d.charAt(2) === "9" ? "" : "Informe um celular com WhatsApp e DDD, por exemplo (11) 91234-5678."; },
       email: function (v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? "" : "Informe um e-mail válido."; },
       cep: function (v) { return v.replace(/\D/g, "").length === 8 ? "" : "Informe o CEP (8 dígitos)."; },
@@ -1524,6 +1530,7 @@ var CONFIG = {
     var el_ = form.elements;
     var dados = {
       nome: el_.nome.value.trim(),
+      sobrenome: el_.sobrenome.value.trim(),
       telefone: el_.telefone.value.trim(),
       email: el_.email.value.trim().toLowerCase(),
       cep: el_.cep.value.trim(),
