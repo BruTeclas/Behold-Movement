@@ -3,7 +3,7 @@
 
 Fluxo:
   site -> webhook -> valida e padroniza -> planilha (adiciona ou atualiza pelo
-  telefone) -> responde ao site -> a IA (Claude) escreve o e-mail e a mensagem
+  telefone) -> responde ao site -> a IA (GPT, da OpenAI) escreve o e-mail e a mensagem
   de WhatsApp a partir das instruções em Configurações, e o fluxo confere o
   texto (se falhar, vai o texto fixo) -> e-mail de boas-vindas (Gmail, se email_ativo = sim) -> espera
   alguns segundos -> confere se o número tem WhatsApp -> Chatwoot, pelo nó
@@ -261,15 +261,16 @@ const dadosInscricao = [
 ].join('\n');
 
 const ia_pedido = {
-  model: d.ia_modelo || 'claude-opus-5-5',
-  max_tokens: 4000,
-  fallbacks: 'default',
-  system: SISTEMA,
-  messages: [{ role: 'user', content: dadosInscricao }],
-  output_config: {
-    effort: 'low',
-    format: {
-      type: 'json_schema',
+  model: d.ia_modelo || 'gpt-4.1-mini',
+  messages: [
+    { role: 'system', content: SISTEMA },
+    { role: 'user', content: dadosInscricao },
+  ],
+  response_format: {
+    type: 'json_schema',
+    json_schema: {
+      name: 'mensagens_boas_vindas',
+      strict: true,
       schema: {
         type: 'object',
         properties: {
@@ -310,13 +311,15 @@ const links = (s) => (String(s).match(/https?:\/\/\S+/g) || []).map((l) => l.rep
 // 1. A resposta da IA
 let ia = null;
 let motivo = '';
-if (r.type !== 'message') {
+const escolha = Array.isArray(r.choices) ? r.choices[0] : null;
+if (!escolha) {
   motivo = r.error ? 'erro na IA: ' + String(r.error.message || r.error.description || r.error).slice(0, 100) : 'IA desligada';
-} else if (r.stop_reason !== 'end_turn') {
-  motivo = 'resposta incompleta (' + r.stop_reason + ')';
+} else if (escolha.message && escolha.message.refusal) {
+  motivo = 'IA recusou';
+} else if (escolha.finish_reason !== 'stop') {
+  motivo = 'resposta incompleta (' + escolha.finish_reason + ')';
 } else {
-  const texto = (r.content || []).filter((c) => c.type === 'text').map((c) => c.text).pop();
-  try { ia = JSON.parse(texto); } catch (e) { motivo = 'resposta fora do formato'; }
+  try { ia = JSON.parse(escolha.message.content); } catch (e) { motivo = 'resposta fora do formato'; }
 }
 
 // 2. Conferências: o que precisa estar na mensagem e o que não pode aparecer
@@ -553,18 +556,13 @@ def chatwoot_node(titulo, pos, resource, operation, **params):
 
 
 def ia_node(name, pos):
-    """Pede à API da Anthropic (Claude) os textos; o pedido vem pronto de "Montar mensagens"."""
+    """Pede à OpenAI (GPT) os textos; o pedido vem pronto de "Montar mensagens"."""
     return {
         "parameters": {
             "method": "POST",
-            "url": "https://api.anthropic.com/v1/messages",
-            "authentication": "genericCredentialType",
-            "genericAuthType": "httpHeaderAuth",
-            "sendHeaders": True,
-            "headerParameters": {"parameters": [
-                {"name": "anthropic-version", "value": "2026-10-21"},
-                {"name": "anthropic-beta", "value": "server-side-fallback-2026-07-01"},
-            ]},
+            "url": "https://api.openai.com/v1/chat/completions",
+            "authentication": "predefinedCredentialType",
+            "nodeCredentialType": "openAiApi",
             "sendBody": True,
             "specifyBody": "json",
             "jsonBody": "={{ JSON.stringify($json.ia_pedido) }}",
@@ -579,7 +577,7 @@ def ia_node(name, pos):
         "maxTries": 2,
         "waitBetweenTries": 5000,
         "onError": "continueRegularOutput",
-        "credentials": {"httpHeaderAuth": {"id": "", "name": "Anthropic API"}},
+        "credentials": {"openAiApi": {"id": "", "name": "OpenAI"}},
     }
 
 
@@ -607,8 +605,8 @@ def build() -> dict:
                     "Antes de ativar:\n"
                     "1. **Configurações**: confira a caixa de entrada do WhatsApp no Chatwoot (7 = Behold) e preencha o link do grupo.\n"
                     "2. **Credenciais**: Google Sheets e Gmail (este só com `email_ativo` = sim); *Chatwoot fazer.ai* (URL do Chatwoot "
-                    "e token do seu perfil, usada pelos nós Chatwoot fazer.ai); *Anthropic API* como Header Auth "
-                    "(nome `x-api-key`, valor = chave da API da Anthropic).\n"
+                    "e token do seu perfil, usada pelos nós Chatwoot fazer.ai); *OpenAI* (a chave da API da OpenAI, "
+                    "usada pelo nó IA: escrever mensagens).\n"
                     "3. Nos dois nós da planilha, confira se a aba selecionada é **Inscrições**.\n"
                     "4. Ative o workflow. O site envia para `/webhook/behold-inscricao`.\n\n"
                     "**Textos com IA:** o que a IA deve escrever fica em `ia_instrucoes` (Configurações). "
@@ -649,7 +647,7 @@ def build() -> dict:
                     {"id": nid("cfg/treino-hora"), "name": "treinamento_hora", "value": "20h", "type": "string"},
                     {"id": nid("cfg/treino-local"), "name": "treinamento_local", "value": "online, com o link enviado no grupo do WhatsApp", "type": "string"},
                     {"id": nid("cfg/ia-ativa"), "name": "ia_ativa", "value": "sim", "type": "string"},
-                    {"id": nid("cfg/ia-modelo"), "name": "ia_modelo", "value": "claude-opus-5-5", "type": "string"},
+                    {"id": nid("cfg/ia-modelo"), "name": "ia_modelo", "value": "gpt-4.1-mini", "type": "string"},
                     {"id": nid("cfg/ia-instrucoes"), "name": "ia_instrucoes", "value": IA_INSTRUCOES, "type": "string"},
                 ]},
                 "options": {},

@@ -5,7 +5,7 @@
 1. A pessoa se inscreve em https://beholdmovement.com.br, de qualquer lugar do Brasil. Ao digitar o CEP, o site preenche rua, bairro, cidade e estado (serviço ViaCEP). Ao escolher o estado, o campo Cidade sugere os municípios daquele estado (IBGE). Se esses serviços estiverem fora do ar, a pessoa digita o endereço normalmente.
 2. O site envia os dados para o n8n (`https://n8nai.frontia.com.br/webhook/behold-inscricao`).
 3. O n8n valida os dados, grava na planilha [Behold Movement · Inscrições Dia 31](https://docs.google.com/spreadsheets/d/1q1x8UUi4KOTB6ES8HToqCWhA9uCCkvchnFlU1ZWn8jE/edit) e responde ao site.
-4. Uma IA (Claude, da Anthropic) escreve o e-mail e a mensagem de WhatsApp daquela pessoa, seguindo as instruções da equipe (veja *Textos escritos pela IA*). Assim, cada pessoa recebe um texto diferente. Se a IA falhar ou esquecer alguma informação obrigatória, vai o texto fixo.
+4. Uma IA (GPT, da OpenAI) escreve o e-mail e a mensagem de WhatsApp daquela pessoa, seguindo as instruções da equipe (veja *Textos escritos pela IA*). Assim, cada pessoa recebe um texto diferente. Se a IA falhar ou esquecer alguma informação obrigatória, vai o texto fixo.
 5. Se `email_ativo` = `sim`, o n8n manda o e-mail de boas-vindas pelo Gmail do movimento. Por enquanto está desligado (`não`): a inscrição segue só com o WhatsApp, e a planilha marca *desligado* em Status e-mail.
 6. Depois de 15 a 60 segundos, o n8n fala com o Chatwoot pelos nós **Chatwoot fazer.ai** (pacote `@fazer-ai/n8n-nodes-chatwoot`):
    - pergunta à caixa **Behold** se o número tem WhatsApp; se não tiver, não envia nada e a planilha marca *sem WhatsApp*;
@@ -59,20 +59,20 @@ O workflow já está importado no n8n como **Behold Movement · Inscrições**, 
    - *Google Sheets*: conta Google com acesso à planilha. A planilha é de bru.teclas@gmail.com; compartilhe com o Gmail do movimento como Editor se for usar essa conta.
    - *Gmail* (só com `email_ativo` = `sim`): o Gmail novo do movimento, que é o remetente dos e-mails. No n8n: *Credentials > Create credential > Gmail OAuth2 API*, com o mesmo Client ID e Client Secret da credencial do Google Sheets, e *Sign in with Google* com a conta que envia. Se o Google recusar, ative a Gmail API no projeto do Google Cloud desse Client ID.
    - *Chatwoot fazer.ai*: credencial dos nós Chatwoot fazer.ai, com a URL do Chatwoot (`https://chatwoot.frontia.com.br`) e o token de acesso do seu perfil (no Chatwoot: avatar > *Profile settings* > *Access Token*).
-   - *Anthropic API*: tipo **Header Auth**, nome `x-api-key`, valor = uma chave criada em console.anthropic.com (*API Keys*). Escolha essa credencial no nó **IA: escrever mensagens**.
+   - *OpenAI*: a credencial da OpenAI que já existe no n8n (chave da API da OpenAI). Fica no nó **IA: escrever mensagens**.
 3. Nos nós **Salvar na planilha** e **Atualizar status na planilha**, a aba é escolhida pelo nome, **Inscrições**; se renomear a aba na planilha, mude também nesses dois nós. A planilha já está com as colunas certas, nesta ordem: ID, Data/hora, Nome, Sobrenome, Telefone, E-mail, CEP, Endereço, Bairro, Cidade, Estado, Igreja, Ministério, Consentimento, Status e-mail, Status WhatsApp, Conversa Chatwoot, Observações (veja `scripts/build-planilha.py`).
 4. Ative o workflow e faça uma inscrição de teste com o seu próprio número.
 
 ## Textos escritos pela IA
 
-Depois de salvar a inscrição, o nó **IA: escrever mensagens** pede ao Claude (modelo em `ia_modelo`, hoje `claude-opus-5-5`) três textos: a mensagem de WhatsApp, o assunto do e-mail e os parágrafos de abertura do e-mail. O resto do e-mail (botão do grupo, treinamento e programação do Dia 31) continua fixo.
+Depois de salvar a inscrição, o nó **IA: escrever mensagens** pede ao GPT (modelo em `ia_modelo`, hoje `gpt-4.1-mini`) três textos: a mensagem de WhatsApp, o assunto do e-mail e os parágrafos de abertura do e-mail. O resto do e-mail (botão do grupo, treinamento e programação do Dia 31) continua fixo.
 
 - **O que a mensagem deve conter** fica em `ia_instrucoes`, no nó Configurações. Edite esse texto à vontade: é o pedido que a IA recebe. O fluxo acrescenta regras fixas (não inventar datas nem links, tamanho da mensagem, link do grupo sozinho numa linha) e os dados da pessoa: primeiro nome, frente, cidade, igreja, link do grupo e treinamento.
 - **Variação:** a cada inscrição o fluxo sorteia um jeito diferente de começar a mensagem, e a IA não repete frases feitas. Assim as mensagens não saem iguais.
 - **Conferência:** o nó **Conferir texto da IA** só aceita a mensagem de WhatsApp se ela tiver o primeiro nome, a frente, o pedido para salvar nosso contato e responder com um 👍, o link do grupo exatamente como está em `link_grupo`, a data e a hora do treinamento (quando houver) e nenhum outro link. O e-mail não pode ter links. Se algo faltar, ou se a IA estiver fora do ar, vai o texto fixo. Na execução do n8n, o campo `origem_textos` mostra se cada texto veio da IA ou do modelo fixo, e por quê.
 - **Desligar:** `ia_ativa` = `não` faz o fluxo usar sempre o texto fixo.
-- **Custo:** com `claude-opus-5-5`, a estimativa é de US$ 0,02 a 0,04 por inscrição. Para gastar menos, troque `ia_modelo` para `claude-haiku-5-5`, que custa cerca de 30 vezes menos.
-- **Dados enviados à Anthropic:** primeiro nome, frente, cidade, igreja e o link do grupo. Telefone, e-mail e endereço não são enviados.
+- **Custo:** cada inscrição é uma chamada curta ao `gpt-4.1-mini`, cobrada na conta da OpenAI dona da chave. Para trocar de modelo, mude `ia_modelo` (precisa ser um modelo que aceite resposta em JSON Schema).
+- **Dados enviados à OpenAI:** primeiro nome, frente, cidade, igreja e o link do grupo. Telefone, e-mail e endereço não são enviados.
 
 ## Cuidados com o WhatsApp (API não oficial)
 
