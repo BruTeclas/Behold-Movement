@@ -6,8 +6,9 @@ Fluxo:
   telefone) -> responde ao site -> a IA (Claude) escreve o e-mail e a mensagem
   de WhatsApp a partir das instruções em Configurações, e o fluxo confere o
   texto (se falhar, vai o texto fixo) -> e-mail de boas-vindas (Gmail, se email_ativo = sim) -> espera
-  alguns segundos -> Chatwoot (contato + conversa com a mensagem de WhatsApp)
-  -> grava na planilha o status de cada envio.
+  alguns segundos -> confere se o número tem WhatsApp -> Chatwoot, pelo nó
+  "Chatwoot fazer.ai" (contato, conversa aberta ou nova, mensagem com
+  "digitando..." antes, etiquetas) -> grava na planilha o status de cada envio.
 
 Uso: python3 scripts/build-n8n.py
 """
@@ -19,7 +20,6 @@ ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "n8n" / "behold-inscricao.json"
 
 PLANILHA_ID = "1q1x8UUi4KOTB6ES8HToqCWhA9uCCkvchnFlU1ZWn8jE"
-PLANILHA_URL = f"https://docs.google.com/spreadsheets/d/{PLANILHA_ID}/edit"
 SITE_ORIGENS = "https://beholdmovement.com.br,https://www.beholdmovement.com.br"
 
 
@@ -379,11 +379,26 @@ const achado = lista.find((c) => digitos(c.phone_number) === digitos(m.telefone_
 return [{ json: { contact_id: achado ? achado.id : null } }];
 """.strip()
 
+JS_ESCOLHER_CONVERSA = r"""
+// Reaproveita a conversa ainda aberta do contato na caixa do Behold; sem ela, o fluxo cria uma nova.
+const m = $('Conferir texto da IA').first().json;
+const contato = $('Escolher contato').first().json;
+// O nó anterior devolve um item por conversa (ou um item vazio, se não houver nenhuma).
+const lista = $input.all().map((i) => i.json).filter((c) => c && c.id);
+const aberta = lista
+  .filter((c) => String(c.inbox_id) === String(m.chatwoot_inbox_id) && c.status !== 'resolved')
+  .sort((a, b) => (b.last_activity_at || 0) - (a.last_activity_at || 0))[0];
+return [{ json: { contact_id: contato.contact_id, id: aberta ? aberta.id : null } }];
+""".strip()
+
 JS_STATUS = r"""
 // Resume o que deu certo e o que falhou, para gravar na planilha.
 const d = $('Conferir texto da IA').first().json;
-const conversa = $('Chatwoot: criar conversa').first().json;
 
+// Saída de um nó, ou null se ele não rodou nesta inscrição.
+const saida = (nome) => {
+  try { return $(nome).first().json; } catch (e) { return null; }
+};
 const motivo = (o) => {
   const e = o && o.error;
   if (!e) return 'sem resposta';
@@ -392,18 +407,38 @@ const motivo = (o) => {
 
 let statusEmail = 'desligado';
 if (d.email_ativo === 'sim') {
-  const email = $('Enviar e-mail de boas-vindas').first().json;
+  const email = saida('Enviar e-mail de boas-vindas');
   statusEmail = email && !email.error && email.id ? 'enviado' : 'erro: ' + motivo(email);
 }
-const okWhats = conversa && !conversa.error && conversa.id;
+
+const ETAPAS = [
+  ['WhatsApp: número existe?', 'consulta do número'],
+  ['Chatwoot: buscar contato', 'busca do contato'],
+  ['Chatwoot: criar contato', 'criação do contato'],
+  ['Chatwoot: conversas do contato', 'busca da conversa'],
+  ['Chatwoot: criar conversa', 'criação da conversa'],
+  ['Chatwoot: enviar mensagem', 'envio'],
+];
+const consulta = saida('WhatsApp: número existe?');
+const msg = saida('Chatwoot: enviar mensagem');
+let statusWhats, conversaId = null;
+if (consulta && consulta.exists === false) {
+  statusWhats = 'sem WhatsApp';
+} else if (msg && !msg.error && msg.id) {
+  statusWhats = 'enviado';
+  conversaId = msg.conversation_id;
+} else {
+  const falha = ETAPAS.map(([nome, etapa]) => [saida(nome), etapa]).find(([o]) => o && o.error);
+  statusWhats = falha ? `erro (${falha[1]}): ${motivo(falha[0])}` : 'erro: ' + motivo(msg);
+}
 
 return [{
   json: {
     telefone_e164: d.telefone_e164,
     status_email: statusEmail,
-    status_whatsapp: okWhats ? 'enviado' : 'erro: ' + motivo(conversa),
-    conversa_url: okWhats
-      ? `${d.chatwoot_url}/app/accounts/${d.chatwoot_account_id}/conversations/${conversa.id}`
+    status_whatsapp: statusWhats,
+    conversa_url: conversaId
+      ? `${d.chatwoot_url}/app/accounts/${d.chatwoot_account_id}/conversations/${conversaId}`
       : '',
   },
 }];
@@ -426,9 +461,8 @@ def sheets_node(name, pos, values):
         "parameters": {
             "operation": "appendOrUpdate",
             "documentId": {"__rl": True, "value": PLANILHA_ID, "mode": "id"},
-            "sheetName": {"__rl": True, "value": "gid=1078546648", "mode": "list",
-                          "cachedResultName": "Inscrições",
-                          "cachedResultUrl": PLANILHA_URL + "#gid=1078546648"},
+            # Aba pelo nome: com "gid=..." no modo lista, o nó não acha a aba ("Sheet with ID ... not found").
+            "sheetName": {"__rl": True, "value": "Inscrições", "mode": "name"},
             "columns": {
                 "mappingMode": "defineBelow",
                 "value": values,
@@ -481,33 +515,28 @@ def if_node(name, pos, left):
 
 
 M = "$('Conferir texto da IA').first().json"
-CW_BASE = f"={{{{ {M}.chatwoot_url }}}}/api/v1/accounts/{{{{ {M}.chatwoot_account_id }}}}"
 
 
-def chatwoot_node(name, pos, method, path, body=None, query=None):
-    params = {
-        "method": method,
-        "url": CW_BASE + path,
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
-        "options": {"timeout": 20000},
-    }
-    if query:
-        params["sendQuery"] = True
-        params["queryParameters"] = {"parameters": [{"name": k, "value": v} for k, v in query.items()]}
-    if body:
-        params["sendBody"] = True
-        params["specifyBody"] = "json"
-        params["jsonBody"] = body
+def por_id(expr):
+    """Seletor de conta, caixa, contato ou conversa do nó fazer.ai, preenchido por ID."""
+    return {"__rl": True, "value": expr, "mode": "id"}
+
+
+CONTA = por_id(f"={{{{ {M}.chatwoot_account_id }}}}")
+CAIXA = por_id(f"={{{{ {M}.chatwoot_inbox_id }}}}")
+
+
+def chatwoot_node(titulo, pos, resource, operation, **params):
+    """Nó "Chatwoot fazer.ai" (pacote @fazer-ai/n8n-nodes-chatwoot), instalado no n8n."""
     return {
-        "parameters": params,
-        "type": "n8n-nodes-base.httpRequest",
-        "typeVersion": 4.2,
+        "parameters": {"resource": resource, "operation": operation, "accountId": CONTA, **params},
+        "type": "@fazer-ai/n8n-nodes-chatwoot.chatwoot",
+        "typeVersion": 1,
         "position": pos,
-        "id": nid(name),
-        "name": name,
+        "id": nid(titulo),
+        "name": titulo,
         "onError": "continueRegularOutput",
-        "credentials": {"httpHeaderAuth": {"id": "", "name": "Chatwoot API"}},
+        "credentials": {"fazerAiChatwootApi": {"id": "", "name": "Chatwoot fazer.ai · Behold"}},
     }
 
 
@@ -565,8 +594,8 @@ def build() -> dict:
                     "## Inscrições Behold Movement\n"
                     "Antes de ativar:\n"
                     "1. **Configurações**: confira a caixa de entrada do WhatsApp no Chatwoot (7 = Behold) e preencha o link do grupo.\n"
-                    "2. **Credenciais**: Google Sheets e Gmail (este só com `email_ativo` = sim); *Chatwoot API* como Header Auth "
-                    "(nome `api_access_token`, valor = token do seu perfil no Chatwoot); *Anthropic API* como Header Auth "
+                    "2. **Credenciais**: Google Sheets e Gmail (este só com `email_ativo` = sim); *Chatwoot fazer.ai* (URL do Chatwoot "
+                    "e token do seu perfil, usada pelos nós Chatwoot fazer.ai); *Anthropic API* como Header Auth "
                     "(nome `x-api-key`, valor = chave da API da Anthropic).\n"
                     "3. Nos dois nós da planilha, confira se a aba selecionada é **Inscrições**.\n"
                     "4. Ative o workflow. O site envia para `/webhook/behold-inscricao`.\n\n"
@@ -676,37 +705,48 @@ def build() -> dict:
             "name": "Aguardar antes do WhatsApp",
             "webhookId": nid("wait/whatsapp"),
         },
-        chatwoot_node("Chatwoot: buscar contato", [2400, -20], "GET", "/contacts/search",
-                      query={"q": f"={{{{ {M}.telefone_e164.replace('+', '') }}}}"}),
-        code_node("Escolher contato", [2620, -20], JS_ESCOLHER_CONTATO),
-        if_node("Contato já existe?", [2840, -20], "={{ !!$json.contact_id }}"),
+        chatwoot_node("WhatsApp: número existe?", [2400, -20], "inbox", "onWhatsapp",
+                      whatsappSpecialInboxId=CAIXA, phoneNumber=f"={{{{ {M}.telefone_e164 }}}}"),
+        if_node("Tem WhatsApp?", [2620, -20], "={{ $json.exists !== false }}"),
+        chatwoot_node("Chatwoot: buscar contato", [2840, -20], "contact", "search",
+                      searchQuery=f"={{{{ {M}.telefone_e164.replace('+', '') }}}}"),
+        code_node("Escolher contato", [3060, -20], JS_ESCOLHER_CONTATO),
+        if_node("Contato já existe?", [3280, -20], "={{ !!$json.contact_id }}"),
+        {**chatwoot_node("Chatwoot: conversas do contato", [3500, -120], "contact", "listConversations",
+                         contactId=por_id("={{ $json.contact_id }}")),
+         "alwaysOutputData": True},
+        code_node("Escolher conversa", [3720, -120], JS_ESCOLHER_CONVERSA),
+        if_node("Conversa aberta?", [3940, -120], "={{ !!$json.id }}"),
         chatwoot_node(
-            "Chatwoot: criar contato", [3060, 140], "POST", "/contacts",
-            body=(
-                f"={{{{ JSON.stringify({{ inbox_id: Number({M}.chatwoot_inbox_id), name: {M}.nome, "
-                f"phone_number: {M}.telefone_e164, additional_attributes: {{ city: {M}.cidade, "
-                f"country: 'Brasil', description: 'Inscrição Behold Movement · Dia 31' }}, "
-                f"custom_attributes: {{ igreja: {M}.igreja, ministerio: {M}.ministerio, "
-                f"bairro: {M}.bairro, cidade: {M}.cidade, uf: {M}.uf, "
-                f"email_inscricao: {M}.email }} }}) }}}}"
+            "Chatwoot: criar contato", [3500, 140], "contact", "create",
+            name=f"={{{{ {M}.nome }}}}",
+            phoneNumber=f"={{{{ {M}.telefone_e164 }}}}",
+            additionalFields={
+                "city": f"={{{{ {M}.cidade }}}}",
+                "country": "Brasil",
+                "country_code": "BR",
+                "description": "Inscrição Behold Movement · Dia 31",
+            },
+            specifyCustomAttributesCreate="json",
+            customAttributesJsonCreate=(
+                f"={{{{ JSON.stringify({{ igreja: {M}.igreja, ministerio: {M}.ministerio, "
+                f"bairro: {M}.bairro, cidade: {M}.cidade, uf: {M}.uf, email_inscricao: {M}.email }}) }}}}"
             ),
         ),
-        chatwoot_node(
-            "Chatwoot: criar conversa", [3280, -20], "POST", "/conversations",
-            body=(
-                f"={{{{ JSON.stringify({{ inbox_id: Number({M}.chatwoot_inbox_id), "
-                f"contact_id: $json.contact_id ?? $json.payload?.contact?.id, "
-                f"source_id: $json.payload?.contact_inbox?.source_id, status: 'open', "
-                f"message: {{ content: {M}.whatsapp_texto }} }}) }}}}"
-            ),
-        ),
-        chatwoot_node(
-            "Chatwoot: etiquetas", [3500, -20], "POST",
-            "/conversations/{{ $json.id }}/labels",
-            body=f"={{{{ JSON.stringify({{ labels: {M}.etiquetas }}) }}}}",
-        ),
-        code_node("Resumir status", [3720, -20], JS_STATUS),
-        sheets_node("Atualizar status na planilha", [3940, -20], {
+        chatwoot_node("Chatwoot: criar conversa", [4160, 140], "conversation", "create",
+                      inboxId=CAIXA,
+                      contactId=por_id("={{ $json.contact_id ?? $json.payload?.contact?.id ?? $json.id }}")),
+        chatwoot_node("Chatwoot: enviar mensagem", [4380, -20], "conversation", "sendMessage",
+                      inboxId=CAIXA,
+                      conversationId=por_id("={{ $json.id }}"),
+                      content=f"={{{{ {M}.whatsapp_texto }}}}",
+                      additionalFields={"wait_before_sending": "dynamic", "typing_while_waiting": True}),
+        chatwoot_node("Chatwoot: etiquetas", [4600, -20], "conversation", "addLabels",
+                      inboxId=CAIXA,
+                      conversationId=por_id("={{ $json.conversation_id }}"),
+                      labels=f"={{{{ {M}.etiquetas }}}}"),
+        code_node("Resumir status", [4820, -20], JS_STATUS),
+        sheets_node("Atualizar status na planilha", [5040, -20], {
             "Telefone": "={{ $json.telefone_e164 }}",
             "Status e-mail": "={{ $json.status_email }}",
             "Status WhatsApp": "={{ $json.status_whatsapp }}",
@@ -739,15 +779,27 @@ def build() -> dict:
             [{"node": "Aguardar antes do WhatsApp", "type": "main", "index": 0}],
         ]},
         "Enviar e-mail de boas-vindas": link("Aguardar antes do WhatsApp"),
-        "Aguardar antes do WhatsApp": link("Chatwoot: buscar contato"),
+        "Aguardar antes do WhatsApp": link("WhatsApp: número existe?"),
+        "WhatsApp: número existe?": link("Tem WhatsApp?"),
+        "Tem WhatsApp?": {"main": [
+            [{"node": "Chatwoot: buscar contato", "type": "main", "index": 0}],
+            [{"node": "Resumir status", "type": "main", "index": 0}],
+        ]},
         "Chatwoot: buscar contato": link("Escolher contato"),
         "Escolher contato": link("Contato já existe?"),
         "Contato já existe?": {"main": [
-            [{"node": "Chatwoot: criar conversa", "type": "main", "index": 0}],
+            [{"node": "Chatwoot: conversas do contato", "type": "main", "index": 0}],
             [{"node": "Chatwoot: criar contato", "type": "main", "index": 0}],
         ]},
+        "Chatwoot: conversas do contato": link("Escolher conversa"),
+        "Escolher conversa": link("Conversa aberta?"),
+        "Conversa aberta?": {"main": [
+            [{"node": "Chatwoot: enviar mensagem", "type": "main", "index": 0}],
+            [{"node": "Chatwoot: criar conversa", "type": "main", "index": 0}],
+        ]},
         "Chatwoot: criar contato": link("Chatwoot: criar conversa"),
-        "Chatwoot: criar conversa": link("Chatwoot: etiquetas"),
+        "Chatwoot: criar conversa": link("Chatwoot: enviar mensagem"),
+        "Chatwoot: enviar mensagem": link("Chatwoot: etiquetas"),
         "Chatwoot: etiquetas": link("Resumir status"),
         "Resumir status": link("Atualizar status na planilha"),
     }

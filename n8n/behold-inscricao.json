@@ -3,7 +3,7 @@
   "nodes": [
     {
       "parameters": {
-        "content": "## Inscrições Behold Movement\nAntes de ativar:\n1. **Configurações**: confira a caixa de entrada do WhatsApp no Chatwoot (7 = Behold) e preencha o link do grupo.\n2. **Credenciais**: Google Sheets e Gmail (este só com `email_ativo` = sim); *Chatwoot API* como Header Auth (nome `api_access_token`, valor = token do seu perfil no Chatwoot); *Anthropic API* como Header Auth (nome `x-api-key`, valor = chave da API da Anthropic).\n3. Nos dois nós da planilha, confira se a aba selecionada é **Inscrições**.\n4. Ative o workflow. O site envia para `/webhook/behold-inscricao`.\n\n**Textos com IA:** o que a IA deve escrever fica em `ia_instrucoes` (Configurações). Se a IA falhar ou esquecer nome, frente, link ou treinamento, vai o texto fixo. `ia_ativa` = não desliga a IA.\n\n**E-mail:** `email_ativo` = sim liga o e-mail de boas-vindas (precisa da credencial do Gmail). Desligado, a planilha marca *desligado* em Status e-mail.",
+        "content": "## Inscrições Behold Movement\nAntes de ativar:\n1. **Configurações**: confira a caixa de entrada do WhatsApp no Chatwoot (7 = Behold) e preencha o link do grupo.\n2. **Credenciais**: Google Sheets e Gmail (este só com `email_ativo` = sim); *Chatwoot fazer.ai* (URL do Chatwoot e token do seu perfil, usada pelos nós Chatwoot fazer.ai); *Anthropic API* como Header Auth (nome `x-api-key`, valor = chave da API da Anthropic).\n3. Nos dois nós da planilha, confira se a aba selecionada é **Inscrições**.\n4. Ative o workflow. O site envia para `/webhook/behold-inscricao`.\n\n**Textos com IA:** o que a IA deve escrever fica em `ia_instrucoes` (Configurações). Se a IA falhar ou esquecer nome, frente, link ou treinamento, vai o texto fixo. `ia_ativa` = não desliga a IA.\n\n**E-mail:** `email_ativo` = sim liga o e-mail de boas-vindas (precisa da credencial do Gmail). Desligado, a planilha marca *desligado* em Status e-mail.",
         "height": 460,
         "width": 460,
         "color": 4
@@ -198,10 +198,8 @@
         },
         "sheetName": {
           "__rl": true,
-          "value": "gid=1078546648",
-          "mode": "list",
-          "cachedResultName": "Inscrições",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q1x8UUi4KOTB6ES8HToqCWhA9uCCkvchnFlU1ZWn8jE/edit#gid=1078546648"
+          "value": "Inscrições",
+          "mode": "name"
         },
         "columns": {
           "mappingMode": "defineBelow",
@@ -614,36 +612,93 @@
     },
     {
       "parameters": {
-        "method": "GET",
-        "url": "={{ $('Conferir texto da IA').first().json.chatwoot_url }}/api/v1/accounts/{{ $('Conferir texto da IA').first().json.chatwoot_account_id }}/contacts/search",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
-        "options": {
-          "timeout": 20000
+        "resource": "inbox",
+        "operation": "onWhatsapp",
+        "accountId": {
+          "__rl": true,
+          "value": "={{ $('Conferir texto da IA').first().json.chatwoot_account_id }}",
+          "mode": "id"
         },
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            {
-              "name": "q",
-              "value": "={{ $('Conferir texto da IA').first().json.telefone_e164.replace('+', '') }}"
-            }
-          ]
-        }
+        "whatsappSpecialInboxId": {
+          "__rl": true,
+          "value": "={{ $('Conferir texto da IA').first().json.chatwoot_inbox_id }}",
+          "mode": "id"
+        },
+        "phoneNumber": "={{ $('Conferir texto da IA').first().json.telefone_e164 }}"
       },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
+      "type": "@fazer-ai/n8n-nodes-chatwoot.chatwoot",
+      "typeVersion": 1,
       "position": [
         2400,
+        -20
+      ],
+      "id": "e3cb7933-9c1b-5a69-8938-a39e43458a8a",
+      "name": "WhatsApp: número existe?",
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "",
+          "name": "Chatwoot fazer.ai · Behold"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "7134c875-6cda-52ba-ab52-a883baa5bb78",
+              "leftValue": "={{ $json.exists !== false }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2620,
+        -20
+      ],
+      "id": "f34241e1-7dfe-54fe-9bfb-9d5f48d6bf71",
+      "name": "Tem WhatsApp?"
+    },
+    {
+      "parameters": {
+        "resource": "contact",
+        "operation": "search",
+        "accountId": {
+          "__rl": true,
+          "value": "={{ $('Conferir texto da IA').first().json.chatwoot_account_id }}",
+          "mode": "id"
+        },
+        "searchQuery": "={{ $('Conferir texto da IA').first().json.telefone_e164.replace('+', '') }}"
+      },
+      "type": "@fazer-ai/n8n-nodes-chatwoot.chatwoot",
+      "typeVersion": 1,
+      "position": [
+        2840,
         -20
       ],
       "id": "769a331c-05a6-5420-a666-66f777c04fb6",
       "name": "Chatwoot: buscar contato",
       "onError": "continueRegularOutput",
       "credentials": {
-        "httpHeaderAuth": {
+        "fazerAiChatwootApi": {
           "id": "",
-          "name": "Chatwoot API"
+          "name": "Chatwoot fazer.ai · Behold"
         }
       }
     },
@@ -654,7 +709,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2620,
+        3060,
         -20
       ],
       "id": "aa31e6fa-3093-54ee-8fa6-278e1e3e14a3",
@@ -687,7 +742,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        2840,
+        3280,
         -20
       ],
       "id": "8633461e-1f03-5a8f-8fcd-24b17a5e930d",
@@ -695,99 +750,240 @@
     },
     {
       "parameters": {
-        "method": "POST",
-        "url": "={{ $('Conferir texto da IA').first().json.chatwoot_url }}/api/v1/accounts/{{ $('Conferir texto da IA').first().json.chatwoot_account_id }}/contacts",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
-        "options": {
-          "timeout": 20000
+        "resource": "contact",
+        "operation": "listConversations",
+        "accountId": {
+          "__rl": true,
+          "value": "={{ $('Conferir texto da IA').first().json.chatwoot_account_id }}",
+          "mode": "id"
         },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ inbox_id: Number($('Conferir texto da IA').first().json.chatwoot_inbox_id), name: $('Conferir texto da IA').first().json.nome, phone_number: $('Conferir texto da IA').first().json.telefone_e164, additional_attributes: { city: $('Conferir texto da IA').first().json.cidade, country: 'Brasil', description: 'Inscrição Behold Movement · Dia 31' }, custom_attributes: { igreja: $('Conferir texto da IA').first().json.igreja, ministerio: $('Conferir texto da IA').first().json.ministerio, bairro: $('Conferir texto da IA').first().json.bairro, cidade: $('Conferir texto da IA').first().json.cidade, uf: $('Conferir texto da IA').first().json.uf, email_inscricao: $('Conferir texto da IA').first().json.email } }) }}"
+        "contactId": {
+          "__rl": true,
+          "value": "={{ $json.contact_id }}",
+          "mode": "id"
+        }
       },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
+      "type": "@fazer-ai/n8n-nodes-chatwoot.chatwoot",
+      "typeVersion": 1,
       "position": [
-        3060,
+        3500,
+        -120
+      ],
+      "id": "727b7db9-beb7-5ac1-92ec-836a622bf49c",
+      "name": "Chatwoot: conversas do contato",
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "",
+          "name": "Chatwoot fazer.ai · Behold"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Reaproveita a conversa ainda aberta do contato na caixa do Behold; sem ela, o fluxo cria uma nova.\nconst m = $('Conferir texto da IA').first().json;\nconst contato = $('Escolher contato').first().json;\n// O nó anterior devolve um item por conversa (ou um item vazio, se não houver nenhuma).\nconst lista = $input.all().map((i) => i.json).filter((c) => c && c.id);\nconst aberta = lista\n  .filter((c) => String(c.inbox_id) === String(m.chatwoot_inbox_id) && c.status !== 'resolved')\n  .sort((a, b) => (b.last_activity_at || 0) - (a.last_activity_at || 0))[0];\nreturn [{ json: { contact_id: contato.contact_id, id: aberta ? aberta.id : null } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3720,
+        -120
+      ],
+      "id": "0527aebb-6056-590a-9f25-dec87b465722",
+      "name": "Escolher conversa"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "73e6eb53-f4bc-5397-a870-a802713e1c2d",
+              "leftValue": "={{ !!$json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        3940,
+        -120
+      ],
+      "id": "c3ebb9aa-e797-59db-ad02-b5f59b593265",
+      "name": "Conversa aberta?"
+    },
+    {
+      "parameters": {
+        "resource": "contact",
+        "operation": "create",
+        "accountId": {
+          "__rl": true,
+          "value": "={{ $('Conferir texto da IA').first().json.chatwoot_account_id }}",
+          "mode": "id"
+        },
+        "name": "={{ $('Conferir texto da IA').first().json.nome }}",
+        "phoneNumber": "={{ $('Conferir texto da IA').first().json.telefone_e164 }}",
+        "additionalFields": {
+          "city": "={{ $('Conferir texto da IA').first().json.cidade }}",
+          "country": "Brasil",
+          "country_code": "BR",
+          "description": "Inscrição Behold Movement · Dia 31"
+        },
+        "specifyCustomAttributesCreate": "json",
+        "customAttributesJsonCreate": "={{ JSON.stringify({ igreja: $('Conferir texto da IA').first().json.igreja, ministerio: $('Conferir texto da IA').first().json.ministerio, bairro: $('Conferir texto da IA').first().json.bairro, cidade: $('Conferir texto da IA').first().json.cidade, uf: $('Conferir texto da IA').first().json.uf, email_inscricao: $('Conferir texto da IA').first().json.email }) }}"
+      },
+      "type": "@fazer-ai/n8n-nodes-chatwoot.chatwoot",
+      "typeVersion": 1,
+      "position": [
+        3500,
         140
       ],
       "id": "47975327-b42b-5a63-be07-a0580581265b",
       "name": "Chatwoot: criar contato",
       "onError": "continueRegularOutput",
       "credentials": {
-        "httpHeaderAuth": {
+        "fazerAiChatwootApi": {
           "id": "",
-          "name": "Chatwoot API"
+          "name": "Chatwoot fazer.ai · Behold"
         }
       }
     },
     {
       "parameters": {
-        "method": "POST",
-        "url": "={{ $('Conferir texto da IA').first().json.chatwoot_url }}/api/v1/accounts/{{ $('Conferir texto da IA').first().json.chatwoot_account_id }}/conversations",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
-        "options": {
-          "timeout": 20000
+        "resource": "conversation",
+        "operation": "create",
+        "accountId": {
+          "__rl": true,
+          "value": "={{ $('Conferir texto da IA').first().json.chatwoot_account_id }}",
+          "mode": "id"
         },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ inbox_id: Number($('Conferir texto da IA').first().json.chatwoot_inbox_id), contact_id: $json.contact_id ?? $json.payload?.contact?.id, source_id: $json.payload?.contact_inbox?.source_id, status: 'open', message: { content: $('Conferir texto da IA').first().json.whatsapp_texto } }) }}"
+        "inboxId": {
+          "__rl": true,
+          "value": "={{ $('Conferir texto da IA').first().json.chatwoot_inbox_id }}",
+          "mode": "id"
+        },
+        "contactId": {
+          "__rl": true,
+          "value": "={{ $json.contact_id ?? $json.payload?.contact?.id ?? $json.id }}",
+          "mode": "id"
+        }
       },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
+      "type": "@fazer-ai/n8n-nodes-chatwoot.chatwoot",
+      "typeVersion": 1,
       "position": [
-        3280,
-        -20
+        4160,
+        140
       ],
       "id": "6882c0cc-fb4e-5176-9def-8794b519d95a",
       "name": "Chatwoot: criar conversa",
       "onError": "continueRegularOutput",
       "credentials": {
-        "httpHeaderAuth": {
+        "fazerAiChatwootApi": {
           "id": "",
-          "name": "Chatwoot API"
+          "name": "Chatwoot fazer.ai · Behold"
         }
       }
     },
     {
       "parameters": {
-        "method": "POST",
-        "url": "={{ $('Conferir texto da IA').first().json.chatwoot_url }}/api/v1/accounts/{{ $('Conferir texto da IA').first().json.chatwoot_account_id }}/conversations/{{ $json.id }}/labels",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
-        "options": {
-          "timeout": 20000
+        "resource": "conversation",
+        "operation": "sendMessage",
+        "accountId": {
+          "__rl": true,
+          "value": "={{ $('Conferir texto da IA').first().json.chatwoot_account_id }}",
+          "mode": "id"
         },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ labels: $('Conferir texto da IA').first().json.etiquetas }) }}"
+        "inboxId": {
+          "__rl": true,
+          "value": "={{ $('Conferir texto da IA').first().json.chatwoot_inbox_id }}",
+          "mode": "id"
+        },
+        "conversationId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "content": "={{ $('Conferir texto da IA').first().json.whatsapp_texto }}",
+        "additionalFields": {
+          "wait_before_sending": "dynamic",
+          "typing_while_waiting": true
+        }
       },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
+      "type": "@fazer-ai/n8n-nodes-chatwoot.chatwoot",
+      "typeVersion": 1,
       "position": [
-        3500,
+        4380,
+        -20
+      ],
+      "id": "7792d811-74c9-55ea-b494-9aeda6acc25a",
+      "name": "Chatwoot: enviar mensagem",
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "",
+          "name": "Chatwoot fazer.ai · Behold"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "conversation",
+        "operation": "addLabels",
+        "accountId": {
+          "__rl": true,
+          "value": "={{ $('Conferir texto da IA').first().json.chatwoot_account_id }}",
+          "mode": "id"
+        },
+        "inboxId": {
+          "__rl": true,
+          "value": "={{ $('Conferir texto da IA').first().json.chatwoot_inbox_id }}",
+          "mode": "id"
+        },
+        "conversationId": {
+          "__rl": true,
+          "value": "={{ $json.conversation_id }}",
+          "mode": "id"
+        },
+        "labels": "={{ $('Conferir texto da IA').first().json.etiquetas }}"
+      },
+      "type": "@fazer-ai/n8n-nodes-chatwoot.chatwoot",
+      "typeVersion": 1,
+      "position": [
+        4600,
         -20
       ],
       "id": "22ddb1f7-0510-50d5-b5b9-7826e7ce21be",
       "name": "Chatwoot: etiquetas",
       "onError": "continueRegularOutput",
       "credentials": {
-        "httpHeaderAuth": {
+        "fazerAiChatwootApi": {
           "id": "",
-          "name": "Chatwoot API"
+          "name": "Chatwoot fazer.ai · Behold"
         }
       }
     },
     {
       "parameters": {
-        "jsCode": "// Resume o que deu certo e o que falhou, para gravar na planilha.\nconst d = $('Conferir texto da IA').first().json;\nconst conversa = $('Chatwoot: criar conversa').first().json;\n\nconst motivo = (o) => {\n  const e = o && o.error;\n  if (!e) return 'sem resposta';\n  return String(e.message || e.description || e).slice(0, 120);\n};\n\nlet statusEmail = 'desligado';\nif (d.email_ativo === 'sim') {\n  const email = $('Enviar e-mail de boas-vindas').first().json;\n  statusEmail = email && !email.error && email.id ? 'enviado' : 'erro: ' + motivo(email);\n}\nconst okWhats = conversa && !conversa.error && conversa.id;\n\nreturn [{\n  json: {\n    telefone_e164: d.telefone_e164,\n    status_email: statusEmail,\n    status_whatsapp: okWhats ? 'enviado' : 'erro: ' + motivo(conversa),\n    conversa_url: okWhats\n      ? `${d.chatwoot_url}/app/accounts/${d.chatwoot_account_id}/conversations/${conversa.id}`\n      : '',\n  },\n}];"
+        "jsCode": "// Resume o que deu certo e o que falhou, para gravar na planilha.\nconst d = $('Conferir texto da IA').first().json;\n\n// Saída de um nó, ou null se ele não rodou nesta inscrição.\nconst saida = (nome) => {\n  try { return $(nome).first().json; } catch (e) { return null; }\n};\nconst motivo = (o) => {\n  const e = o && o.error;\n  if (!e) return 'sem resposta';\n  return String(e.message || e.description || e).slice(0, 120);\n};\n\nlet statusEmail = 'desligado';\nif (d.email_ativo === 'sim') {\n  const email = saida('Enviar e-mail de boas-vindas');\n  statusEmail = email && !email.error && email.id ? 'enviado' : 'erro: ' + motivo(email);\n}\n\nconst ETAPAS = [\n  ['WhatsApp: número existe?', 'consulta do número'],\n  ['Chatwoot: buscar contato', 'busca do contato'],\n  ['Chatwoot: criar contato', 'criação do contato'],\n  ['Chatwoot: conversas do contato', 'busca da conversa'],\n  ['Chatwoot: criar conversa', 'criação da conversa'],\n  ['Chatwoot: enviar mensagem', 'envio'],\n];\nconst consulta = saida('WhatsApp: número existe?');\nconst msg = saida('Chatwoot: enviar mensagem');\nlet statusWhats, conversaId = null;\nif (consulta && consulta.exists === false) {\n  statusWhats = 'sem WhatsApp';\n} else if (msg && !msg.error && msg.id) {\n  statusWhats = 'enviado';\n  conversaId = msg.conversation_id;\n} else {\n  const falha = ETAPAS.map(([nome, etapa]) => [saida(nome), etapa]).find(([o]) => o && o.error);\n  statusWhats = falha ? `erro (${falha[1]}): ${motivo(falha[0])}` : 'erro: ' + motivo(msg);\n}\n\nreturn [{\n  json: {\n    telefone_e164: d.telefone_e164,\n    status_email: statusEmail,\n    status_whatsapp: statusWhats,\n    conversa_url: conversaId\n      ? `${d.chatwoot_url}/app/accounts/${d.chatwoot_account_id}/conversations/${conversaId}`\n      : '',\n  },\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3720,
+        4820,
         -20
       ],
       "id": "2fe17c49-d89d-5ee7-beed-f37f51bcbf83",
@@ -803,10 +999,8 @@
         },
         "sheetName": {
           "__rl": true,
-          "value": "gid=1078546648",
-          "mode": "list",
-          "cachedResultName": "Inscrições",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1q1x8UUi4KOTB6ES8HToqCWhA9uCCkvchnFlU1ZWn8jE/edit#gid=1078546648"
+          "value": "Inscrições",
+          "mode": "name"
         },
         "columns": {
           "mappingMode": "defineBelow",
@@ -999,7 +1193,7 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        3940,
+        5040,
         -20
       ],
       "id": "6f8821eb-e641-5362-8cd6-333657d03631",
@@ -1170,7 +1364,36 @@
       "main": [
         [
           {
+            "node": "WhatsApp: número existe?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp: número existe?": {
+      "main": [
+        [
+          {
+            "node": "Tem WhatsApp?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tem WhatsApp?": {
+      "main": [
+        [
+          {
             "node": "Chatwoot: buscar contato",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resumir status",
             "type": "main",
             "index": 0
           }
@@ -1203,7 +1426,7 @@
       "main": [
         [
           {
-            "node": "Chatwoot: criar conversa",
+            "node": "Chatwoot: conversas do contato",
             "type": "main",
             "index": 0
           }
@@ -1211,6 +1434,46 @@
         [
           {
             "node": "Chatwoot: criar contato",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chatwoot: conversas do contato": {
+      "main": [
+        [
+          {
+            "node": "Escolher conversa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Escolher conversa": {
+      "main": [
+        [
+          {
+            "node": "Conversa aberta?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Conversa aberta?": {
+      "main": [
+        [
+          {
+            "node": "Chatwoot: enviar mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Chatwoot: criar conversa",
             "type": "main",
             "index": 0
           }
@@ -1229,6 +1492,17 @@
       ]
     },
     "Chatwoot: criar conversa": {
+      "main": [
+        [
+          {
+            "node": "Chatwoot: enviar mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chatwoot: enviar mensagem": {
       "main": [
         [
           {

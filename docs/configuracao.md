@@ -7,7 +7,12 @@
 3. O n8n valida os dados, grava na planilha [Behold Movement · Inscrições Dia 31](https://docs.google.com/spreadsheets/d/1q1x8UUi4KOTB6ES8HToqCWhA9uCCkvchnFlU1ZWn8jE/edit) e responde ao site.
 4. Uma IA (Claude, da Anthropic) escreve o e-mail e a mensagem de WhatsApp daquela pessoa, seguindo as instruções da equipe (veja *Textos escritos pela IA*). Assim, cada pessoa recebe um texto diferente. Se a IA falhar ou esquecer alguma informação obrigatória, vai o texto fixo.
 5. Se `email_ativo` = `sim`, o n8n manda o e-mail de boas-vindas pelo Gmail do movimento. Por enquanto está desligado (`não`): a inscrição segue só com o WhatsApp, e a planilha marca *desligado* em Status e-mail.
-6. Depois de 15 a 60 segundos, o n8n cria o contato e a conversa no Chatwoot (caixa **Behold**) com a mensagem de boas-vindas e o link do grupo, e coloca as etiquetas `behold-movement` e `frente-...`. O Chatwoot entrega a mensagem pelo WhatsApp conectado.
+6. Depois de 15 a 60 segundos, o n8n fala com o Chatwoot pelos nós **Chatwoot fazer.ai** (pacote `@fazer-ai/n8n-nodes-chatwoot`):
+   - pergunta à caixa **Behold** se o número tem WhatsApp; se não tiver, não envia nada e a planilha marca *sem WhatsApp*;
+   - procura o contato pelo telefone e cria se não existir;
+   - usa a conversa aberta do contato na caixa Behold ou abre uma nova;
+   - mostra "digitando..." por alguns segundos (proporcional ao tamanho do texto) e envia a mensagem de boas-vindas com o link do grupo;
+   - coloca as etiquetas `behold-movement` e `frente-...` na conversa.
 7. O n8n grava na planilha se o e-mail e o WhatsApp foram enviados ou deram erro.
 
 Se a mesma pessoa se inscrever de novo com o mesmo telefone, a linha dela na planilha é atualizada, e as mensagens de boas-vindas são enviadas outra vez.
@@ -41,7 +46,7 @@ Sem Git: em vez dos passos 1 a 3, escolha **+ New > Dockerfile** e cole o conte�
 
 ## Configurar o n8n
 
-O workflow já está importado no n8n como **Behold Movement · Inscrições**, na pasta **Behold Movement** (`https://n8nai.frontia.com.br/workflow/aJKQuIUblegii7ze`), ainda desativado. As credenciais *Chatwoot API · Behold* e *Google Sheets* já estão ligadas aos nós, e as etiquetas já existem no Chatwoot. Para importar de novo em outro n8n: em Workflows, use *Import from File* com `n8n/behold-inscricao.json`.
+O workflow já está importado no n8n como **Behold Movement · Inscrições**, na pasta **Behold Movement** (`https://n8nai.frontia.com.br/workflow/aJKQuIUblegii7ze`), e está ativo. As credenciais *Chatwoot fazer.ai · Behold*, *Google Sheets Novo* e *Gmail account* estão ligadas aos nós, e as etiquetas já existem no Chatwoot. Para importar de novo em outro n8n: em Workflows, use *Import from File* com `n8n/behold-inscricao.json`.
 
 1. **Configurações** (primeiro nó depois do webhook):
    - `chatwoot_account_id`: o número que aparece na URL do Chatwoot, em `/app/accounts/NÚMERO/...` (hoje, 1).
@@ -53,9 +58,9 @@ O workflow já está importado no n8n como **Behold Movement · Inscrições**, 
 2. **Credenciais:**
    - *Google Sheets*: conta Google com acesso à planilha. A planilha é de bru.teclas@gmail.com; compartilhe com o Gmail do movimento como Editor se for usar essa conta.
    - *Gmail* (só com `email_ativo` = `sim`): o Gmail novo do movimento, que é o remetente dos e-mails. No n8n: *Credentials > Create credential > Gmail OAuth2 API*, com o mesmo Client ID e Client Secret da credencial do Google Sheets, e *Sign in with Google* com a conta que envia. Se o Google recusar, ative a Gmail API no projeto do Google Cloud desse Client ID.
-   - *Chatwoot API*: tipo **Header Auth**, nome `api_access_token`, valor = token de acesso do seu perfil no Chatwoot.
+   - *Chatwoot fazer.ai*: credencial dos nós Chatwoot fazer.ai, com a URL do Chatwoot (`https://chatwoot.frontia.com.br`) e o token de acesso do seu perfil (no Chatwoot: avatar > *Profile settings* > *Access Token*).
    - *Anthropic API*: tipo **Header Auth**, nome `x-api-key`, valor = uma chave criada em console.anthropic.com (*API Keys*). Escolha essa credencial no nó **IA: escrever mensagens**.
-3. Nos nós **Salvar na planilha** e **Atualizar status na planilha**, confira se a aba escolhida é **Inscrições** (ID interno 1078546648). A planilha já está com as colunas certas, nesta ordem: ID, Data/hora, Nome, Telefone, E-mail, CEP, Endereço, Bairro, Cidade, Estado, Igreja, Ministério, Consentimento, Status e-mail, Status WhatsApp, Conversa Chatwoot, Observações (veja `scripts/build-planilha.py`).
+3. Nos nós **Salvar na planilha** e **Atualizar status na planilha**, a aba é escolhida pelo nome, **Inscrições**; se renomear a aba na planilha, mude também nesses dois nós. A planilha já está com as colunas certas, nesta ordem: ID, Data/hora, Nome, Telefone, E-mail, CEP, Endereço, Bairro, Cidade, Estado, Igreja, Ministério, Consentimento, Status e-mail, Status WhatsApp, Conversa Chatwoot, Observações (veja `scripts/build-planilha.py`).
 4. Ative o workflow e faça uma inscrição de teste com o seu próprio número.
 
 ## Textos escritos pela IA
