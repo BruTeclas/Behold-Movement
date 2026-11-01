@@ -702,7 +702,7 @@
           "conditions": [
             {
               "id": "7134c875-6cda-52ba-ab52-a883baa5bb78",
-              "leftValue": "={{ $json.exists !== false }}",
+              "leftValue": "={{ $json.exists === true }}",
               "rightValue": "",
               "operator": {
                 "type": "boolean",

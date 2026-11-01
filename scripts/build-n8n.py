@@ -755,7 +755,9 @@ def build() -> dict:
         },
         chatwoot_node("WhatsApp: número existe?", [2620, -20], "inbox", "onWhatsapp",
                       whatsappSpecialInboxId=CAIXA, phoneNumber=f"={{{{ {M}.telefone_e164 }}}}"),
-        if_node("Tem WhatsApp?", [2840, -20], "={{ $json.exists !== false }}"),
+        # Só segue com "exists: true". Se a consulta falhar (por exemplo, WhatsApp da caixa desconectado),
+        # não tenta enviar: a planilha marca "erro (consulta do número)" e a inscrição pode ser reenviada.
+        if_node("Tem WhatsApp?", [2840, -20], "={{ $json.exists === true }}"),
         chatwoot_node("Chatwoot: buscar contato", [3060, -20], "contact", "search",
                       searchQuery=f"={{{{ {M}.telefone_e164.replace('+', '') }}}}"),
         code_node("Escolher contato", [3280, -20], JS_ESCOLHER_CONTATO),

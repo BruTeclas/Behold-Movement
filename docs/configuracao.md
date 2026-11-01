@@ -9,6 +9,7 @@
 5. Se `email_ativo` = `sim`, o n8n manda o e-mail de boas-vindas pelo Gmail do movimento. Por enquanto está desligado (`não`): a inscrição segue só com o WhatsApp, e a planilha marca *desligado* em Status e-mail.
 6. Depois de 15 a 60 segundos, o n8n fala com o Chatwoot pelos nós **Chatwoot fazer.ai** (pacote `@fazer-ai/n8n-nodes-chatwoot`):
    - pergunta à caixa **Behold** se o número tem WhatsApp; se não tiver, não envia nada e a planilha marca *sem WhatsApp*;
+   - se essa consulta falhar (por exemplo, com o WhatsApp da caixa desconectado no Chatwoot), também não envia, e a planilha marca *erro (consulta do número)*; depois de reconectar, a inscrição pode ser reenviada;
    - procura o contato pelo telefone e cria se não existir;
    - usa a conversa aberta do contato na caixa Behold ou abre uma nova;
    - mostra "digitando..." por alguns segundos (proporcional ao tamanho do texto) e envia a mensagem de boas-vindas com o link do grupo;
