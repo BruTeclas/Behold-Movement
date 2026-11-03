@@ -1,0 +1,246 @@
+{
+  "name": "Behold Movement · Relatório diário",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Relatório diário\nTodo dia às 21h: se houve inscrição nova no dia, manda a planilha completa em .xlsx pelo WhatsApp da caixa `chatwoot_inbox_id` (7 = Behold), com o resumo do dia na legenda, para os números de `whatsapp_destinatarios` (separados por vírgula, com DDD). Sem inscrição nova ou sem número, não manda nada.\n\nAssim a equipe acompanha as inscrições sem mexer na planilha original.",
+        "height": 240,
+        "width": 460,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -460,
+        -360
+      ],
+      "id": "334c6b91-a882-5261-8dde-126fa9bf113d",
+      "name": "Como configurar"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 21 * * *"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -460,
+        0
+      ],
+      "id": "808bd4d2-0420-5a36-a6b3-28ff207c83fc",
+      "name": "Todo dia às 21h"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "68a7d7cb-3f91-5319-8ca5-68c2c77e3ddc",
+              "name": "chatwoot_account_id",
+              "value": "1",
+              "type": "string"
+            },
+            {
+              "id": "5dbe177e-8e26-57b1-9616-d6f9b4396acf",
+              "name": "chatwoot_inbox_id",
+              "value": "7",
+              "type": "string"
+            },
+            {
+              "id": "d92bacac-56fd-5740-aa9e-69919d0e2010",
+              "name": "whatsapp_destinatarios",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -240,
+        0
+      ],
+      "id": "50d53c22-31d8-5dce-af9b-329a9a9aa484",
+      "name": "Configurações do relatório"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1q1x8UUi4KOTB6ES8HToqCWhA9uCCkvchnFlU1ZWn8jE",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Inscrições",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -20,
+        0
+      ],
+      "id": "3af827bb-74a5-5646-a745-cc4adb619324",
+      "name": "Ler planilha",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets (conta do movimento)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Só segue se houve inscrição hoje e há números na lista; passa adiante todas as linhas da planilha.\nconst cfg = $('Configurações do relatório').first().json;\nconst numeros = String(cfg.whatsapp_destinatarios || '').split(/[,;]+/).map((t) => t.replace(/\\D/g, '')).filter((t) => t.length >= 10);\nconst hoje = DateTime.now().setZone('America/Sao_Paulo').toFormat('yyyy-MM-dd');\nconst linhas = $input.all().map((i) => i.json).filter((l) => String(l['ID'] || '').trim());\nconst novas = linhas.filter((l) => String(l['Data/hora'] || '').startsWith(hoje));\nif (!numeros.length || !novas.length) return [];\nreturn linhas.map(({ row_number, ...l }) => ({ json: l }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        0
+      ],
+      "id": "124430df-37ac-54b0-a39d-b6dac9c97c4e",
+      "name": "Inscrições do dia"
+    },
+    {
+      "parameters": {
+        "operation": "xlsx",
+        "binaryPropertyName": "data",
+        "options": {
+          "fileName": "={{ 'Behold-Inscricoes-' + $now.setZone('America/Sao_Paulo').toFormat('yyyy-MM-dd') + '.xlsx' }}",
+          "sheetName": "Inscrições"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        420,
+        0
+      ],
+      "id": "07c71425-45ae-5037-8370-62386d9354eb",
+      "name": "Gerar planilha (.xlsx)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Uma mensagem por número da equipe: o resumo do dia vai como legenda do arquivo .xlsx.\nconst cfg = $('Configurações do relatório').first().json;\nconst numeros = String(cfg.whatsapp_destinatarios || '').split(/[,;]+/).map((t) => t.replace(/\\D/g, '')).filter((t) => t.length >= 10);\nconst agora = DateTime.now().setZone('America/Sao_Paulo');\nconst hoje = agora.toFormat('yyyy-MM-dd');\nconst linhas = $('Inscrições do dia').all().map((i) => i.json);\nconst novas = linhas.filter((l) => String(l['Data/hora'] || '').startsWith(hoje));\n\nconst porMinisterio = Object.entries(linhas.reduce((m, l) => {\n  const k = l['Ministério'] || '(vazio)'; m[k] = (m[k] || 0) + 1; return m;\n}, {})).sort((a, b) => b[1] - a[1]).map(([k, n]) => `• ${k}: ${n}`).join('\\n');\nconst semMensagem = linhas.filter((l) => String(l['Status WhatsApp'] || '').toLowerCase().startsWith('erro')).length;\n\nconst texto = [\n  `📋 *Behold Movement · inscrições até ${agora.toFormat('dd/MM')}*`,\n  '',\n  `*${novas.length}* ${novas.length === 1 ? 'inscrição nova' : 'inscrições novas'} hoje · *${linhas.length}* no total.`,\n  '',\n  '*Novas hoje*',\n  ...novas.map((l) => `• ${l['Nome']} ${l['Sobrenome'] || ''} · ${l['Ministério']} · ${l['Cidade']}/${l['Estado']}`.replace(/\\s+·/g, ' ·')),\n  '',\n  '*Total por ministério*',\n  porMinisterio,\n  ...(semMensagem ? ['', `${semMensagem} ${semMensagem === 1 ? 'pessoa ainda está' : 'pessoas ainda estão'} sem a mensagem de boas-vindas; o reenvio automático tenta de novo 4 vezes ao dia.`] : []),\n  '',\n  'A planilha completa vai neste arquivo. É uma cópia: as alterações nos dados ficam com a equipe responsável.',\n].join('\\n');\n\nconst arquivo = $input.first().binary;\nreturn numeros.map((n) => ({\n  json: {\n    telefone_e164: '+' + (n.length <= 11 ? '55' + n : n),\n    nome: 'Equipe Behold',\n    texto,\n    chatwoot_account_id: cfg.chatwoot_account_id,\n    chatwoot_inbox_id: cfg.chatwoot_inbox_id,\n  },\n  binary: arquivo,\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        640,
+        0
+      ],
+      "id": "1954aeed-625e-5f0c-9c65-002d299834a5",
+      "name": "Montar mensagem do relatório"
+    },
+    {
+      "parameters": {
+        "mode": "each",
+        "workflowId": {
+          "__rl": true,
+          "value": "KXdsDekp2N0pY0Rc",
+          "mode": "id",
+          "cachedResultName": "Behold Movement · WhatsApp para a equipe"
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        860,
+        0
+      ],
+      "id": "46915340-6b5a-5510-b667-182c78c22193",
+      "name": "Enviar para a equipe",
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {
+    "Todo dia às 21h": {
+      "main": [
+        [
+          {
+            "node": "Configurações do relatório",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configurações do relatório": {
+      "main": [
+        [
+          {
+            "node": "Ler planilha",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ler planilha": {
+      "main": [
+        [
+          {
+            "node": "Inscrições do dia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Inscrições do dia": {
+      "main": [
+        [
+          {
+            "node": "Gerar planilha (.xlsx)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gerar planilha (.xlsx)": {
+      "main": [
+        [
+          {
+            "node": "Montar mensagem do relatório",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Montar mensagem do relatório": {
+      "main": [
+        [
+          {
+            "node": "Enviar para a equipe",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo"
+  },
+  "active": false,
+  "pinData": {}
+}

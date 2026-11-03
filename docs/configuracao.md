@@ -15,8 +15,12 @@
    - mostra "digitando..." por alguns segundos (proporcional ao tamanho do texto) e envia a mensagem de boas-vindas com o link do grupo;
    - coloca as etiquetas `behold-movement` e `frente-...` na conversa.
 7. O n8n grava na planilha se o e-mail e o WhatsApp foram enviados ou deram erro.
+8. Quem ficou com erro no WhatsApp recebe nova tentativa automática 4 vezes ao dia (veja *Reenvio automático*).
+9. Às 21h, se houve inscrição nova no dia, a equipe recebe a planilha em .xlsx pelo WhatsApp (veja *Relatório diário*).
 
 Se a mesma pessoa se inscrever de novo com o mesmo telefone, a linha dela na planilha é atualizada, e as mensagens de boas-vindas são enviadas outra vez.
+
+**Não altere os títulos das colunas da aba Inscrições.** O n8n acha cada coluna pelo título; se um título mudar (em 30/10, "Nome" virou "6" por engano), todas as inscrições falham ao salvar. A equipe acompanha as inscrições pelo relatório diário, sem precisar abrir a planilha original.
 
 ## Arquivos
 
@@ -26,10 +30,11 @@ Se a mesma pessoa se inscrever de novo com o mesmo telefone, a linha dela na pla
 | `site/index.html`, `site/sites-incriveis.css`, `site/sites-incriveis.js` | O site publicado; edite estes arquivos diretamente |
 | `deploy/coolify.Dockerfile` | Dockerfile autocontido para colar no Coolify (gerado) |
 | `Dockerfile`, `deploy/nginx.conf` | Imagem do site quando o deploy vem do Git |
-| `n8n/behold-inscricao.json` | Workflow para importar no n8n (gerado) |
+| `n8n/*.json` | Os 5 workflows do n8n (gerados; veja *Configurar o n8n*) |
 | `scripts/build-site.py` | Gera `deploy/coolify.Dockerfile` a partir da pasta `site/` (não altera o site) |
-| `scripts/build-n8n.py` | Gera o workflow do n8n |
+| `scripts/build-n8n.py` | Gera os workflows do n8n |
 | `scripts/build-planilha.py` | Gera o modelo da planilha (.xlsx) |
+| `scripts/simular-n8n.js`, `scripts/testar-fluxos.js` | Simulador e testes dos workflows, sem tocar em nada real (veja *Testes*) |
 
 Para mudar o site, edite os arquivos da pasta `site/` e publique de novo no Coolify (Redeploy). O treinamento (data, horário e local) fica no bloco `CONFIG.TREINAMENTO` de `site/index.html`.
 
@@ -47,9 +52,21 @@ Sem Git: em vez dos passos 1 a 3, escolha **+ New > Dockerfile** e cole o conte�
 
 ## Configurar o n8n
 
-O workflow já está importado no n8n como **Behold Movement · Inscrições**, na pasta **Behold Movement** (`https://n8nai.frontia.com.br/workflow/aJKQuIUblegii7ze`), e está ativo. As credenciais *Chatwoot fazer.ai · Behold*, *Google Sheets Novo* e *Gmail account* estão ligadas aos nós, e as etiquetas já existem no Chatwoot. Para importar de novo em outro n8n: em Workflows, use *Import from File* com `n8n/behold-inscricao.json`.
+São 5 workflows, todos na pasta **Behold Movement** do n8n:
 
-1. **Configurações** (primeiro nó depois do webhook):
+| Workflow | Arquivo | O que faz |
+|---|---|---|
+| **Behold Movement · Inscrições** (`aJKQuIUblegii7ze`) | `n8n/behold-inscricao.json` | Recebe o site, valida, grava na planilha, responde e chama *Boas-vindas* |
+| **Behold Movement · Boas-vindas** (`OJAVeOzqoS78Xqd2`) | `n8n/behold-boas-vindas.json` | Subfluxo: IA, conferência, Chatwoot e status na planilha. Tem o nó **Configurações** |
+| **Behold Movement · Reenvio das boas-vindas** (`jX45uItRMru83feT`) | `n8n/behold-reenvio.json` | 4 vezes ao dia, chama *Boas-vindas* de novo para quem está com erro |
+| **Behold Movement · Relatório diário** (`nz5gV3OZGWZzZbk9`) | `n8n/behold-relatorio.json` | Às 21h, manda a planilha em .xlsx pelo WhatsApp para a equipe |
+| **Behold Movement · WhatsApp para a equipe** (`KXdsDekp2N0pY0Rc`) | `n8n/behold-whatsapp-equipe.json` | Subfluxo: manda texto e arquivo para um número (relatório e aviso) |
+
+As credenciais *Chatwoot fazer.ai · Behold*, *Google Sheets Novo*, *OpenAI* e *Gmail account* estão ligadas aos nós, e as etiquetas já existem no Chatwoot. Para importar em outro n8n: importe primeiro os dois subfluxos, troque `BOAS_VINDAS_ID` e `EQUIPE_ID` em `scripts/build-n8n.py` pelos IDs novos, rode o script e importe os outros três.
+
+No n8n, depois de editar um workflow ativo, clique em **Publish** para a mudança valer.
+
+1. **Configurações** (no subfluxo *Boas-vindas*):
    - `chatwoot_account_id`: o número que aparece na URL do Chatwoot, em `/app/accounts/NÚMERO/...` (hoje, 1).
    - `chatwoot_inbox_id`: em Chatwoot, *Configurações > Caixas de entrada*, abra a caixa do WhatsApp; o número fica na URL, em `/settings/inboxes/NÚMERO` (hoje, 7 = Behold, +55 11 99936-3542).
    - `link_grupo`: o link de convite do grupo do WhatsApp.
@@ -61,8 +78,36 @@ O workflow já está importado no n8n como **Behold Movement · Inscrições**, 
    - *Gmail* (só com `email_ativo` = `sim`): o Gmail novo do movimento, que é o remetente dos e-mails. No n8n: *Credentials > Create credential > Gmail OAuth2 API*, com o mesmo Client ID e Client Secret da credencial do Google Sheets, e *Sign in with Google* com a conta que envia. Se o Google recusar, ative a Gmail API no projeto do Google Cloud desse Client ID.
    - *Chatwoot fazer.ai*: credencial dos nós Chatwoot fazer.ai, com a URL do Chatwoot (`https://chatwoot.frontia.com.br`) e o token de acesso do seu perfil (no Chatwoot: avatar > *Profile settings* > *Access Token*).
    - *OpenAI*: a credencial da OpenAI que já existe no n8n (chave da API da OpenAI). Fica no nó **IA: escrever mensagens**.
-3. Nos nós **Salvar na planilha** e **Atualizar status na planilha**, a aba é escolhida pelo nome, **Inscrições**; se renomear a aba na planilha, mude também nesses dois nós. A planilha já está com as colunas certas, nesta ordem: ID, Data/hora, Nome, Sobrenome, Telefone, E-mail, CEP, Endereço, Bairro, Cidade, Estado, Igreja, Ministério, Consentimento, Status e-mail, Status WhatsApp, Conversa Chatwoot, Observações (veja `scripts/build-planilha.py`).
+3. Nos nós de planilha (**Salvar na planilha**, **Atualizar status na planilha** e **Ler planilha**, do reenvio e do relatório), a aba é escolhida pelo nome, **Inscrições**; se renomear a aba na planilha, mude também nesses nós. A planilha já está com as colunas certas, nesta ordem: ID, Data/hora, Nome, Sobrenome, Telefone, E-mail, CEP, Endereço, Bairro, Cidade, Estado, Igreja, Ministério, Consentimento, Status e-mail, Status WhatsApp, Conversa Chatwoot, Observações (veja `scripts/build-planilha.py`).
 4. Ative o workflow e faça uma inscrição de teste com o seu próprio número.
+
+## Reenvio automático
+
+O workflow **Reenvio das boas-vindas** roda às 8h, 12h, 16h e 20h:
+
+1. Lê a caixa do WhatsApp no Chatwoot (`chatwoot_inbox_id`, hoje 7 = Behold).
+2. Se o WhatsApp estiver **conectado**, lê a planilha e pega quem tem *erro* no Status WhatsApp (ou ficou em *pendente* por mais de 2 horas), inscrito nos últimos `dias_para_tentar` dias (hoje 14). *sem WhatsApp* e *enviado* ficam de fora.
+3. Para cada pessoa, chama o subfluxo *Boas-vindas*, o mesmo da inscrição, com espera de 15 a 60 segundos entre uma e outra. Deu certo: a planilha passa a *enviado*. Não deu: o erro fica, e a próxima rodada tenta de novo.
+4. Se o WhatsApp estiver **desconectado**, não tenta ninguém e avisa a equipe, no máximo uma vez por dia, pelo WhatsApp de **outra** caixa do Chatwoot: `chatwoot_inbox_aviso` (o número da caixa) e `whatsapp_alerta` (os números que recebem, separados por vírgula, com DDD). Sem esses dois campos, não avisa.
+
+Esses campos ficam no nó **Configurações do reenvio**. Se o e-mail de boas-vindas já tiver ido, o reenvio não manda o e-mail de novo.
+
+## Relatório diário
+
+O workflow **Relatório diário** roda às 21h. Se houve inscrição nova no dia, gera a planilha completa em .xlsx e manda pelo WhatsApp da caixa `chatwoot_inbox_id` (7 = Behold), com o resumo do dia na legenda: novas inscrições, total por ministério e quantas pessoas ainda estão sem a mensagem de boas-vindas.
+
+Os números que recebem ficam em `whatsapp_destinatarios`, no nó **Configurações do relatório**, separados por vírgula e com DDD (por exemplo, `11 98888-7777, 11 97777-6666`). Para incluir ou tirar alguém, edite esse campo e clique em **Publish**. Sem inscrição nova no dia ou com a lista vazia, não manda nada.
+
+## Testes
+
+`scripts/testar-fluxos.js` roda os workflows da pasta `n8n/` num simulador: usa o código real dos nós e do pacote da fazer.ai, mas o Chatwoot, a OpenAI e a planilha são falsos, então nada real é chamado. Cobre inscrição, WhatsApp desconectado, IA falhando, reenvio, aviso e relatório.
+
+```
+# uma vez, numa pasta fora do repositório:
+npm i luxon n8n-workflow@1 && npm pack @fazer-ai/n8n-nodes-chatwoot && tar -xzf fazer-ai-n8n-nodes-chatwoot-*.tgz
+# depois, no repositório:
+node scripts/testar-fluxos.js <essa pasta> <essa pasta>/package/dist/nodes/Chatwoot
+```
 
 ## Textos escritos pela IA
 

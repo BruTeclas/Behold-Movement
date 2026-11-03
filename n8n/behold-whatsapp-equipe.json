@@ -1,0 +1,521 @@
+{
+  "name": "Behold Movement · WhatsApp para a equipe",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## WhatsApp para a equipe (subfluxo)\nRecebe `telefone_e164`, `nome`, `texto`, `chatwoot_account_id`, `chatwoot_inbox_id` e, se houver, um arquivo em `data`. Acha ou cria o contato e a conversa naquela caixa do Chatwoot e manda o arquivo com o texto de legenda (ou só o texto).\n\nUsado pelo relatório diário e pelo aviso de WhatsApp desconectado.",
+        "height": 240,
+        "width": 460,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -460,
+        -380
+      ],
+      "id": "42d2b1c6-8348-54c1-8ffd-b8d1516486af",
+      "name": "Como configurar"
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -460,
+        0
+      ],
+      "id": "2febb225-1d93-57f2-91df-1de54ddbfe39",
+      "name": "Dados do envio"
+    },
+    {
+      "parameters": {
+        "resource": "contact",
+        "operation": "search",
+        "accountId": {
+          "__rl": true,
+          "value": "={{ $('Dados do envio').first().json.chatwoot_account_id }}",
+          "mode": "id"
+        },
+        "searchQuery": "={{ $('Dados do envio').first().json.telefone_e164.replace('+', '') }}"
+      },
+      "type": "@fazer-ai/n8n-nodes-chatwoot.chatwoot",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        0
+      ],
+      "id": "769a331c-05a6-5420-a666-66f777c04fb6",
+      "name": "Chatwoot: buscar contato",
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "",
+          "name": "Chatwoot fazer.ai · Behold"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Procura, no resultado da busca do Chatwoot, o contato com o mesmo telefone.\nconst m = $('Dados do envio').first().json;\nconst r = $input.first().json;\nconst lista = Array.isArray(r.payload) ? r.payload : [];\nconst digitos = (s) => String(s || '').replace(/\\D/g, '');\nconst achado = lista.find((c) => digitos(c.phone_number) === digitos(m.telefone_e164));\nreturn [{ json: { contact_id: achado ? achado.id : null } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -20,
+        0
+      ],
+      "id": "aa31e6fa-3093-54ee-8fa6-278e1e3e14a3",
+      "name": "Escolher contato"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "9a988ee7-820f-513c-a4d5-7cabd7046a33",
+              "leftValue": "={{ !!$json.contact_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        200,
+        0
+      ],
+      "id": "8633461e-1f03-5a8f-8fcd-24b17a5e930d",
+      "name": "Contato já existe?"
+    },
+    {
+      "parameters": {
+        "resource": "contact",
+        "operation": "listConversations",
+        "accountId": {
+          "__rl": true,
+          "value": "={{ $('Dados do envio').first().json.chatwoot_account_id }}",
+          "mode": "id"
+        },
+        "contactId": {
+          "__rl": true,
+          "value": "={{ $json.contact_id }}",
+          "mode": "id"
+        }
+      },
+      "type": "@fazer-ai/n8n-nodes-chatwoot.chatwoot",
+      "typeVersion": 1,
+      "position": [
+        420,
+        -120
+      ],
+      "id": "727b7db9-beb7-5ac1-92ec-836a622bf49c",
+      "name": "Chatwoot: conversas do contato",
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "",
+          "name": "Chatwoot fazer.ai · Behold"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Reaproveita a conversa ainda aberta do contato na caixa do Behold; sem ela, o fluxo cria uma nova.\nconst m = $('Dados do envio').first().json;\nconst contato = $('Escolher contato').first().json;\n// O nó anterior devolve um item por conversa (ou um item vazio, se não houver nenhuma).\nconst lista = $input.all().map((i) => i.json).filter((c) => c && c.id);\nconst aberta = lista\n  .filter((c) => String(c.inbox_id) === String(m.chatwoot_inbox_id) && c.status !== 'resolved')\n  .sort((a, b) => (b.last_activity_at || 0) - (a.last_activity_at || 0))[0];\nreturn [{ json: { contact_id: contato.contact_id, id: aberta ? aberta.id : null } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        640,
+        -120
+      ],
+      "id": "0527aebb-6056-590a-9f25-dec87b465722",
+      "name": "Escolher conversa"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "73e6eb53-f4bc-5397-a870-a802713e1c2d",
+              "leftValue": "={{ !!$json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        860,
+        -120
+      ],
+      "id": "c3ebb9aa-e797-59db-ad02-b5f59b593265",
+      "name": "Conversa aberta?"
+    },
+    {
+      "parameters": {
+        "resource": "contact",
+        "operation": "create",
+        "accountId": {
+          "__rl": true,
+          "value": "={{ $('Dados do envio').first().json.chatwoot_account_id }}",
+          "mode": "id"
+        },
+        "name": "={{ $('Dados do envio').first().json.nome || 'Equipe Behold' }}",
+        "phoneNumber": "={{ $('Dados do envio').first().json.telefone_e164 }}"
+      },
+      "type": "@fazer-ai/n8n-nodes-chatwoot.chatwoot",
+      "typeVersion": 1,
+      "position": [
+        420,
+        140
+      ],
+      "id": "47975327-b42b-5a63-be07-a0580581265b",
+      "name": "Chatwoot: criar contato",
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "",
+          "name": "Chatwoot fazer.ai · Behold"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "conversation",
+        "operation": "create",
+        "accountId": {
+          "__rl": true,
+          "value": "={{ $('Dados do envio').first().json.chatwoot_account_id }}",
+          "mode": "id"
+        },
+        "inboxId": {
+          "__rl": true,
+          "value": "={{ $('Dados do envio').first().json.chatwoot_inbox_id }}",
+          "mode": "id"
+        },
+        "contactId": {
+          "__rl": true,
+          "value": "={{ $json.contact_id ?? $json.payload?.contact?.id ?? $json.id }}",
+          "mode": "id"
+        }
+      },
+      "type": "@fazer-ai/n8n-nodes-chatwoot.chatwoot",
+      "typeVersion": 1,
+      "position": [
+        1080,
+        140
+      ],
+      "id": "6882c0cc-fb4e-5176-9def-8794b519d95a",
+      "name": "Chatwoot: criar conversa",
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "",
+          "name": "Chatwoot fazer.ai · Behold"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Os nós do Chatwoot não repassam o arquivo: junta de novo o que chegou ao subfluxo.\nconst entrada = $('Dados do envio').first();\nreturn [{ json: { ...$input.first().json, tem_arquivo: !!(entrada.binary && entrada.binary.data) }, binary: entrada.binary || {} }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1300,
+        -20
+      ],
+      "id": "6b94c078-2218-5f39-bdda-d8776d0020db",
+      "name": "Juntar arquivo"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "9e5229ab-810e-5fe2-9e36-d50b7eea0e9b",
+              "leftValue": "={{ $json.tem_arquivo === true }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1520,
+        -20
+      ],
+      "id": "fe588c42-d88d-5e32-9e40-2bd6ed16b6bb",
+      "name": "Tem arquivo?"
+    },
+    {
+      "parameters": {
+        "resource": "conversation",
+        "operation": "sendFile",
+        "accountId": {
+          "__rl": true,
+          "value": "={{ $('Dados do envio').first().json.chatwoot_account_id }}",
+          "mode": "id"
+        },
+        "inboxId": {
+          "__rl": true,
+          "value": "={{ $('Dados do envio').first().json.chatwoot_inbox_id }}",
+          "mode": "id"
+        },
+        "conversationId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "binaryPropertyName": "data",
+        "isRecordedAudio": false,
+        "fileCaption": "={{ $('Dados do envio').first().json.texto }}"
+      },
+      "type": "@fazer-ai/n8n-nodes-chatwoot.chatwoot",
+      "typeVersion": 1,
+      "position": [
+        1740,
+        -120
+      ],
+      "id": "fc09c089-2247-538d-871b-e20940de63eb",
+      "name": "Chatwoot: enviar arquivo",
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "",
+          "name": "Chatwoot fazer.ai · Behold"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "conversation",
+        "operation": "sendMessage",
+        "accountId": {
+          "__rl": true,
+          "value": "={{ $('Dados do envio').first().json.chatwoot_account_id }}",
+          "mode": "id"
+        },
+        "inboxId": {
+          "__rl": true,
+          "value": "={{ $('Dados do envio').first().json.chatwoot_inbox_id }}",
+          "mode": "id"
+        },
+        "conversationId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "content": "={{ $('Dados do envio').first().json.texto }}"
+      },
+      "type": "@fazer-ai/n8n-nodes-chatwoot.chatwoot",
+      "typeVersion": 1,
+      "position": [
+        1740,
+        80
+      ],
+      "id": "7792d811-74c9-55ea-b494-9aeda6acc25a",
+      "name": "Chatwoot: enviar mensagem",
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "",
+          "name": "Chatwoot fazer.ai · Behold"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Dados do envio": {
+      "main": [
+        [
+          {
+            "node": "Chatwoot: buscar contato",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chatwoot: buscar contato": {
+      "main": [
+        [
+          {
+            "node": "Escolher contato",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Escolher contato": {
+      "main": [
+        [
+          {
+            "node": "Contato já existe?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contato já existe?": {
+      "main": [
+        [
+          {
+            "node": "Chatwoot: conversas do contato",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Chatwoot: criar contato",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chatwoot: conversas do contato": {
+      "main": [
+        [
+          {
+            "node": "Escolher conversa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Escolher conversa": {
+      "main": [
+        [
+          {
+            "node": "Conversa aberta?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Conversa aberta?": {
+      "main": [
+        [
+          {
+            "node": "Juntar arquivo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Chatwoot: criar conversa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chatwoot: criar contato": {
+      "main": [
+        [
+          {
+            "node": "Chatwoot: criar conversa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chatwoot: criar conversa": {
+      "main": [
+        [
+          {
+            "node": "Juntar arquivo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Juntar arquivo": {
+      "main": [
+        [
+          {
+            "node": "Tem arquivo?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tem arquivo?": {
+      "main": [
+        [
+          {
+            "node": "Chatwoot: enviar arquivo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Chatwoot: enviar mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo"
+  },
+  "active": false,
+  "pinData": {}
+}

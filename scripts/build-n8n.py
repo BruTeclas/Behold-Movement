@@ -1,14 +1,22 @@
 #!/usr/bin/env python3
-"""Gera n8n/behold-inscricao.json, o workflow de inscrições do Behold Movement.
+"""Gera os workflows do n8n do Behold Movement (pasta n8n/).
 
-Fluxo:
-  site -> webhook -> valida e padroniza -> planilha (adiciona ou atualiza pelo
-  telefone) -> responde ao site -> a IA (GPT, da OpenAI) escreve o e-mail e a mensagem
-  de WhatsApp a partir das instruções em Configurações, e o fluxo confere o
-  texto (se falhar, vai o texto fixo) -> e-mail de boas-vindas (Gmail, se email_ativo = sim) -> espera
-  alguns segundos -> confere se o número tem WhatsApp -> Chatwoot, pelo nó
-  "Chatwoot fazer.ai" (contato, conversa aberta ou nova, mensagem com
-  "digitando..." antes, etiquetas) -> grava na planilha o status de cada envio.
+behold-inscricao.json   site -> webhook -> valida e padroniza -> planilha (adiciona ou
+                        atualiza pelo telefone) -> responde ao site -> chama "Boas-vindas".
+behold-boas-vindas.json subfluxo: a IA (GPT, da OpenAI) escreve o e-mail e a mensagem de
+                        WhatsApp a partir das instruções em Configurações, e o fluxo confere
+                        o texto (tenta de novo; se não der, vai o texto fixo) -> e-mail
+                        (Gmail, se email_ativo = sim) -> espera alguns segundos -> confere se
+                        o número tem WhatsApp -> Chatwoot, pelo nó "Chatwoot fazer.ai"
+                        (contato, conversa aberta ou nova, mensagem com "digitando..." antes,
+                        etiquetas) -> grava na planilha o status de cada envio.
+behold-reenvio.json     4 vezes ao dia: se o WhatsApp da caixa Behold estiver conectado, chama
+                        "Boas-vindas" de novo para quem está com erro no WhatsApp; se estiver
+                        desconectado, avisa a equipe por WhatsApp de outra caixa (uma vez por dia).
+behold-relatorio.json   todo dia às 21h: se houve inscrição nova no dia, manda a planilha em
+                        .xlsx pelo WhatsApp para os números da equipe.
+behold-whatsapp-equipe.json  subfluxo: manda um texto (e um arquivo, se vier) para um número,
+                        achando ou criando o contato e a conversa no Chatwoot.
 
 Uso: python3 scripts/build-n8n.py
 """
@@ -17,7 +25,13 @@ import uuid
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT = ROOT / "n8n" / "behold-inscricao.json"
+PASTA = ROOT / "n8n"
+
+# ID do subfluxo "Behold Movement · Boas-vindas" no n8n (os fluxos de inscrição e de
+# reenvio o chamam). Em outro n8n, troque pelo ID do subfluxo importado lá.
+BOAS_VINDAS_ID = "OJAVeOzqoS78Xqd2"
+# ID do subfluxo "Behold Movement · WhatsApp para a equipe" (relatório e aviso de desconexão).
+EQUIPE_ID = "KXdsDekp2N0pY0Rc"
 
 PLANILHA_ID = "1q1x8UUi4KOTB6ES8HToqCWhA9uCCkvchnFlU1ZWn8jE"
 SITE_ORIGENS = "https://beholdmovement.com.br,https://www.beholdmovement.com.br"
@@ -44,7 +58,6 @@ Tom: alegre, acolhedor e simples, como uma conversa entre irmãos, sem exageros 
 
 JS_VALIDAR = r"""
 // Lê o formulário do site, padroniza os campos e diz se a inscrição é válida.
-const cfg = $('Configurações').first().json;
 const b = $('Inscrição no site').first().json.body || {};
 
 const limpa = (v) => String(v ?? '').trim().replace(/\s+/g, ' ');
@@ -112,14 +125,13 @@ return [{
     nome_completo: dados.sobrenome && !(' ' + dados.nome).toLowerCase().endsWith(' ' + dados.sobrenome.toLowerCase())
       ? `${dados.nome} ${dados.sobrenome}` : dados.nome,
     telefone_e164: '+55' + digitos,
-    ...cfg,
   },
 }];
 """.strip()
 
 JS_MENSAGENS = r"""
 // Monta os textos fixos (e-mail em HTML e mensagem de WhatsApp) e o pedido para a IA reescrevê-los.
-const d = $('Validar e padronizar').first().json;
+const d = $('Configurações').first().json;   // dados da inscrição + configuração
 
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const etiqueta = 'frente-' + d.ministerio.normalize('NFD').replace(/[̀-ͯ]/g, '')
@@ -412,7 +424,7 @@ return [{
 }];
 """.strip()
 
-JS_ESCOLHER_CONTATO = r"""
+JS_ESCOLHER_CONTATO_BASE = r"""
 // Procura, no resultado da busca do Chatwoot, o contato com o mesmo telefone.
 const m = $('Conferir texto da IA').first().json;
 const r = $input.first().json;
@@ -422,7 +434,7 @@ const achado = lista.find((c) => digitos(c.phone_number) === digitos(m.telefone_
 return [{ json: { contact_id: achado ? achado.id : null } }];
 """.strip()
 
-JS_ESCOLHER_CONVERSA = r"""
+JS_ESCOLHER_CONVERSA_BASE = r"""
 // Reaproveita a conversa ainda aberta do contato na caixa do Behold; sem ela, o fluxo cria uma nova.
 const m = $('Conferir texto da IA').first().json;
 const contato = $('Escolher contato').first().json;
@@ -433,6 +445,14 @@ const aberta = lista
   .sort((a, b) => (b.last_activity_at || 0) - (a.last_activity_at || 0))[0];
 return [{ json: { contact_id: contato.contact_id, id: aberta ? aberta.id : null } }];
 """.strip()
+
+def js_escolher(base, origem):
+    """Código de "Escolher contato"/"Escolher conversa" lendo telefone e caixa do nó `origem`."""
+    return base.replace("$('Conferir texto da IA')", f"$('{origem}')")
+
+
+JS_ESCOLHER_CONTATO = js_escolher(JS_ESCOLHER_CONTATO_BASE, "Conferir texto da IA")
+JS_ESCOLHER_CONVERSA = js_escolher(JS_ESCOLHER_CONVERSA_BASE, "Conferir texto da IA")
 
 JS_STATUS = r"""
 // Resume o que deu certo e o que falhou, para gravar na planilha.
@@ -449,7 +469,9 @@ const motivo = (o) => {
 };
 
 let statusEmail = 'desligado';
-if (d.email_ativo === 'sim') {
+if (d.email_ja_enviado) {
+  statusEmail = 'enviado';   // reenvio: o e-mail já tinha ido
+} else if (d.email_ativo === 'sim') {
   const email = saida('Enviar e-mail de boas-vindas');
   statusEmail = email && !email.error && email.id ? 'enviado' : 'erro: ' + motivo(email);
 }
@@ -485,6 +507,155 @@ return [{
       : '',
   },
 }];
+""".strip()
+
+JS_FILA_REENVIO = r"""
+// Quem vai para nova tentativa: Status WhatsApp com "erro" (ou parado em "pendente" há mais de
+// 2 horas), inscrito nos últimos dias_para_tentar dias. "sem WhatsApp" e "enviado" ficam de fora.
+const cfg = $('Configurações do reenvio').first().json;
+const dias = Math.max(1, Number(cfg.dias_para_tentar) || 14);
+const agora = DateTime.now().setZone('America/Sao_Paulo');
+const limpa = (v) => String(v ?? '').trim();
+
+const fila = [];
+const vistos = new Set();
+for (const { json: l } of $input.all()) {
+  const status = limpa(l['Status WhatsApp']).toLowerCase();
+  const quando = DateTime.fromFormat(limpa(l['Data/hora']), 'yyyy-MM-dd HH:mm:ss', { zone: 'America/Sao_Paulo' });
+  if (!quando.isValid || agora.diff(quando, 'days').days > dias) continue;
+  const parado = status === 'pendente' && agora.diff(quando, 'hours').hours >= 2;
+  if (!status.startsWith('erro') && !parado) continue;
+  const telefone = limpa(l['Telefone']);
+  if (!/^\+55\d{10,11}$/.test(telefone) || vistos.has(telefone)) continue;
+  vistos.add(telefone);
+
+  const nome = limpa(l['Nome']);
+  const sobrenome = limpa(l['Sobrenome']);
+  fila.push({
+    json: {
+      id: limpa(l['ID']),
+      data_hora: limpa(l['Data/hora']),
+      nome,
+      sobrenome,
+      primeiro_nome: nome.split(' ')[0] || '',
+      nome_completo: sobrenome && !(' ' + nome).toLowerCase().endsWith(' ' + sobrenome.toLowerCase())
+        ? `${nome} ${sobrenome}` : nome,
+      telefone_e164: telefone,
+      email: limpa(l['E-mail']).toLowerCase(),
+      bairro: limpa(l['Bairro']),
+      cidade: limpa(l['Cidade']),
+      uf: limpa(l['Estado']),
+      igreja: limpa(l['Igreja']),
+      ministerio: limpa(l['Ministério']),
+      email_ja_enviado: limpa(l['Status e-mail']) === 'enviado',
+      status_anterior: limpa(l['Status WhatsApp']),
+    },
+  });
+}
+return fila;
+""".strip()
+
+JS_RESUMO_REENVIO = r"""
+// Quantas mensagens saíram nesta rodada (o subfluxo já gravou cada status na planilha).
+const fila = $('Quem precisa de reenvio').all().map((i) => i.json);
+const resultados = $input.all().map((i) => i.json);
+const enviados = resultados.filter((r) => r['Status WhatsApp'] === 'enviado').length;
+return [{
+  json: {
+    tentativas: fila.length,
+    enviados,
+    continuam_com_erro: fila.length - enviados,
+    pessoas: fila.map((p, i) => `${p.nome_completo}: ${(resultados[i] || {})['Status WhatsApp'] || 'sem resposta'}`),
+  },
+}];
+""".strip()
+
+JS_AVISO_DESCONECTADO = r"""
+// WhatsApp da caixa Behold desconectado (ou Chatwoot fora do ar): avisa a equipe pelo WhatsApp de
+// OUTRA caixa (chatwoot_inbox_aviso), no máximo uma vez por dia. Sem essa caixa ou sem números, não avisa.
+const cfg = $('Configurações do reenvio').first().json;
+const numeros = String(cfg.whatsapp_alerta || '').split(/[,;]+/).map((t) => t.replace(/\D/g, '')).filter((t) => t.length >= 10);
+if (!numeros.length || !String(cfg.chatwoot_inbox_aviso || '').trim()) return [];
+
+const memoria = $getWorkflowStaticData('global');
+const hoje = DateTime.now().setZone('America/Sao_Paulo').toFormat('yyyy-MM-dd');
+if (memoria.ultimo_aviso === hoje) return [];
+memoria.ultimo_aviso = hoje;
+
+const r = $input.first().json;
+const estado = r.error ? 'o Chatwoot não respondeu' : `a conexão está "${(r.provider_connection || {}).connection || 'desconhecida'}"`;
+const texto = `⚠️ *Behold Movement*: o WhatsApp da caixa Behold está desconectado (${estado}).\n\n`
+  + 'Para reconectar: no Chatwoot, *Configurações > Caixas de entrada > Behold*, gere o QR Code e leia com o WhatsApp '
+  + 'do número do Behold (*Aparelhos conectados > Conectar um aparelho*).\n\n'
+  + 'Quem ficou sem a mensagem de boas-vindas continua marcado com erro na planilha e recebe na próxima rodada depois que o WhatsApp voltar.';
+return numeros.map((n) => ({
+  json: {
+    telefone_e164: '+' + (n.length <= 11 ? '55' + n : n),
+    nome: 'Equipe Behold',
+    texto,
+    chatwoot_account_id: cfg.chatwoot_account_id,
+    chatwoot_inbox_id: String(cfg.chatwoot_inbox_aviso).trim(),
+  },
+}));
+""".strip()
+
+JS_RELATORIO_DIA = r"""
+// Só segue se houve inscrição hoje e há números na lista; passa adiante todas as linhas da planilha.
+const cfg = $('Configurações do relatório').first().json;
+const numeros = String(cfg.whatsapp_destinatarios || '').split(/[,;]+/).map((t) => t.replace(/\D/g, '')).filter((t) => t.length >= 10);
+const hoje = DateTime.now().setZone('America/Sao_Paulo').toFormat('yyyy-MM-dd');
+const linhas = $input.all().map((i) => i.json).filter((l) => String(l['ID'] || '').trim());
+const novas = linhas.filter((l) => String(l['Data/hora'] || '').startsWith(hoje));
+if (!numeros.length || !novas.length) return [];
+return linhas.map(({ row_number, ...l }) => ({ json: l }));
+""".strip()
+
+JS_RELATORIO_MENSAGEM = r"""
+// Uma mensagem por número da equipe: o resumo do dia vai como legenda do arquivo .xlsx.
+const cfg = $('Configurações do relatório').first().json;
+const numeros = String(cfg.whatsapp_destinatarios || '').split(/[,;]+/).map((t) => t.replace(/\D/g, '')).filter((t) => t.length >= 10);
+const agora = DateTime.now().setZone('America/Sao_Paulo');
+const hoje = agora.toFormat('yyyy-MM-dd');
+const linhas = $('Inscrições do dia').all().map((i) => i.json);
+const novas = linhas.filter((l) => String(l['Data/hora'] || '').startsWith(hoje));
+
+const porMinisterio = Object.entries(linhas.reduce((m, l) => {
+  const k = l['Ministério'] || '(vazio)'; m[k] = (m[k] || 0) + 1; return m;
+}, {})).sort((a, b) => b[1] - a[1]).map(([k, n]) => `• ${k}: ${n}`).join('\n');
+const semMensagem = linhas.filter((l) => String(l['Status WhatsApp'] || '').toLowerCase().startsWith('erro')).length;
+
+const texto = [
+  `📋 *Behold Movement · inscrições até ${agora.toFormat('dd/MM')}*`,
+  '',
+  `*${novas.length}* ${novas.length === 1 ? 'inscrição nova' : 'inscrições novas'} hoje · *${linhas.length}* no total.`,
+  '',
+  '*Novas hoje*',
+  ...novas.map((l) => `• ${l['Nome']} ${l['Sobrenome'] || ''} · ${l['Ministério']} · ${l['Cidade']}/${l['Estado']}`.replace(/\s+·/g, ' ·')),
+  '',
+  '*Total por ministério*',
+  porMinisterio,
+  ...(semMensagem ? ['', `${semMensagem} ${semMensagem === 1 ? 'pessoa ainda está' : 'pessoas ainda estão'} sem a mensagem de boas-vindas; o reenvio automático tenta de novo 4 vezes ao dia.`] : []),
+  '',
+  'A planilha completa vai neste arquivo. É uma cópia: as alterações nos dados ficam com a equipe responsável.',
+].join('\n');
+
+const arquivo = $input.first().binary;
+return numeros.map((n) => ({
+  json: {
+    telefone_e164: '+' + (n.length <= 11 ? '55' + n : n),
+    nome: 'Equipe Behold',
+    texto,
+    chatwoot_account_id: cfg.chatwoot_account_id,
+    chatwoot_inbox_id: cfg.chatwoot_inbox_id,
+  },
+  binary: arquivo,
+}));
+""".strip()
+
+JS_JUNTAR_ARQUIVO = r"""
+// Os nós do Chatwoot não repassam o arquivo: junta de novo o que chegou ao subfluxo.
+const entrada = $('Dados do envio').first();
+return [{ json: { ...$input.first().json, tem_arquivo: !!(entrada.binary && entrada.binary.data) }, binary: entrada.binary || {} }];
 """.strip()
 
 # ------------------------------------------------------------ helpers de nós
@@ -620,32 +791,101 @@ def respond_node(name, pos, body, code=None):
     }
 
 
-def build() -> dict:
+def link(*names):
+    return {"main": [[{"node": n, "type": "main", "index": 0} for n in names]]}
+
+
+def nota(texto, pos, altura=300, largura=460):
+    return {
+        "parameters": {"content": texto, "height": altura, "width": largura, "color": 4},
+        "type": "n8n-nodes-base.stickyNote", "typeVersion": 1,
+        "position": pos, "id": nid("nota/" + texto[:40]), "name": "Como configurar",
+    }
+
+
+def subfluxo_node(name, pos, wf_id, wf_nome):
+    """Chama um subfluxo uma vez por item e espera ele terminar."""
+    return {
+        "parameters": {
+            "mode": "each",
+            "workflowId": {"__rl": True, "value": wf_id, "mode": "id", "cachedResultName": wf_nome},
+            "options": {"waitForSubWorkflow": True},
+        },
+        "type": "n8n-nodes-base.executeWorkflow",
+        "typeVersion": 1.3,
+        "position": pos,
+        "id": nid(name),
+        "name": name,
+        "onError": "continueRegularOutput",
+    }
+
+
+def agendamento_node(name, pos, cron):
+    return {
+        "parameters": {"rule": {"interval": [{"field": "cronExpression", "expression": cron}]}},
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1.2,
+        "position": pos,
+        "id": nid(name),
+        "name": name,
+    }
+
+
+def config_node(name, pos, valores):
+    return {
+        "parameters": {
+            "assignments": {"assignments": [
+                {"id": nid(f"{name}/{k}"), "name": k, "value": v, "type": "string"} for k, v in valores.items()
+            ]},
+            "options": {},
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": pos,
+        "id": nid(name),
+        "name": name,
+    }
+
+
+def ler_planilha_node(name, pos):
+    return {
+        "parameters": {
+            "documentId": {"__rl": True, "value": PLANILHA_ID, "mode": "id"},
+            "sheetName": {"__rl": True, "value": "Inscrições", "mode": "name"},
+            "options": {},
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.5,
+        "position": pos,
+        "id": nid(name),
+        "name": name,
+        "credentials": {"googleSheetsOAuth2Api": {"id": "", "name": "Google Sheets (conta do movimento)"}},
+    }
+
+
+def fluxo(nome, nodes, connections):
+    return {
+        "name": nome,
+        "nodes": nodes,
+        "connections": connections,
+        "settings": {"executionOrder": "v1", "timezone": "America/Sao_Paulo"},
+        "active": False,
+        "pinData": {},
+    }
+
+
+def build_inscricao() -> dict:
     v = "$('Validar e padronizar').first().json"
     nodes = [
-        {
-            "parameters": {
-                "content": (
-                    "## Inscrições Behold Movement\n"
-                    "Antes de ativar:\n"
-                    "1. **Configurações**: confira a caixa de entrada do WhatsApp no Chatwoot (7 = Behold) e preencha o link do grupo.\n"
-                    "2. **Credenciais**: Google Sheets e Gmail (este só com `email_ativo` = sim); *Chatwoot fazer.ai* (URL do Chatwoot "
-                    "e token do seu perfil, usada pelos nós Chatwoot fazer.ai); *OpenAI* (a chave da API da OpenAI, "
-                    "usada pelo nó IA: escrever mensagens).\n"
-                    "3. Nos dois nós da planilha, confira se a aba selecionada é **Inscrições**.\n"
-                    "4. Ative o workflow. O site envia para `/webhook/behold-inscricao`.\n\n"
-                    "**Textos com IA:** o que a IA deve escrever fica em `ia_instrucoes` (Configurações). "
-                    "Se a IA não responder ou esquecer nome, ministério, link ou treinamento, o fluxo pede de novo "
-                    "(até `ia_tentativas` vezes, com 5 s entre elas); depois disso, vai o texto fixo. "
-                    "`ia_ativa` = não desliga a IA.\n\n"
-                    "**E-mail:** `email_ativo` = sim liga o e-mail de boas-vindas (precisa da credencial do Gmail). "
-                    "Desligado, a planilha marca *desligado* em Status e-mail."
-                ),
-                "height": 460, "width": 460, "color": 4,
-            },
-            "type": "n8n-nodes-base.stickyNote", "typeVersion": 1,
-            "position": [-460, -520], "id": nid("nota"), "name": "Como configurar",
-        },
+        nota(
+            "## Inscrições Behold Movement\n"
+            "Recebe o formulário do site (`/webhook/behold-inscricao`), valida, grava na planilha, responde ao "
+            "site e chama o subfluxo **Behold Movement · Boas-vindas**, que manda a mensagem de WhatsApp.\n\n"
+            "A configuração das mensagens (link do grupo, treinamento, IA, e-mail) fica no nó **Configurações** "
+            "do subfluxo.\n\n"
+            "A planilha precisa ter os títulos das colunas exatamente como estão: se um título mudar, a "
+            "inscrição falha ao salvar.",
+            [-460, -380], altura=260),
         {
             "parameters": {
                 "httpMethod": "POST",
@@ -659,6 +899,72 @@ def build() -> dict:
             "id": nid("Inscrição no site"),
             "name": "Inscrição no site",
             "webhookId": nid("webhook/behold-inscricao"),
+        },
+        code_node("Validar e padronizar", [-240, 0], JS_VALIDAR),
+        if_node("Inscrição válida?", [-20, 0], "={{ $json.valido }}"),
+        respond_node(
+            "Responder: dados inválidos", [200, 200],
+            "={{ { ok: $json.bot, erros: $json.bot ? [] : $json.erros } }}",
+            "={{ $json.bot ? 200 : 400 }}",
+        ),
+        sheets_node("Salvar na planilha", [200, -20], {
+            "ID": f"={{{{ {v}.id }}}}",
+            "Data/hora": f"={{{{ {v}.data_hora }}}}",
+            "Nome": f"={{{{ {v}.nome }}}}",
+            "Sobrenome": f"={{{{ {v}.sobrenome }}}}",
+            "Telefone": f"={{{{ {v}.telefone_e164 }}}}",
+            "E-mail": f"={{{{ {v}.email }}}}",
+            "CEP": f"={{{{ {v}.cep }}}}",
+            "Endereço": f"={{{{ {v}.endereco }}}}",
+            "Bairro": f"={{{{ {v}.bairro }}}}",
+            "Cidade": f"={{{{ {v}.cidade }}}}",
+            "Estado": f"={{{{ {v}.uf }}}}",
+            "Igreja": f"={{{{ {v}.igreja }}}}",
+            "Ministério": f"={{{{ {v}.ministerio }}}}",
+            "Consentimento": f"={{{{ {v}.consentimento }}}}",
+            "Status e-mail": "pendente",
+            "Status WhatsApp": "pendente",
+        }),
+        respond_node("Responder: inscrição recebida", [420, -20],
+                     f"={{{{ {{ ok: true, id: {v}.id }} }}}}"),
+        {**code_node("Dados para as boas-vindas", [640, -20], "return [{ json: $('Validar e padronizar').first().json }];")},
+        subfluxo_node("Enviar boas-vindas", [860, -20], BOAS_VINDAS_ID, "Behold Movement · Boas-vindas"),
+    ]
+    connections = {
+        "Inscrição no site": link("Validar e padronizar"),
+        "Validar e padronizar": link("Inscrição válida?"),
+        "Inscrição válida?": {"main": [
+            [{"node": "Salvar na planilha", "type": "main", "index": 0}],
+            [{"node": "Responder: dados inválidos", "type": "main", "index": 0}],
+        ]},
+        "Salvar na planilha": link("Responder: inscrição recebida"),
+        "Responder: inscrição recebida": link("Dados para as boas-vindas"),
+        "Dados para as boas-vindas": link("Enviar boas-vindas"),
+    }
+    return fluxo("Behold Movement · Inscrições", nodes, connections)
+
+
+def build_boas_vindas() -> dict:
+    nodes = [
+        nota(
+            "## Boas-vindas (subfluxo)\n"
+            "Chamado pelo fluxo de inscrição e pelo reenvio, com os dados de uma pessoa.\n\n"
+            "1. **Configurações**: caixa do WhatsApp no Chatwoot (7 = Behold), link do grupo, treinamento, "
+            "IA (`ia_ativa`, `ia_modelo`, `ia_tentativas`, `ia_instrucoes`) e e-mail (`email_ativo`).\n"
+            "2. **Credenciais**: Google Sheets; Gmail (só com `email_ativo` = sim); *Chatwoot fazer.ai* (URL do "
+            "Chatwoot e token do seu perfil); *OpenAI* (nó IA: escrever mensagens).\n\n"
+            "**Textos com IA:** se a IA não responder ou esquecer nome, ministério, link ou treinamento, o fluxo "
+            "pede de novo (até `ia_tentativas` vezes, com 5 s entre elas); depois disso, vai o texto fixo.\n\n"
+            "**WhatsApp:** se o número não tiver WhatsApp, a planilha marca *sem WhatsApp*; se a consulta falhar "
+            "(caixa desconectada), marca *erro (consulta do número)* e o reenvio tenta de novo depois.",
+            [420, -560], altura=420),
+        {
+            "parameters": {"inputSource": "passthrough"},
+            "type": "n8n-nodes-base.executeWorkflowTrigger",
+            "typeVersion": 1.2,
+            "position": [420, -20],
+            "id": nid("Dados da inscrição"),
+            "name": "Dados da inscrição",
         },
         {
             "parameters": {
@@ -677,41 +983,15 @@ def build() -> dict:
                     {"id": nid("cfg/ia-tentativas"), "name": "ia_tentativas", "value": "3", "type": "string"},
                     {"id": nid("cfg/ia-instrucoes"), "name": "ia_instrucoes", "value": IA_INSTRUCOES, "type": "string"},
                 ]},
+                "includeOtherFields": True,
                 "options": {},
             },
             "type": "n8n-nodes-base.set",
             "typeVersion": 3.4,
-            "position": [-240, 0],
+            "position": [640, -20],
             "id": nid("Configurações"),
             "name": "Configurações",
         },
-        code_node("Validar e padronizar", [-20, 0], JS_VALIDAR),
-        if_node("Inscrição válida?", [200, 0], "={{ $json.valido }}"),
-        respond_node(
-            "Responder: dados inválidos", [420, 200],
-            "={{ { ok: $json.bot, erros: $json.bot ? [] : $json.erros } }}",
-            "={{ $json.bot ? 200 : 400 }}",
-        ),
-        sheets_node("Salvar na planilha", [420, -20], {
-            "ID": f"={{{{ {v}.id }}}}",
-            "Data/hora": f"={{{{ {v}.data_hora }}}}",
-            "Nome": f"={{{{ {v}.nome }}}}",
-            "Sobrenome": f"={{{{ {v}.sobrenome }}}}",
-            "Telefone": f"={{{{ {v}.telefone_e164 }}}}",
-            "E-mail": f"={{{{ {v}.email }}}}",
-            "CEP": f"={{{{ {v}.cep }}}}",
-            "Endereço": f"={{{{ {v}.endereco }}}}",
-            "Bairro": f"={{{{ {v}.bairro }}}}",
-            "Cidade": f"={{{{ {v}.cidade }}}}",
-            "Estado": f"={{{{ {v}.uf }}}}",
-            "Igreja": f"={{{{ {v}.igreja }}}}",
-            "Ministério": f"={{{{ {v}.ministerio }}}}",
-            "Consentimento": f"={{{{ {v}.consentimento }}}}",
-            "Status e-mail": "pendente",
-            "Status WhatsApp": "pendente",
-        }),
-        respond_node("Responder: inscrição recebida", [640, -20],
-                     f"={{{{ {{ ok: true, id: {v}.id }} }}}}"),
         code_node("Montar mensagens", [860, -20], JS_MENSAGENS),
         if_node("Escrever com IA?", [1080, -20], "={{ $json.ia_ativa === 'sim' }}"),
         ia_node("IA: escrever mensagens", [1300, -120]),
@@ -726,7 +1006,7 @@ def build() -> dict:
             "name": "Aguardar nova tentativa",
             "webhookId": nid("wait/nova-tentativa"),
         },
-        if_node("Enviar e-mail?", [1960, -20], "={{ $json.email_ativo === 'sim' }}"),
+        if_node("Enviar e-mail?", [1960, -20], "={{ $json.email_ativo === 'sim' && !$json.email_ja_enviado }}"),
         {
             "parameters": {
                 "sendTo": "={{ $json.email }}",
@@ -803,20 +1083,9 @@ def build() -> dict:
             "Conversa Chatwoot": "={{ $json.conversa_url }}",
         }),
     ]
-
-    def link(*names):
-        return {"main": [[{"node": n, "type": "main", "index": 0} for n in names]]}
-
     connections = {
-        "Inscrição no site": link("Configurações"),
-        "Configurações": link("Validar e padronizar"),
-        "Validar e padronizar": link("Inscrição válida?"),
-        "Inscrição válida?": {"main": [
-            [{"node": "Salvar na planilha", "type": "main", "index": 0}],
-            [{"node": "Responder: dados inválidos", "type": "main", "index": 0}],
-        ]},
-        "Salvar na planilha": link("Responder: inscrição recebida"),
-        "Responder: inscrição recebida": link("Montar mensagens"),
+        "Dados da inscrição": link("Configurações"),
+        "Configurações": link("Montar mensagens"),
         "Montar mensagens": link("Escrever com IA?"),
         "Escrever com IA?": {"main": [
             [{"node": "IA: escrever mensagens", "type": "main", "index": 0}],
@@ -858,22 +1127,198 @@ def build() -> dict:
         "Chatwoot: etiquetas": link("Resumir status"),
         "Resumir status": link("Atualizar status na planilha"),
     }
+    return fluxo("Behold Movement · Boas-vindas", nodes, connections)
 
-    return {
-        "name": "Behold Movement · Inscrições",
-        "nodes": nodes,
-        "connections": connections,
-        "settings": {"executionOrder": "v1", "timezone": "America/Sao_Paulo"},
-        "active": False,
-        "pinData": {},
+
+def build_reenvio() -> dict:
+    nodes = [
+        nota(
+            "## Reenvio das boas-vindas\n"
+            "Roda às 8h, 12h, 16h e 20h. Se o WhatsApp da caixa Behold estiver conectado, chama o subfluxo "
+            "**Boas-vindas** para quem está com *erro* no Status WhatsApp (inscritos nos últimos "
+            "`dias_para_tentar` dias). Deu certo: a planilha passa a *enviado*. Não deu: o erro fica, e a "
+            "próxima rodada tenta de novo.\n\n"
+            "Se o WhatsApp estiver desconectado, não tenta ninguém e avisa os números de `whatsapp_alerta` "
+            "pelo WhatsApp de outra caixa do Chatwoot (`chatwoot_inbox_aviso`), no máximo uma vez por dia. "
+            "Sem essa caixa ou sem números, não avisa.",
+            [-460, -420], altura=300),
+        agendamento_node("4 vezes ao dia", [-460, 0], "0 8,12,16,20 * * *"),
+        config_node("Configurações do reenvio", [-240, 0], {
+            "chatwoot_account_id": "1",
+            "chatwoot_inbox_id": "7",
+            "dias_para_tentar": "14",
+            "chatwoot_inbox_aviso": "",
+            "whatsapp_alerta": "",
+        }),
+        {**chatwoot_node("Chatwoot: caixa do WhatsApp", [-20, 0], "inbox", "get",
+                         inboxId=por_id("={{ $('Configurações do reenvio').first().json.chatwoot_inbox_id }}")),
+         "parameters": {
+             "resource": "inbox", "operation": "get",
+             "accountId": por_id("={{ $('Configurações do reenvio').first().json.chatwoot_account_id }}"),
+             "inboxId": por_id("={{ $('Configurações do reenvio').first().json.chatwoot_inbox_id }}"),
+         }},
+        if_node("WhatsApp conectado?", [200, 0], "={{ $json.provider_connection?.connection === 'open' }}"),
+        ler_planilha_node("Ler planilha", [420, -20]),
+        code_node("Quem precisa de reenvio", [640, -20], JS_FILA_REENVIO),
+        subfluxo_node("Enviar boas-vindas de novo", [860, -20], BOAS_VINDAS_ID, "Behold Movement · Boas-vindas"),
+        code_node("Resumo do reenvio", [1080, -20], JS_RESUMO_REENVIO),
+        code_node("Avisar: WhatsApp desconectado", [420, 200], JS_AVISO_DESCONECTADO),
+        subfluxo_node("Enviar aviso", [640, 200], EQUIPE_ID, "Behold Movement · WhatsApp para a equipe"),
+    ]
+    connections = {
+        "4 vezes ao dia": link("Configurações do reenvio"),
+        "Configurações do reenvio": link("Chatwoot: caixa do WhatsApp"),
+        "Chatwoot: caixa do WhatsApp": link("WhatsApp conectado?"),
+        "WhatsApp conectado?": {"main": [
+            [{"node": "Ler planilha", "type": "main", "index": 0}],
+            [{"node": "Avisar: WhatsApp desconectado", "type": "main", "index": 0}],
+        ]},
+        "Ler planilha": link("Quem precisa de reenvio"),
+        "Quem precisa de reenvio": link("Enviar boas-vindas de novo"),
+        "Enviar boas-vindas de novo": link("Resumo do reenvio"),
+        "Avisar: WhatsApp desconectado": link("Enviar aviso"),
     }
+    return fluxo("Behold Movement · Reenvio das boas-vindas", nodes, connections)
+
+
+def build_relatorio() -> dict:
+    nodes = [
+        nota(
+            "## Relatório diário\n"
+            "Todo dia às 21h: se houve inscrição nova no dia, manda a planilha completa em .xlsx pelo WhatsApp "
+            "da caixa `chatwoot_inbox_id` (7 = Behold), com o resumo do dia na legenda, para os números de "
+            "`whatsapp_destinatarios` (separados por vírgula, com DDD). Sem inscrição nova ou sem número, "
+            "não manda nada.\n\n"
+            "Assim a equipe acompanha as inscrições sem mexer na planilha original.",
+            [-460, -360], altura=240),
+        agendamento_node("Todo dia às 21h", [-460, 0], "0 21 * * *"),
+        config_node("Configurações do relatório", [-240, 0], {
+            "chatwoot_account_id": "1",
+            "chatwoot_inbox_id": "7",
+            "whatsapp_destinatarios": "",
+        }),
+        ler_planilha_node("Ler planilha", [-20, 0]),
+        code_node("Inscrições do dia", [200, 0], JS_RELATORIO_DIA),
+        {
+            "parameters": {
+                "operation": "xlsx",
+                "binaryPropertyName": "data",
+                "options": {
+                    "fileName": "={{ 'Behold-Inscricoes-' + $now.setZone('America/Sao_Paulo').toFormat('yyyy-MM-dd') + '.xlsx' }}",
+                    "sheetName": "Inscrições",
+                },
+            },
+            "type": "n8n-nodes-base.convertToFile",
+            "typeVersion": 1.1,
+            "position": [420, 0],
+            "id": nid("Gerar planilha (.xlsx)"),
+            "name": "Gerar planilha (.xlsx)",
+        },
+        code_node("Montar mensagem do relatório", [640, 0], JS_RELATORIO_MENSAGEM),
+        subfluxo_node("Enviar para a equipe", [860, 0], EQUIPE_ID, "Behold Movement · WhatsApp para a equipe"),
+    ]
+    connections = {
+        "Todo dia às 21h": link("Configurações do relatório"),
+        "Configurações do relatório": link("Ler planilha"),
+        "Ler planilha": link("Inscrições do dia"),
+        "Inscrições do dia": link("Gerar planilha (.xlsx)"),
+        "Gerar planilha (.xlsx)": link("Montar mensagem do relatório"),
+        "Montar mensagem do relatório": link("Enviar para a equipe"),
+    }
+    return fluxo("Behold Movement · Relatório diário", nodes, connections)
+
+
+def build_whatsapp_equipe() -> dict:
+    e = "$('Dados do envio').first().json"
+    conta = por_id(f"={{{{ {e}.chatwoot_account_id }}}}")
+    caixa = por_id(f"={{{{ {e}.chatwoot_inbox_id }}}}")
+    nodes = [
+        nota(
+            "## WhatsApp para a equipe (subfluxo)\n"
+            "Recebe `telefone_e164`, `nome`, `texto`, `chatwoot_account_id`, `chatwoot_inbox_id` e, se houver, "
+            "um arquivo em `data`. Acha ou cria o contato e a conversa naquela caixa do Chatwoot e manda o "
+            "arquivo com o texto de legenda (ou só o texto).\n\n"
+            "Usado pelo relatório diário e pelo aviso de WhatsApp desconectado.",
+            [-460, -380], altura=240),
+        {
+            "parameters": {"inputSource": "passthrough"},
+            "type": "n8n-nodes-base.executeWorkflowTrigger",
+            "typeVersion": 1.2,
+            "position": [-460, 0],
+            "id": nid("Dados do envio"),
+            "name": "Dados do envio",
+        },
+        chatwoot_node("Chatwoot: buscar contato", [-240, 0], "contact", "search", accountId=conta,
+                      searchQuery=f"={{{{ {e}.telefone_e164.replace('+', '') }}}}"),
+        code_node("Escolher contato", [-20, 0], js_escolher(JS_ESCOLHER_CONTATO_BASE, "Dados do envio")),
+        if_node("Contato já existe?", [200, 0], "={{ !!$json.contact_id }}"),
+        {**chatwoot_node("Chatwoot: conversas do contato", [420, -120], "contact", "listConversations",
+                         accountId=conta, contactId=por_id("={{ $json.contact_id }}")),
+         "alwaysOutputData": True},
+        code_node("Escolher conversa", [640, -120], js_escolher(JS_ESCOLHER_CONVERSA_BASE, "Dados do envio")),
+        if_node("Conversa aberta?", [860, -120], "={{ !!$json.id }}"),
+        chatwoot_node("Chatwoot: criar contato", [420, 140], "contact", "create", accountId=conta,
+                      name=f"={{{{ {e}.nome || 'Equipe Behold' }}}}",
+                      phoneNumber=f"={{{{ {e}.telefone_e164 }}}}"),
+        chatwoot_node("Chatwoot: criar conversa", [1080, 140], "conversation", "create", accountId=conta,
+                      inboxId=caixa,
+                      contactId=por_id("={{ $json.contact_id ?? $json.payload?.contact?.id ?? $json.id }}")),
+        code_node("Juntar arquivo", [1300, -20], JS_JUNTAR_ARQUIVO),
+        if_node("Tem arquivo?", [1520, -20], "={{ $json.tem_arquivo === true }}"),
+        chatwoot_node("Chatwoot: enviar arquivo", [1740, -120], "conversation", "sendFile", accountId=conta,
+                      inboxId=caixa, conversationId=por_id("={{ $json.id }}"),
+                      binaryPropertyName="data", isRecordedAudio=False,
+                      fileCaption=f"={{{{ {e}.texto }}}}"),
+        chatwoot_node("Chatwoot: enviar mensagem", [1740, 80], "conversation", "sendMessage", accountId=conta,
+                      inboxId=caixa, conversationId=por_id("={{ $json.id }}"),
+                      content=f"={{{{ {e}.texto }}}}"),
+    ]
+    connections = {
+        "Dados do envio": link("Chatwoot: buscar contato"),
+        "Chatwoot: buscar contato": link("Escolher contato"),
+        "Escolher contato": link("Contato já existe?"),
+        "Contato já existe?": {"main": [
+            [{"node": "Chatwoot: conversas do contato", "type": "main", "index": 0}],
+            [{"node": "Chatwoot: criar contato", "type": "main", "index": 0}],
+        ]},
+        "Chatwoot: conversas do contato": link("Escolher conversa"),
+        "Escolher conversa": link("Conversa aberta?"),
+        "Conversa aberta?": {"main": [
+            [{"node": "Juntar arquivo", "type": "main", "index": 0}],
+            [{"node": "Chatwoot: criar conversa", "type": "main", "index": 0}],
+        ]},
+        "Chatwoot: criar contato": link("Chatwoot: criar conversa"),
+        "Chatwoot: criar conversa": link("Juntar arquivo"),
+        "Juntar arquivo": link("Tem arquivo?"),
+        "Tem arquivo?": {"main": [
+            [{"node": "Chatwoot: enviar arquivo", "type": "main", "index": 0}],
+            [{"node": "Chatwoot: enviar mensagem", "type": "main", "index": 0}],
+        ]},
+    }
+    return fluxo("Behold Movement · WhatsApp para a equipe", nodes, connections)
+
+
+ARQUIVOS = {
+    "behold-inscricao.json": build_inscricao,
+    "behold-boas-vindas.json": build_boas_vindas,
+    "behold-reenvio.json": build_reenvio,
+    "behold-relatorio.json": build_relatorio,
+    "behold-whatsapp-equipe.json": build_whatsapp_equipe,
+}
 
 
 def main() -> None:
-    wf = build()
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps(wf, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(f"ok: {OUT.relative_to(ROOT)} ({len(wf['nodes'])} nós)")
+    PASTA.mkdir(parents=True, exist_ok=True)
+    for arquivo, construir in ARQUIVOS.items():
+        wf = construir()
+        nomes = {n["name"] for n in wf["nodes"]}
+        for origem, saidas in wf["connections"].items():
+            assert origem in nomes, (arquivo, origem)
+            for destinos in saidas["main"]:
+                for d in destinos:
+                    assert d["node"] in nomes, (arquivo, d["node"])
+        (PASTA / arquivo).write_text(json.dumps(wf, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        print(f"ok: n8n/{arquivo} ({len(wf['nodes'])} nós)")
 
 
 if __name__ == "__main__":

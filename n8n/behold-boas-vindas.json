@@ -1,0 +1,1261 @@
+{
+  "name": "Behold Movement · Boas-vindas",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Boas-vindas (subfluxo)\nChamado pelo fluxo de inscrição e pelo reenvio, com os dados de uma pessoa.\n\n1. **Configurações**: caixa do WhatsApp no Chatwoot (7 = Behold), link do grupo, treinamento, IA (`ia_ativa`, `ia_modelo`, `ia_tentativas`, `ia_instrucoes`) e e-mail (`email_ativo`).\n2. **Credenciais**: Google Sheets; Gmail (só com `email_ativo` = sim); *Chatwoot fazer.ai* (URL do Chatwoot e token do seu perfil); *OpenAI* (nó IA: escrever mensagens).\n\n**Textos com IA:** se a IA não responder ou esquecer nome, ministério, link ou treinamento, o fluxo pede de novo (até `ia_tentativas` vezes, com 5 s entre elas); depois disso, vai o texto fixo.\n\n**WhatsApp:** se o número não tiver WhatsApp, a planilha marca *sem WhatsApp*; se a consulta falhar (caixa desconectada), marca *erro (consulta do número)* e o reenvio tenta de novo depois.",
+        "height": 420,
+        "width": 460,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        420,
+        -560
+      ],
+      "id": "8ebbfd97-fef4-579b-9b25-2ff5135c0028",
+      "name": "Como configurar"
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        420,
+        -20
+      ],
+      "id": "70969f0a-0ad4-511b-947d-1119d6f68c75",
+      "name": "Dados da inscrição"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "83b0bccd-69e8-5694-9bbf-26d91230ac31",
+              "name": "chatwoot_url",
+              "value": "https://chatwoot.frontia.com.br",
+              "type": "string"
+            },
+            {
+              "id": "fd7fb6cc-d9da-59df-afa0-0a1b7e89f659",
+              "name": "chatwoot_account_id",
+              "value": "1",
+              "type": "string"
+            },
+            {
+              "id": "89ddc6d3-89f7-5263-a1c1-56bbde438228",
+              "name": "chatwoot_inbox_id",
+              "value": "7",
+              "type": "string"
+            },
+            {
+              "id": "c1928104-a66a-578a-b7d2-ec17a3552934",
+              "name": "link_grupo",
+              "value": "https://chat.whatsapp.com/PREENCHER",
+              "type": "string"
+            },
+            {
+              "id": "03c1735d-4e5e-58c8-8d7b-d30be5ff9257",
+              "name": "email_ativo",
+              "value": "não",
+              "type": "string"
+            },
+            {
+              "id": "d20346e9-fdd5-5bc2-8755-324cf35addef",
+              "name": "remetente_nome",
+              "value": "Behold Movement",
+              "type": "string"
+            },
+            {
+              "id": "1a1ec90b-9729-59dc-89f6-3478ce63dff7",
+              "name": "treinamento_data",
+              "value": "terça-feira, 27/10",
+              "type": "string"
+            },
+            {
+              "id": "e6ad00ac-13df-59dd-8906-775782df5b6a",
+              "name": "treinamento_hora",
+              "value": "20h",
+              "type": "string"
+            },
+            {
+              "id": "ed312f2b-d8dc-54b2-9e3e-b1dd5292cac4",
+              "name": "treinamento_local",
+              "value": "online, com o link enviado no grupo do WhatsApp",
+              "type": "string"
+            },
+            {
+              "id": "528d2567-8810-57e7-bc9f-05b26628ce17",
+              "name": "ia_ativa",
+              "value": "sim",
+              "type": "string"
+            },
+            {
+              "id": "00f631d4-8095-5029-8619-2d2bbcaaaaa9",
+              "name": "ia_modelo",
+              "value": "gpt-4.1-mini",
+              "type": "string"
+            },
+            {
+              "id": "4e999253-9320-502a-a31e-51967c297631",
+              "name": "ia_tentativas",
+              "value": "3",
+              "type": "string"
+            },
+            {
+              "id": "da8726df-1fae-5597-93bb-7059813108a7",
+              "name": "ia_instrucoes",
+              "value": "Escreva uma mensagem de boas-vindas calorosa e pessoal. Ela precisa ter:\n- o primeiro nome da pessoa;\n- a alegria pela inscrição e o ministério em que ela vai servir (por exemplo: servir na Mídia);\n- o convite para entrar no grupo do WhatsApp do movimento, com o link, porque é lá que saem as notícias e as orientações do Dia 31;\n- a data, o horário e o local do treinamento;\n- o pedido, com destaque, para a pessoa salvar nosso contato na agenda e assim receber as próximas informações (por exemplo: *Salve nosso contato*);\n- o pedido para a pessoa responder com um 👍 quando salvar nosso contato, e que ela pode escrever aqui se tiver dúvida.\nTom: alegre, acolhedor e simples, como uma conversa entre irmãos, sem exageros e sem cara de propaganda. Se quiser, feche com o lema do movimento: \"Contemple Cristo e faça Cristo ser contemplado.\"",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        640,
+        -20
+      ],
+      "id": "0b470dc0-7a90-57b7-a275-408d4d398ab4",
+      "name": "Configurações"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Monta os textos fixos (e-mail em HTML e mensagem de WhatsApp) e o pedido para a IA reescrevê-los.\nconst d = $('Configurações').first().json;   // dados da inscrição + configuração\n\nconst esc = (s) => String(s ?? '').replace(/[&<>\"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;' }[c]));\nconst etiqueta = 'frente-' + d.ministerio.normalize('NFD').replace(/[̀-ͯ]/g, '')\n  .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');\n\n// Onde a pessoa vai servir: \"na Mídia\", \"no Evangelizando\"... Nunca \"na frente de\", que soa como liderar.\nconst ARTIGO = { 'Evangelizando': 'no', 'Mídia': 'na', 'Suprimento': 'no', 'Ação social': 'na', 'Intercessão': 'na' };\nconst artigo = ARTIGO[d.ministerio] || 'em';\n\n// ---------- WhatsApp\nconst linhas = [\n  `Olá, ${d.primeiro_nome}!`,\n  '',\n  `Aqui é do *Behold Movement*. Recebemos sua inscrição para servir ${artigo} *${d.ministerio}*. Que alegria ter você com a gente!`,\n  '',\n  '*Salve nosso contato* na sua agenda para receber as próximas informações do movimento.',\n  '',\n  'Entre no grupo do movimento para receber as notícias e as orientações do Dia 31:',\n  d.link_grupo,\n];\nif (d.treinamento_data) {\n  linhas.push('', `*Treinamento:* ${d.treinamento_data}, às ${d.treinamento_hora}, ${d.treinamento_local}.`);\n}\nlinhas.push(\n  '',\n  'Responda com um 👍 quando salvar nosso contato. Se tiver alguma dúvida, é só escrever aqui.',\n  '',\n  '_Contemple Cristo e faça Cristo ser contemplado._',\n);\n\n// ---------- E-mail\nconst AZUL = '#1f5bf2', TINTA = '#16171c', PAPEL = '#eceae5', CINZA = '#5d616c';\nconst DISPLAY = \"Impact, 'Arial Narrow Bold', 'Arial Narrow', Arial, sans-serif\";\nconst TEXTO = 'Arial, Helvetica, sans-serif';\nconst MONO = \"'Courier New', Courier, monospace\";\n\nconst agenda = [\n  ['12h00', 'Encontro no Arena'],\n  ['12h00 às 14h00', 'Evangelismo'],\n  ['14h00', 'Retorno ao ponto de encontro'],\n  ['14h30', 'Almoço na ASAFE'],\n  ['16h00', 'Intercessão e oração'],\n  ['17h00', 'Preparação final'],\n  ['18h00', 'Culto Evangelístico'],\n].map(([h, o]) => `\n  <tr>\n    <td width=\"150\" style=\"width:150px;padding:10px 16px 10px 0;border-top:1px solid #d6d3cc;font-family:${DISPLAY};font-size:18px;color:${AZUL};white-space:nowrap;vertical-align:top;\">${h}</td>\n    <td style=\"padding:10px 0;border-top:1px solid #d6d3cc;font-family:${TEXTO};font-size:16px;color:${TINTA};\">${o}</td>\n  </tr>`).join('');\n\n\nconst blocoTreino = d.treinamento_data ? `\n  <tr><td style=\"padding:0 32px 28px;\">\n    <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"border:2px solid ${AZUL};border-radius:6px;\">\n      <tr><td style=\"padding:16px 18px;font-family:${TEXTO};font-size:15px;line-height:1.5;color:${TINTA};\">\n        <strong>Treinamento:</strong> ${esc(d.treinamento_data)}, às ${esc(d.treinamento_hora)}, ${esc(d.treinamento_local)}.\n      </td></tr>\n    </table>\n  </td></tr>` : '';\n\nconst html = `<!doctype html>\n<html lang=\"pt-BR\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>Behold Movement</title></head>\n<body style=\"margin:0;padding:0;background:${PAPEL};\">\n<div style=\"display:none;max-height:0;overflow:hidden;\">Sua inscrição foi recebida. Entre no grupo do movimento para receber as notícias.</div>\n<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:${PAPEL};\">\n<tr><td align=\"center\" style=\"padding:24px 12px;\">\n<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"max-width:600px;background:#ffffff;border-radius:6px;overflow:hidden;\">\n\n  <tr><td style=\"background:${AZUL};padding:32px 32px 28px;\">\n    <div style=\"font-family:${DISPLAY};font-size:40px;line-height:1;color:${PAPEL};letter-spacing:1px;\">MOVEMENT</div>\n    <div style=\"font-family:${DISPLAY};font-size:76px;line-height:.9;color:${TINTA};letter-spacing:1px;\">BEHOLD</div>\n    <div style=\"font-family:${MONO};font-size:13px;color:${PAPEL};margin-top:18px;\">\"Eis o Cordeiro de Deus, que tira o pecado do mundo.\" João 1:29</div>\n  </td></tr>\n\n  <tr><td style=\"padding:32px 32px 16px;\">\n    <div style=\"font-family:${MONO};font-weight:bold;font-size:12px;letter-spacing:3px;color:${AZUL};\">INSCRIÇÃO CONFIRMADA</div>\n    <h1 style=\"margin:10px 0 16px;font-family:${DISPLAY};font-weight:normal;font-size:34px;line-height:1.05;color:${TINTA};text-transform:uppercase;\">Que bom ter você com a gente, ${esc(d.primeiro_nome)}.</h1>\n    <!--ABERTURA-->\n  </td></tr>\n\n  <tr><td style=\"padding:0 32px 28px;\">\n    <a href=\"${esc(d.link_grupo)}\" style=\"display:inline-block;background:${AZUL};color:#ffffff;text-decoration:none;font-family:${DISPLAY};font-size:20px;letter-spacing:1px;padding:16px 26px;border-radius:4px;text-transform:uppercase;\">Entrar no grupo do WhatsApp</a>\n  </td></tr>\n  ${blocoTreino}\n\n  <tr><td style=\"padding:8px 32px 28px;\">\n    <div style=\"font-family:${MONO};font-weight:bold;font-size:12px;letter-spacing:3px;color:${AZUL};margin-bottom:8px;\">COMO SERÁ O DIA 31</div>\n    <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">${agenda}\n    </table>\n  </td></tr>\n\n  <tr><td style=\"background:${TINTA};padding:28px 32px;\">\n    <div style=\"font-family:${DISPLAY};font-size:26px;line-height:1.1;color:${PAPEL};text-transform:uppercase;\">\"Ide por todo o mundo e pregai o evangelho <span style=\"color:#6e97ff;\">a toda criatura.\"</span></div>\n    <div style=\"font-family:${MONO};font-weight:bold;font-size:13px;color:#6e97ff;margin-top:10px;\">MARCOS 16:15</div>\n  </td></tr>\n\n  <tr><td style=\"padding:20px 32px 28px;font-family:${TEXTO};font-size:12px;line-height:1.6;color:${CINZA};\">\n    <strong style=\"color:${TINTA};\">Behold Movement</strong> · Contemple Cristo<br>\n    Você recebeu este e-mail porque se inscreveu em beholdmovement.com.br. Para sair da lista, responda este e-mail pedindo a remoção.\n  </td></tr>\n\n</table>\n</td></tr>\n</table>\n</body></html>`;\n\n// ---------- Pedido para a IA reescrever os textos (os de cima ficam de reserva)\nconst ESTILOS = [\n  'comece pela alegria de ter a pessoa no movimento',\n  'comece agradecendo a disposição de servir',\n  'comece falando do ministério em que a pessoa vai servir',\n  'comece com uma saudação curta e simples, e deixe o tom mais caloroso para o fim',\n  'comece com uma frase de encorajamento sobre servir a Cristo',\n  'comece pelo Dia 31 e pelo que ele significa',\n];\nconst SISTEMA = [\n  'Você escreve as mensagens de boas-vindas do Behold Movement, um movimento cristão de evangelismo, para quem acabou de se inscrever no site como voluntário. Escreva em português do Brasil.',\n  'Cada mensagem deve parecer escrita à mão por alguém da equipe para aquela pessoa. Varie a abertura, a ordem das informações e as palavras de uma inscrição para outra, sem frases feitas que se repetiriam em todas as mensagens.',\n  '',\n  'O que a equipe pediu:',\n  d.ia_instrucoes,\n  '',\n  'Regras que valem sempre:',\n  '- Use só as informações dos dados da inscrição. Não invente datas, horários, lugares, links, nomes ou versículos.',\n  '- No WhatsApp, o link do grupo aparece exatamente como foi fornecido, sozinho numa linha. Não coloque nenhum outro link.',\n  '- WhatsApp: de 350 a 900 caracteres, parágrafos curtos, no máximo dois emojis e *negrito* do WhatsApp (um asterisco de cada lado) em no máximo três expressões, uma delas o pedido para salvar o contato. Não assine com nome de pessoa.',\n  '- Sempre peça, em *negrito* e logo depois da saudação, que a pessoa salve nosso contato na agenda para receber as próximas informações, e peça que ela responda com um 👍 quando salvar. Isso é obrigatório: contato salvo evita que o WhatsApp trate a mensagem como spam.',\n  '- Diga que a pessoa vai servir no ministério, com o artigo dos dados (\"servir na Mídia\", \"servir no Evangelizando\"). Nunca escreva \"frente\" nem \"na frente de\": soa como se ela fosse liderar.',\n  '- Cite o primeiro nome e o ministério exatamente como estão nos dados. Cidade e igreja podem aparecer se soar natural; não é obrigatório.',\n  '- E-mail: o assunto tem até 70 caracteres e cita o primeiro nome. A abertura tem um ou dois parágrafos curtos, separados por uma linha em branco, sem saudação (o título do e-mail já cumprimenta a pessoa pelo nome) e sem links: logo abaixo dela o e-mail já traz o botão do grupo, o treinamento e a programação do Dia 31.',\n].join('\\n');\nconst dadosInscricao = [\n  'Dados da inscrição:',\n  `- Primeiro nome: ${d.primeiro_nome}`,\n  `- Ministério em que vai servir: ${d.ministerio} (escreva \"servir ${artigo} ${d.ministerio}\")`,\n  `- Cidade: ${d.cidade}/${d.uf}`,\n  `- Igreja onde congrega: ${d.igreja}`,\n  `- Link do grupo do WhatsApp: ${d.link_grupo}`,\n  `- Treinamento: ${d.treinamento_data\n    ? `${d.treinamento_data}, às ${d.treinamento_hora}, ${d.treinamento_local}`\n    : 'não há treinamento marcado; não mencione treinamento'}`,\n  '',\n  `Desta vez, ${ESTILOS[Math.floor(Math.random() * ESTILOS.length)]}.`,\n].join('\\n');\n\nconst ia_pedido = {\n  model: d.ia_modelo || 'gpt-4.1-mini',\n  messages: [\n    { role: 'system', content: SISTEMA },\n    { role: 'user', content: dadosInscricao },\n  ],\n  response_format: {\n    type: 'json_schema',\n    json_schema: {\n      name: 'mensagens_boas_vindas',\n      strict: true,\n      schema: {\n        type: 'object',\n        properties: {\n          whatsapp: { type: 'string', description: 'Mensagem de WhatsApp pronta para enviar.' },\n          email_assunto: { type: 'string', description: 'Assunto do e-mail.' },\n          email_abertura: { type: 'string', description: 'Um ou dois parágrafos que abrem o e-mail, separados por uma linha em branco.' },\n        },\n        required: ['whatsapp', 'email_assunto', 'email_abertura'],\n        additionalProperties: false,\n      },\n    },\n  },\n};\n\nreturn [{\n  json: {\n    ...d,\n    email_assunto: `Boas-vindas ao Behold Movement, ${d.primeiro_nome}!`,\n    email_abertura: `Sua inscrição no Behold Movement foi recebida. Você escolheu servir ${artigo} *${d.ministerio}*.\\n\\n`\n      + 'As notícias, os avisos e as orientações do movimento são compartilhados no grupo do WhatsApp. Entre agora para não perder nada.',\n    email_html: html,\n    whatsapp_texto: linhas.join('\\n'),\n    etiquetas: ['behold-movement', etiqueta],\n    ia_pedido,\n  },\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        860,
+        -20
+      ],
+      "id": "3b499f73-d24d-5979-8a77-e417afe448f2",
+      "name": "Montar mensagens"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "bfd6a48a-c151-5d6c-afb6-28f634abfc3c",
+              "leftValue": "={{ $json.ia_ativa === 'sim' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1080,
+        -20
+      ],
+      "id": "675b5820-9b96-54b9-958c-7b9191fc7728",
+      "name": "Escrever com IA?"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.ia_pedido) }}",
+        "options": {
+          "timeout": 45000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1300,
+        -120
+      ],
+      "id": "6b13546d-e173-5d17-b860-20f4f5121cab",
+      "name": "IA: escrever mensagens",
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "openAiApi": {
+          "id": "",
+          "name": "OpenAI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Usa os textos da IA quando passam nas conferências. Se a IA não respondeu ou o texto do WhatsApp\n// foi recusado, pede de novo (loop pelo nó \"Tentar a IA de novo?\") até ia_tentativas vezes; depois\n// disso, usa os textos fixos de \"Montar mensagens\".\nconst d = $('Montar mensagens').first().json;\nconst r = $input.first().json;\nconst tentativa = $runIndex + 1;            // este nó roda uma vez por tentativa\nconst maxTentativas = Math.max(1, Number(d.ia_tentativas) || 3);\n\nconst semAcento = (s) => String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();\nconst contem = (texto, trecho) => semAcento(texto).includes(semAcento(trecho));\nconst links = (s) => (String(s).match(/https?:\\/\\/\\S+/g) || []).map((l) => l.replace(/[.,;:!?)]+$/, ''));\n\n// 1. A resposta da IA\nlet ia = null;\nlet motivo = '';\nconst escolha = Array.isArray(r.choices) ? r.choices[0] : null;\nif (!escolha) {\n  motivo = r.error ? 'erro na IA: ' + String(r.error.message || r.error.description || r.error).slice(0, 100)\n    : d.ia_ativa === 'sim' ? 'resposta vazia da IA' : 'IA desligada';\n} else if (escolha.message && escolha.message.refusal) {\n  motivo = 'IA recusou';\n} else if (escolha.finish_reason !== 'stop') {\n  motivo = 'resposta incompleta (' + escolha.finish_reason + ')';\n} else {\n  try { ia = JSON.parse(escolha.message.content); } catch (e) { motivo = 'resposta fora do formato'; }\n}\n\n// 2. Conferências: o que precisa estar na mensagem e o que não pode aparecer\nconst problemasWhats = (t) => {\n  if (typeof t !== 'string' || !t.trim()) return ['vazia'];\n  const p = [];\n  if (t.length < 200 || t.length > 1200) p.push(`tamanho ${t.length}`);\n  if (!contem(t, d.primeiro_nome)) p.push('sem o nome');\n  if (!contem(t, d.ministerio)) p.push('sem o ministério');\n  if (/frente d[aeo]/.test(semAcento(t))) p.push('com \"frente de\"');\n  if (!contem(t, 'salv') || !/contato|numero|agenda/.test(semAcento(t))) p.push('sem o pedido para salvar o contato');\n  if (!contem(t, 'respond')) p.push('sem o pedido de resposta');\n  if (!t.includes(d.link_grupo)) p.push('sem o link do grupo');\n  if (links(t).some((l) => l !== d.link_grupo)) p.push('com outro link');\n  if (d.treinamento_data) {\n    const dia = (d.treinamento_data.match(/\\d{1,2}\\/\\d{1,2}/) || [])[0];\n    const hora = (String(d.treinamento_hora).match(/\\d{1,2}/) || [])[0];\n    if ((dia && !t.includes(dia)) || (hora && !t.includes(hora))) p.push('sem a data ou a hora do treinamento');\n  }\n  if (/[\\[\\]{}<>]/.test(t)) p.push('com marcação estranha');\n  return p;\n};\nconst problemasEmail = (assunto, abertura) => {\n  if (typeof assunto !== 'string' || typeof abertura !== 'string') return ['vazio'];\n  const p = [];\n  if (assunto.trim().length < 5 || assunto.length > 90 || /\\n/.test(assunto.trim())) p.push('assunto');\n  if (abertura.trim().length < 60 || abertura.length > 900) p.push(`abertura com ${abertura.length} caracteres`);\n  if (links(assunto + ' ' + abertura).length) p.push('com link');\n  if (/frente d[aeo]/.test(semAcento(assunto + ' ' + abertura))) p.push('com \"frente de\"');\n  if (/[\\[\\]{}<>]/.test(assunto + abertura)) p.push('com marcação estranha');\n  return p;\n};\n\nlet whatsapp = d.whatsapp_texto, assunto = d.email_assunto, abertura = d.email_abertura;\nlet origemWhats = 'modelo fixo: ' + motivo, origemEmail = origemWhats;\nif (ia) {\n  const w = String(ia.whatsapp ?? '').replace(/\\*\\*(.+?)\\*\\*/g, '*$1*').trim();\n  const pw = problemasWhats(w);\n  if (pw.length) origemWhats = 'modelo fixo: IA ' + pw.join(', ');\n  else { whatsapp = w; origemWhats = 'IA'; }\n\n  const pe = problemasEmail(ia.email_assunto, ia.email_abertura);\n  if (pe.length) origemEmail = 'modelo fixo: IA ' + pe.join(', ');\n  else { assunto = ia.email_assunto.trim(); abertura = ia.email_abertura.trim(); origemEmail = 'IA'; }\n}\n\n// 3. Parágrafos do e-mail (*texto* vira negrito)\nconst esc = (s) => String(s ?? '').replace(/[&<>\"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;' }[c]));\nconst P = 'margin:0 0 16px;font-family:Arial, Helvetica, sans-serif;font-size:16px;line-height:1.6;color:#16171c;';\nconst paragrafos = abertura.split(/\\n\\s*\\n/).filter((p) => p.trim())\n  .map((p) => `<p style=\"${P}\">${esc(p.trim()).replace(/\\*([^*\\n]+)\\*/g, '<strong>$1</strong>').replace(/\\n/g, '<br>')}</p>`)\n  .join('\\n    ');\n\n// 4. Tentar de novo? Só quando a IA está ligada, o WhatsApp não veio dela e ainda há tentativas.\nif (d.ia_ativa === 'sim' && origemWhats !== 'IA' && tentativa < maxTentativas) {\n  const recusa = origemWhats.replace(/^modelo fixo: (IA )?/, '');\n  const pedido = JSON.parse(JSON.stringify(d.ia_pedido));\n  if (ia) {   // a IA respondeu, mas o texto foi recusado: diz a ela o que faltou\n    pedido.messages[pedido.messages.length - 1].content +=\n      `\\n\\nA versão anterior foi recusada (${recusa}). Escreva de novo, seguindo todas as regras.`;\n  }\n  return [{ json: { ...d, ia_pedido: pedido, tentar_de_novo: true, tentativa, motivo_nova_tentativa: recusa } }];\n}\nif (d.ia_ativa === 'sim') {\n  origemWhats += origemWhats === 'IA' ? ` (tentativa ${tentativa})`\n    : ` (depois de ${tentativa} tentativa${tentativa > 1 ? 's' : ''})`;\n}\n\nconst { ia_pedido, ...resto } = d;\nreturn [{\n  json: {\n    ...resto,\n    tentar_de_novo: false,\n    whatsapp_texto: whatsapp,\n    email_assunto: assunto,\n    email_abertura: abertura,\n    email_html: d.email_html.replace('<!--ABERTURA-->', paragrafos),\n    origem_textos: { whatsapp: origemWhats, email: origemEmail },\n  },\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1520,
+        -20
+      ],
+      "id": "a4477ce0-1eac-5121-b0ff-5f1ce937c800",
+      "name": "Conferir texto da IA"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "8ad2b596-2ca4-5130-94bc-0a79aa624c34",
+              "leftValue": "={{ $json.tentar_de_novo === true }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1740,
+        -20
+      ],
+      "id": "3a65db7f-2fe2-55f3-881d-14eae33164ee",
+      "name": "Tentar a IA de novo?"
+    },
+    {
+      "parameters": {
+        "amount": 5,
+        "unit": "seconds"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1520,
+        -260
+      ],
+      "id": "56d9d5eb-22f4-5b9e-831c-e857718d80c5",
+      "name": "Aguardar nova tentativa",
+      "webhookId": "8f34f1b5-1745-55b4-8035-12b3077a26f2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "9ae8c5cd-985e-5d8e-8b29-5811981d79dc",
+              "leftValue": "={{ $json.email_ativo === 'sim' && !$json.email_ja_enviado }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1960,
+        -20
+      ],
+      "id": "41acc154-6d77-5d3c-ba8c-0b37b058b9cb",
+      "name": "Enviar e-mail?"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "={{ $json.email_assunto }}",
+        "emailType": "html",
+        "message": "={{ $json.email_html }}",
+        "options": {
+          "appendAttribution": false,
+          "senderName": "={{ $json.remetente_nome }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2180,
+        -120
+      ],
+      "id": "2720e861-39a5-52e2-8285-23705f81dbcd",
+      "name": "Enviar e-mail de boas-vindas",
+      "webhookId": "d563a974-b43a-5f78-82e7-4ca19b208533",
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "",
+          "name": "Gmail (conta do movimento)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": "={{ 15 + Math.floor(Math.random() * 45) }}",
+        "unit": "seconds"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2400,
+        -20
+      ],
+      "id": "56f361cc-263f-5f3d-90ee-1837b8104566",
+      "name": "Aguardar antes do WhatsApp",
+      "webhookId": "81db52b2-6eda-54a5-9e8f-771dd68bd247"
+    },
+    {
+      "parameters": {
+        "resource": "inbox",
+        "operation": "onWhatsapp",
+        "accountId": {
+          "__rl": true,
+          "value": "={{ $('Conferir texto da IA').first().json.chatwoot_account_id }}",
+          "mode": "id"
+        },
+        "whatsappSpecialInboxId": {
+          "__rl": true,
+          "value": "={{ $('Conferir texto da IA').first().json.chatwoot_inbox_id }}",
+          "mode": "id"
+        },
+        "phoneNumber": "={{ $('Conferir texto da IA').first().json.telefone_e164 }}"
+      },
+      "type": "@fazer-ai/n8n-nodes-chatwoot.chatwoot",
+      "typeVersion": 1,
+      "position": [
+        2620,
+        -20
+      ],
+      "id": "e3cb7933-9c1b-5a69-8938-a39e43458a8a",
+      "name": "WhatsApp: número existe?",
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "",
+          "name": "Chatwoot fazer.ai · Behold"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "7134c875-6cda-52ba-ab52-a883baa5bb78",
+              "leftValue": "={{ $json.exists === true }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2840,
+        -20
+      ],
+      "id": "f34241e1-7dfe-54fe-9bfb-9d5f48d6bf71",
+      "name": "Tem WhatsApp?"
+    },
+    {
+      "parameters": {
+        "resource": "contact",
+        "operation": "search",
+        "accountId": {
+          "__rl": true,
+          "value": "={{ $('Conferir texto da IA').first().json.chatwoot_account_id }}",
+          "mode": "id"
+        },
+        "searchQuery": "={{ $('Conferir texto da IA').first().json.telefone_e164.replace('+', '') }}"
+      },
+      "type": "@fazer-ai/n8n-nodes-chatwoot.chatwoot",
+      "typeVersion": 1,
+      "position": [
+        3060,
+        -20
+      ],
+      "id": "769a331c-05a6-5420-a666-66f777c04fb6",
+      "name": "Chatwoot: buscar contato",
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "",
+          "name": "Chatwoot fazer.ai · Behold"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Procura, no resultado da busca do Chatwoot, o contato com o mesmo telefone.\nconst m = $('Conferir texto da IA').first().json;\nconst r = $input.first().json;\nconst lista = Array.isArray(r.payload) ? r.payload : [];\nconst digitos = (s) => String(s || '').replace(/\\D/g, '');\nconst achado = lista.find((c) => digitos(c.phone_number) === digitos(m.telefone_e164));\nreturn [{ json: { contact_id: achado ? achado.id : null } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3280,
+        -20
+      ],
+      "id": "aa31e6fa-3093-54ee-8fa6-278e1e3e14a3",
+      "name": "Escolher contato"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "9a988ee7-820f-513c-a4d5-7cabd7046a33",
+              "leftValue": "={{ !!$json.contact_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        3500,
+        -20
+      ],
+      "id": "8633461e-1f03-5a8f-8fcd-24b17a5e930d",
+      "name": "Contato já existe?"
+    },
+    {
+      "parameters": {
+        "resource": "contact",
+        "operation": "listConversations",
+        "accountId": {
+          "__rl": true,
+          "value": "={{ $('Conferir texto da IA').first().json.chatwoot_account_id }}",
+          "mode": "id"
+        },
+        "contactId": {
+          "__rl": true,
+          "value": "={{ $json.contact_id }}",
+          "mode": "id"
+        }
+      },
+      "type": "@fazer-ai/n8n-nodes-chatwoot.chatwoot",
+      "typeVersion": 1,
+      "position": [
+        3720,
+        -120
+      ],
+      "id": "727b7db9-beb7-5ac1-92ec-836a622bf49c",
+      "name": "Chatwoot: conversas do contato",
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "",
+          "name": "Chatwoot fazer.ai · Behold"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Reaproveita a conversa ainda aberta do contato na caixa do Behold; sem ela, o fluxo cria uma nova.\nconst m = $('Conferir texto da IA').first().json;\nconst contato = $('Escolher contato').first().json;\n// O nó anterior devolve um item por conversa (ou um item vazio, se não houver nenhuma).\nconst lista = $input.all().map((i) => i.json).filter((c) => c && c.id);\nconst aberta = lista\n  .filter((c) => String(c.inbox_id) === String(m.chatwoot_inbox_id) && c.status !== 'resolved')\n  .sort((a, b) => (b.last_activity_at || 0) - (a.last_activity_at || 0))[0];\nreturn [{ json: { contact_id: contato.contact_id, id: aberta ? aberta.id : null } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3940,
+        -120
+      ],
+      "id": "0527aebb-6056-590a-9f25-dec87b465722",
+      "name": "Escolher conversa"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "73e6eb53-f4bc-5397-a870-a802713e1c2d",
+              "leftValue": "={{ !!$json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        4160,
+        -120
+      ],
+      "id": "c3ebb9aa-e797-59db-ad02-b5f59b593265",
+      "name": "Conversa aberta?"
+    },
+    {
+      "parameters": {
+        "resource": "contact",
+        "operation": "create",
+        "accountId": {
+          "__rl": true,
+          "value": "={{ $('Conferir texto da IA').first().json.chatwoot_account_id }}",
+          "mode": "id"
+        },
+        "name": "={{ $('Conferir texto da IA').first().json.nome_completo }}",
+        "phoneNumber": "={{ $('Conferir texto da IA').first().json.telefone_e164 }}",
+        "additionalFields": {
+          "city": "={{ $('Conferir texto da IA').first().json.cidade }}",
+          "country": "Brasil",
+          "country_code": "BR",
+          "description": "Inscrição Behold Movement · Dia 31"
+        },
+        "specifyCustomAttributesCreate": "json",
+        "customAttributesJsonCreate": "={{ JSON.stringify({ igreja: $('Conferir texto da IA').first().json.igreja, ministerio: $('Conferir texto da IA').first().json.ministerio, bairro: $('Conferir texto da IA').first().json.bairro, cidade: $('Conferir texto da IA').first().json.cidade, uf: $('Conferir texto da IA').first().json.uf, email_inscricao: $('Conferir texto da IA').first().json.email }) }}"
+      },
+      "type": "@fazer-ai/n8n-nodes-chatwoot.chatwoot",
+      "typeVersion": 1,
+      "position": [
+        3720,
+        140
+      ],
+      "id": "47975327-b42b-5a63-be07-a0580581265b",
+      "name": "Chatwoot: criar contato",
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "",
+          "name": "Chatwoot fazer.ai · Behold"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "conversation",
+        "operation": "create",
+        "accountId": {
+          "__rl": true,
+          "value": "={{ $('Conferir texto da IA').first().json.chatwoot_account_id }}",
+          "mode": "id"
+        },
+        "inboxId": {
+          "__rl": true,
+          "value": "={{ $('Conferir texto da IA').first().json.chatwoot_inbox_id }}",
+          "mode": "id"
+        },
+        "contactId": {
+          "__rl": true,
+          "value": "={{ $json.contact_id ?? $json.payload?.contact?.id ?? $json.id }}",
+          "mode": "id"
+        }
+      },
+      "type": "@fazer-ai/n8n-nodes-chatwoot.chatwoot",
+      "typeVersion": 1,
+      "position": [
+        4380,
+        140
+      ],
+      "id": "6882c0cc-fb4e-5176-9def-8794b519d95a",
+      "name": "Chatwoot: criar conversa",
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "",
+          "name": "Chatwoot fazer.ai · Behold"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "conversation",
+        "operation": "sendMessage",
+        "accountId": {
+          "__rl": true,
+          "value": "={{ $('Conferir texto da IA').first().json.chatwoot_account_id }}",
+          "mode": "id"
+        },
+        "inboxId": {
+          "__rl": true,
+          "value": "={{ $('Conferir texto da IA').first().json.chatwoot_inbox_id }}",
+          "mode": "id"
+        },
+        "conversationId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "content": "={{ $('Conferir texto da IA').first().json.whatsapp_texto }}",
+        "additionalFields": {
+          "wait_before_sending": "dynamic",
+          "typing_while_waiting": true
+        }
+      },
+      "type": "@fazer-ai/n8n-nodes-chatwoot.chatwoot",
+      "typeVersion": 1,
+      "position": [
+        4600,
+        -20
+      ],
+      "id": "7792d811-74c9-55ea-b494-9aeda6acc25a",
+      "name": "Chatwoot: enviar mensagem",
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "",
+          "name": "Chatwoot fazer.ai · Behold"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "conversation",
+        "operation": "addLabels",
+        "accountId": {
+          "__rl": true,
+          "value": "={{ $('Conferir texto da IA').first().json.chatwoot_account_id }}",
+          "mode": "id"
+        },
+        "inboxId": {
+          "__rl": true,
+          "value": "={{ $('Conferir texto da IA').first().json.chatwoot_inbox_id }}",
+          "mode": "id"
+        },
+        "conversationId": {
+          "__rl": true,
+          "value": "={{ $json.conversation_id }}",
+          "mode": "id"
+        },
+        "labels": "={{ $('Conferir texto da IA').first().json.etiquetas }}"
+      },
+      "type": "@fazer-ai/n8n-nodes-chatwoot.chatwoot",
+      "typeVersion": 1,
+      "position": [
+        4820,
+        -20
+      ],
+      "id": "22ddb1f7-0510-50d5-b5b9-7826e7ce21be",
+      "name": "Chatwoot: etiquetas",
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "",
+          "name": "Chatwoot fazer.ai · Behold"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Resume o que deu certo e o que falhou, para gravar na planilha.\nconst d = $('Conferir texto da IA').first().json;\n\n// Saída de um nó, ou null se ele não rodou nesta inscrição.\nconst saida = (nome) => {\n  try { return $(nome).first().json; } catch (e) { return null; }\n};\nconst motivo = (o) => {\n  const e = o && o.error;\n  if (!e) return 'sem resposta';\n  return String(e.message || e.description || e).slice(0, 120);\n};\n\nlet statusEmail = 'desligado';\nif (d.email_ja_enviado) {\n  statusEmail = 'enviado';   // reenvio: o e-mail já tinha ido\n} else if (d.email_ativo === 'sim') {\n  const email = saida('Enviar e-mail de boas-vindas');\n  statusEmail = email && !email.error && email.id ? 'enviado' : 'erro: ' + motivo(email);\n}\n\nconst ETAPAS = [\n  ['WhatsApp: número existe?', 'consulta do número'],\n  ['Chatwoot: buscar contato', 'busca do contato'],\n  ['Chatwoot: criar contato', 'criação do contato'],\n  ['Chatwoot: conversas do contato', 'busca da conversa'],\n  ['Chatwoot: criar conversa', 'criação da conversa'],\n  ['Chatwoot: enviar mensagem', 'envio'],\n];\nconst consulta = saida('WhatsApp: número existe?');\nconst msg = saida('Chatwoot: enviar mensagem');\nlet statusWhats, conversaId = null;\nif (consulta && consulta.exists === false) {\n  statusWhats = 'sem WhatsApp';\n} else if (msg && !msg.error && msg.id) {\n  statusWhats = 'enviado';\n  conversaId = msg.conversation_id;\n} else {\n  const falha = ETAPAS.map(([nome, etapa]) => [saida(nome), etapa]).find(([o]) => o && o.error);\n  statusWhats = falha ? `erro (${falha[1]}): ${motivo(falha[0])}` : 'erro: ' + motivo(msg);\n}\n\nreturn [{\n  json: {\n    telefone_e164: d.telefone_e164,\n    status_email: statusEmail,\n    status_whatsapp: statusWhats,\n    conversa_url: conversaId\n      ? `${d.chatwoot_url}/app/accounts/${d.chatwoot_account_id}/conversations/${conversaId}`\n      : '',\n  },\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5040,
+        -20
+      ],
+      "id": "2fe17c49-d89d-5ee7-beed-f37f51bcbf83",
+      "name": "Resumir status"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1q1x8UUi4KOTB6ES8HToqCWhA9uCCkvchnFlU1ZWn8jE",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Inscrições",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Telefone": "={{ $json.telefone_e164 }}",
+            "Status e-mail": "={{ $json.status_email }}",
+            "Status WhatsApp": "={{ $json.status_whatsapp }}",
+            "Conversa Chatwoot": "={{ $json.conversa_url }}"
+          },
+          "matchingColumns": [
+            "Telefone"
+          ],
+          "schema": [
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Data/hora",
+              "displayName": "Data/hora",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Nome",
+              "displayName": "Nome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Sobrenome",
+              "displayName": "Sobrenome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Telefone",
+              "displayName": "Telefone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "E-mail",
+              "displayName": "E-mail",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "CEP",
+              "displayName": "CEP",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Endereço",
+              "displayName": "Endereço",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Bairro",
+              "displayName": "Bairro",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Cidade",
+              "displayName": "Cidade",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Igreja",
+              "displayName": "Igreja",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Ministério",
+              "displayName": "Ministério",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Consentimento",
+              "displayName": "Consentimento",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status e-mail",
+              "displayName": "Status e-mail",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Status WhatsApp",
+              "displayName": "Status WhatsApp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Conversa Chatwoot",
+              "displayName": "Conversa Chatwoot",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Observações",
+              "displayName": "Observações",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ]
+        },
+        "options": {
+          "cellFormat": "RAW"
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        5260,
+        -20
+      ],
+      "id": "6f8821eb-e641-5362-8cd6-333657d03631",
+      "name": "Atualizar status na planilha",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets (conta do movimento)"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Dados da inscrição": {
+      "main": [
+        [
+          {
+            "node": "Configurações",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configurações": {
+      "main": [
+        [
+          {
+            "node": "Montar mensagens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Montar mensagens": {
+      "main": [
+        [
+          {
+            "node": "Escrever com IA?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Escrever com IA?": {
+      "main": [
+        [
+          {
+            "node": "IA: escrever mensagens",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Conferir texto da IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IA: escrever mensagens": {
+      "main": [
+        [
+          {
+            "node": "Conferir texto da IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Conferir texto da IA": {
+      "main": [
+        [
+          {
+            "node": "Tentar a IA de novo?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tentar a IA de novo?": {
+      "main": [
+        [
+          {
+            "node": "Aguardar nova tentativa",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Enviar e-mail?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aguardar nova tentativa": {
+      "main": [
+        [
+          {
+            "node": "IA: escrever mensagens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar e-mail?": {
+      "main": [
+        [
+          {
+            "node": "Enviar e-mail de boas-vindas",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Aguardar antes do WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar e-mail de boas-vindas": {
+      "main": [
+        [
+          {
+            "node": "Aguardar antes do WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aguardar antes do WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "WhatsApp: número existe?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp: número existe?": {
+      "main": [
+        [
+          {
+            "node": "Tem WhatsApp?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tem WhatsApp?": {
+      "main": [
+        [
+          {
+            "node": "Chatwoot: buscar contato",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resumir status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chatwoot: buscar contato": {
+      "main": [
+        [
+          {
+            "node": "Escolher contato",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Escolher contato": {
+      "main": [
+        [
+          {
+            "node": "Contato já existe?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contato já existe?": {
+      "main": [
+        [
+          {
+            "node": "Chatwoot: conversas do contato",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Chatwoot: criar contato",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chatwoot: conversas do contato": {
+      "main": [
+        [
+          {
+            "node": "Escolher conversa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Escolher conversa": {
+      "main": [
+        [
+          {
+            "node": "Conversa aberta?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Conversa aberta?": {
+      "main": [
+        [
+          {
+            "node": "Chatwoot: enviar mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Chatwoot: criar conversa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chatwoot: criar contato": {
+      "main": [
+        [
+          {
+            "node": "Chatwoot: criar conversa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chatwoot: criar conversa": {
+      "main": [
+        [
+          {
+            "node": "Chatwoot: enviar mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chatwoot: enviar mensagem": {
+      "main": [
+        [
+          {
+            "node": "Chatwoot: etiquetas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chatwoot: etiquetas": {
+      "main": [
+        [
+          {
+            "node": "Resumir status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resumir status": {
+      "main": [
+        [
+          {
+            "node": "Atualizar status na planilha",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo"
+  },
+  "active": false,
+  "pinData": {}
+}

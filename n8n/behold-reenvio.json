@@ -1,0 +1,369 @@
+{
+  "name": "Behold Movement · Reenvio das boas-vindas",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Reenvio das boas-vindas\nRoda às 8h, 12h, 16h e 20h. Se o WhatsApp da caixa Behold estiver conectado, chama o subfluxo **Boas-vindas** para quem está com *erro* no Status WhatsApp (inscritos nos últimos `dias_para_tentar` dias). Deu certo: a planilha passa a *enviado*. Não deu: o erro fica, e a próxima rodada tenta de novo.\n\nSe o WhatsApp estiver desconectado, não tenta ninguém e avisa os números de `whatsapp_alerta` pelo WhatsApp de outra caixa do Chatwoot (`chatwoot_inbox_aviso`), no máximo uma vez por dia. Sem essa caixa ou sem números, não avisa.",
+        "height": 300,
+        "width": 460,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -460,
+        -420
+      ],
+      "id": "6259638a-4b03-5f8b-8b4d-fe178c344cde",
+      "name": "Como configurar"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8,12,16,20 * * *"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -460,
+        0
+      ],
+      "id": "d7f8b5da-55c5-5452-b368-23ddf62eb338",
+      "name": "4 vezes ao dia"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8fb68aa8-36a4-528e-812f-d751cfc2ec30",
+              "name": "chatwoot_account_id",
+              "value": "1",
+              "type": "string"
+            },
+            {
+              "id": "d66c7724-6e8d-55ee-84d3-7e3af6f086d3",
+              "name": "chatwoot_inbox_id",
+              "value": "7",
+              "type": "string"
+            },
+            {
+              "id": "98163643-8304-5c09-897b-04b8dbc8efa0",
+              "name": "dias_para_tentar",
+              "value": "14",
+              "type": "string"
+            },
+            {
+              "id": "bf17ea9a-810c-5208-aab6-202df2cea324",
+              "name": "chatwoot_inbox_aviso",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "58dfd3be-c79c-5d11-93d7-ad698ded841d",
+              "name": "whatsapp_alerta",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -240,
+        0
+      ],
+      "id": "448f2776-00b6-56e8-9cc6-5d8ccca7f0bd",
+      "name": "Configurações do reenvio"
+    },
+    {
+      "parameters": {
+        "resource": "inbox",
+        "operation": "get",
+        "accountId": {
+          "__rl": true,
+          "value": "={{ $('Configurações do reenvio').first().json.chatwoot_account_id }}",
+          "mode": "id"
+        },
+        "inboxId": {
+          "__rl": true,
+          "value": "={{ $('Configurações do reenvio').first().json.chatwoot_inbox_id }}",
+          "mode": "id"
+        }
+      },
+      "type": "@fazer-ai/n8n-nodes-chatwoot.chatwoot",
+      "typeVersion": 1,
+      "position": [
+        -20,
+        0
+      ],
+      "id": "0928d5ec-0126-570f-9847-33597685f397",
+      "name": "Chatwoot: caixa do WhatsApp",
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "",
+          "name": "Chatwoot fazer.ai · Behold"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "e6aa03c7-71ad-536a-b684-980286234ba0",
+              "leftValue": "={{ $json.provider_connection?.connection === 'open' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        200,
+        0
+      ],
+      "id": "f7833dd1-98e5-5181-839e-212af226187a",
+      "name": "WhatsApp conectado?"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1q1x8UUi4KOTB6ES8HToqCWhA9uCCkvchnFlU1ZWn8jE",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Inscrições",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        420,
+        -20
+      ],
+      "id": "3af827bb-74a5-5646-a745-cc4adb619324",
+      "name": "Ler planilha",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets (conta do movimento)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Quem vai para nova tentativa: Status WhatsApp com \"erro\" (ou parado em \"pendente\" há mais de\n// 2 horas), inscrito nos últimos dias_para_tentar dias. \"sem WhatsApp\" e \"enviado\" ficam de fora.\nconst cfg = $('Configurações do reenvio').first().json;\nconst dias = Math.max(1, Number(cfg.dias_para_tentar) || 14);\nconst agora = DateTime.now().setZone('America/Sao_Paulo');\nconst limpa = (v) => String(v ?? '').trim();\n\nconst fila = [];\nconst vistos = new Set();\nfor (const { json: l } of $input.all()) {\n  const status = limpa(l['Status WhatsApp']).toLowerCase();\n  const quando = DateTime.fromFormat(limpa(l['Data/hora']), 'yyyy-MM-dd HH:mm:ss', { zone: 'America/Sao_Paulo' });\n  if (!quando.isValid || agora.diff(quando, 'days').days > dias) continue;\n  const parado = status === 'pendente' && agora.diff(quando, 'hours').hours >= 2;\n  if (!status.startsWith('erro') && !parado) continue;\n  const telefone = limpa(l['Telefone']);\n  if (!/^\\+55\\d{10,11}$/.test(telefone) || vistos.has(telefone)) continue;\n  vistos.add(telefone);\n\n  const nome = limpa(l['Nome']);\n  const sobrenome = limpa(l['Sobrenome']);\n  fila.push({\n    json: {\n      id: limpa(l['ID']),\n      data_hora: limpa(l['Data/hora']),\n      nome,\n      sobrenome,\n      primeiro_nome: nome.split(' ')[0] || '',\n      nome_completo: sobrenome && !(' ' + nome).toLowerCase().endsWith(' ' + sobrenome.toLowerCase())\n        ? `${nome} ${sobrenome}` : nome,\n      telefone_e164: telefone,\n      email: limpa(l['E-mail']).toLowerCase(),\n      bairro: limpa(l['Bairro']),\n      cidade: limpa(l['Cidade']),\n      uf: limpa(l['Estado']),\n      igreja: limpa(l['Igreja']),\n      ministerio: limpa(l['Ministério']),\n      email_ja_enviado: limpa(l['Status e-mail']) === 'enviado',\n      status_anterior: limpa(l['Status WhatsApp']),\n    },\n  });\n}\nreturn fila;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        640,
+        -20
+      ],
+      "id": "9910e733-cc4b-573a-8534-c14d0086c797",
+      "name": "Quem precisa de reenvio"
+    },
+    {
+      "parameters": {
+        "mode": "each",
+        "workflowId": {
+          "__rl": true,
+          "value": "OJAVeOzqoS78Xqd2",
+          "mode": "id",
+          "cachedResultName": "Behold Movement · Boas-vindas"
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        860,
+        -20
+      ],
+      "id": "136b97a5-9bac-5cd7-b72c-576bf45a829e",
+      "name": "Enviar boas-vindas de novo",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Quantas mensagens saíram nesta rodada (o subfluxo já gravou cada status na planilha).\nconst fila = $('Quem precisa de reenvio').all().map((i) => i.json);\nconst resultados = $input.all().map((i) => i.json);\nconst enviados = resultados.filter((r) => r['Status WhatsApp'] === 'enviado').length;\nreturn [{\n  json: {\n    tentativas: fila.length,\n    enviados,\n    continuam_com_erro: fila.length - enviados,\n    pessoas: fila.map((p, i) => `${p.nome_completo}: ${(resultados[i] || {})['Status WhatsApp'] || 'sem resposta'}`),\n  },\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1080,
+        -20
+      ],
+      "id": "e02377dc-9284-5656-979d-8ccc3b8281e8",
+      "name": "Resumo do reenvio"
+    },
+    {
+      "parameters": {
+        "jsCode": "// WhatsApp da caixa Behold desconectado (ou Chatwoot fora do ar): avisa a equipe pelo WhatsApp de\n// OUTRA caixa (chatwoot_inbox_aviso), no máximo uma vez por dia. Sem essa caixa ou sem números, não avisa.\nconst cfg = $('Configurações do reenvio').first().json;\nconst numeros = String(cfg.whatsapp_alerta || '').split(/[,;]+/).map((t) => t.replace(/\\D/g, '')).filter((t) => t.length >= 10);\nif (!numeros.length || !String(cfg.chatwoot_inbox_aviso || '').trim()) return [];\n\nconst memoria = $getWorkflowStaticData('global');\nconst hoje = DateTime.now().setZone('America/Sao_Paulo').toFormat('yyyy-MM-dd');\nif (memoria.ultimo_aviso === hoje) return [];\nmemoria.ultimo_aviso = hoje;\n\nconst r = $input.first().json;\nconst estado = r.error ? 'o Chatwoot não respondeu' : `a conexão está \"${(r.provider_connection || {}).connection || 'desconhecida'}\"`;\nconst texto = `⚠️ *Behold Movement*: o WhatsApp da caixa Behold está desconectado (${estado}).\\n\\n`\n  + 'Para reconectar: no Chatwoot, *Configurações > Caixas de entrada > Behold*, gere o QR Code e leia com o WhatsApp '\n  + 'do número do Behold (*Aparelhos conectados > Conectar um aparelho*).\\n\\n'\n  + 'Quem ficou sem a mensagem de boas-vindas continua marcado com erro na planilha e recebe na próxima rodada depois que o WhatsApp voltar.';\nreturn numeros.map((n) => ({\n  json: {\n    telefone_e164: '+' + (n.length <= 11 ? '55' + n : n),\n    nome: 'Equipe Behold',\n    texto,\n    chatwoot_account_id: cfg.chatwoot_account_id,\n    chatwoot_inbox_id: String(cfg.chatwoot_inbox_aviso).trim(),\n  },\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        420,
+        200
+      ],
+      "id": "eb32667a-5651-53d6-a97b-a3ba031197e3",
+      "name": "Avisar: WhatsApp desconectado"
+    },
+    {
+      "parameters": {
+        "mode": "each",
+        "workflowId": {
+          "__rl": true,
+          "value": "KXdsDekp2N0pY0Rc",
+          "mode": "id",
+          "cachedResultName": "Behold Movement · WhatsApp para a equipe"
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        640,
+        200
+      ],
+      "id": "214daac4-5d8b-54cd-8a77-632f7c77d246",
+      "name": "Enviar aviso",
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {
+    "4 vezes ao dia": {
+      "main": [
+        [
+          {
+            "node": "Configurações do reenvio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configurações do reenvio": {
+      "main": [
+        [
+          {
+            "node": "Chatwoot: caixa do WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chatwoot: caixa do WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "WhatsApp conectado?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp conectado?": {
+      "main": [
+        [
+          {
+            "node": "Ler planilha",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Avisar: WhatsApp desconectado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ler planilha": {
+      "main": [
+        [
+          {
+            "node": "Quem precisa de reenvio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Quem precisa de reenvio": {
+      "main": [
+        [
+          {
+            "node": "Enviar boas-vindas de novo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar boas-vindas de novo": {
+      "main": [
+        [
+          {
+            "node": "Resumo do reenvio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Avisar: WhatsApp desconectado": {
+      "main": [
+        [
+          {
+            "node": "Enviar aviso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo"
+  },
+  "active": false,
+  "pinData": {}
+}
